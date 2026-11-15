@@ -12,6 +12,7 @@
  * @author Vincent Thibault
  */
 
+import { syncToolbarNotices } from 'UI/ToolbarNotifications.js';
 import DB from 'DB/DBManager.js';
 import Configs from 'Core/Configs.js';
 import PACKETVER from 'Network/PacketVerManager.js';
@@ -38,6 +39,8 @@ import SkillList from 'UI/Components/SkillList/SkillList.js';
 import Quest from 'UI/Components/Quest/Quest.js';
 import Achievement from 'UI/Components/Achievement/Achievement.js';
 import Reputation from 'UI/Components/Reputation/Reputation.js';
+import AutoLoot from 'UI/Components/AutoLoot/AutoLoot.js';
+import AutoCombat from 'UI/Components/AutoCombat/AutoCombat.js';
 
 export function createBasicInfo(config) {
 	const {
@@ -144,6 +147,12 @@ export function createBasicInfo(config) {
 					CheckAttendance.toggle();
 				}
 				break;
+			case 'autocombat':
+				AutoCombat.toggle();
+				break;
+			case 'autoloot':
+				AutoLoot.toggle();
+				break;
 			case 'achievment':
 				if (Configs.get('enableAchievements') && PACKETVER.value >= 20150513) {
 					Achievement.toggle();
@@ -218,6 +227,14 @@ export function createBasicInfo(config) {
 				const key = buttonKeyBy === 'id' ? el.id : el.className.split(' ')[0];
 				dispatchButton(key);
 			});
+			if ((el.id === 'autoloot' || el.id === 'autocombat') && el.tagName !== 'BUTTON') {
+				el.addEventListener('keydown', event => {
+					if (event.key === 'Enter' || event.key === ' ') {
+						event.preventDefault();
+						dispatchButton(el.id);
+					}
+				});
+			}
 		});
 
 		this.draggable();
@@ -229,7 +246,9 @@ export function createBasicInfo(config) {
 	 */
 	Component.onAppend = function onAppend() {
 		const root = this.getRoot();
+		syncToolbarNotices(root);
 		const hostRect = this._host.getBoundingClientRect();
+		root.querySelector('.status-dot')?.classList.toggle('visible', (Session.availableStatusPoints || 0) > 0);
 
 		this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - hostRect.height)}px`;
 		this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - hostRect.width)}px`;

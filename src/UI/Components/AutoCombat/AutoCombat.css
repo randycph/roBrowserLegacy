@@ -1,0 +1,21 @@
+:host { width: 300px; }
+#AutoCombat { width: 300px; box-sizing: border-box; color: #111; background: #fff; border: 1px solid #a6a6a6; font: 12px Arial, sans-serif; }
+.titlebar { height: 17px; background-color: white; background-repeat: repeat-x; cursor: move; padding-left: 8px; line-height: 17px; }
+.titlebar .close { float: right; width: 11px; height: 11px; border: 0; margin: 3px; background-color: transparent; padding: 0; }
+.content { padding: 10px; display: grid; gap: 8px; }
+.content > label { font-weight: bold; display: flex; align-items: center; gap: 5px; }
+.status { margin: 0; color: #365b90; font-weight: bold; }
+.options { display: grid; gap: 5px; padding-left: 20px; }
+.options[hidden] { display: none; }
+.options label { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.options select { max-width: 190px; }
+.content { max-height: min(65vh, 440px); overflow-y: auto; }
+.content > label input.radius { width: 45px; }
+.content > small { color: #586777; }
+.monster-list { min-width: 180px; }
+.options input[type=number] { width: 45px; }
+.options small { color: #586777; }
+.footer { display: flex; justify-content: flex-end; gap: 6px; padding: 6px; background: repeating-linear-gradient(to bottom,#f1f1f1 0 2px,#fff 2px 4px); border-top: 1px solid #ccc; }
+.footer button { min-width: 65px; }
+
+.footer button:disabled { opacity: .45; cursor: default; }

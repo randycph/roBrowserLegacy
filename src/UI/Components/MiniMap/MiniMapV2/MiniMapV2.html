@@ -1,39 +1,12 @@
 <div id="MiniMapV2" class="MiniMapUI">
-	<canvas width="128" height="128"></canvas>
-	<div class="info_container">
-		<ui-button
-			class="object"
-			bg="minimap/i_object_1.bmp"
-			hover="minimap/i_object_2.bmp"
-			down="minimap/i_object_3.bmp"
-		></ui-button>
-		<div class="coordinates">
-			<span class="coord x">0</span>
-			<span class="coord y">0</span>
-		</div>
-		<ui-button
-			class="plus"
-			bg="minimap/i_plus_1.bmp"
-			hover="minimap/i_plus_2.bmp"
-			down="minimap/i_plus_3.bmp"
-		></ui-button>
-		<ui-button
-			class="minus"
-			bg="minimap/i_minus_1.bmp"
-			hover="minimap/i_minus_2.bmp"
-			down="minimap/i_minus_3.bmp"
-		></ui-button>
-		<ui-button
-			class="mini"
-			bg="minimap/i_mini_1.bmp"
-			hover="minimap/i_mini_2.bmp"
-			down="minimap/i_mini_3.bmp"
-		></ui-button>
-		<ui-button
-			class="viewon"
-			bg="minimap/i_viewon_1.bmp"
-			hover="minimap/i_viewon_2.bmp"
-			down="minimap/i_viewon_3.bmp"
-		></ui-button>
+	<div class="map-title" title="Current location">Map</div>
+	<div class="map-frame"><canvas width="128" height="128" aria-label="Minimap"></canvas></div>
+	<div class="map-controls">
+		<button type="button" class="plus" title="Zoom in" aria-label="Zoom in"><span aria-hidden="true">+</span></button>
+		<button type="button" class="minus" title="Zoom out" aria-label="Zoom out"><span aria-hidden="true">−</span></button>
+		<button type="button" class="mini" title="Collapse minimap" aria-label="Collapse minimap" aria-expanded="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg></button>
+		<button type="button" class="object" title="Toggle town markers" aria-label="Toggle town markers" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-6 6-11a6 6 0 1 0-12 0c0 5 6 11 6 11Z"/><circle cx="12" cy="10" r="2"/></svg></button>
+		<button type="button" class="viewon" title="Open world map" aria-label="Open world map"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c-4 4-4 12 0 16M12 4c4 4 4 12 0 16"/></svg></button>
 	</div>
+	<div class="coordinates" title="Your current coordinates">X: <span class="coord x">0</span> &nbsp; Y: <span class="coord y">0</span></div>
 </div>

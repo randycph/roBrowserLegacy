@@ -58,6 +58,7 @@
 
 #CheckAttendance .titlebar .left-panel .days-list .attendance-item {
 	float: left;
+	position: relative;
 	width: 58px;
 	height: 60px;
 	margin: 2px;
@@ -108,8 +109,7 @@
 }
 
 #CheckAttendance .titlebar .left-panel .days-list .attendance-item .checked,
-#CheckAttendance .titlebar .left-panel .days-list .attendance-item .checked-hidden,
-#CheckAttendance .titlebar .left-panel .days-list .attendance-item .completed {
+#CheckAttendance .titlebar .left-panel .days-list .attendance-item .checked-hidden {
 	position: absolute;
 	width: 58px;
 	height: 60px;
@@ -166,7 +166,7 @@
 
 #CheckAttendance .titlebar .right-panel .remaining-days .remaining-text {
 	height: 100%;
-	width: 35px;
+	width: 60px;
 	float: left;
 	position: relative;
 	font-weight: bolder;
@@ -176,6 +176,7 @@
 	position: absolute;
 	left: 3px;
 	bottom: 20px;
+	font-size: 12px;
 }
 
 #CheckAttendance .titlebar .bottom-panel {

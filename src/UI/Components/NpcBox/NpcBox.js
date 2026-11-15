@@ -15,7 +15,7 @@ import GUIComponent from 'UI/GUIComponent.js';
 import 'UI/Elements/Elements.js';
 import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import Navigation from 'UI/Components/Navigation/Navigation.js';
-import htmlText from './NpcBox.html?raw';
+import htmlText from './NpcBox.html?raw&v=english1';
 import cssText from './NpcBox.css?raw';
 import NpcMenu from 'UI/Components/NpcMenu/NpcMenu.js';
 import InputBox from 'UI/Components/InputBox/InputBox.js';

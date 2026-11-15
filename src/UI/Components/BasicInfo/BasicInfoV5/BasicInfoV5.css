@@ -193,8 +193,8 @@
 	left: 0px;
 	top: 9px;
 	width: 220px;
-	height: 132px;
-	background-repeat: no-repeat;
+	height: 176px;
+	background-repeat: repeat-y;
 	background-position: bottom; /* alinha o fundo pela base */
 }
 #BasicInfoV5 .bt_menu {
@@ -212,6 +212,8 @@
 	border: none;
 	margin: 6px;
 }
+#BasicInfoV5 .buttons #autoloot svg { display: block; width: 32px; height: 32px; image-rendering: pixelated; }
+#BasicInfoV5 .buttons #autoloot:active svg { transform: translateY(1px); }
 #BasicInfoV5 .buttons .clear {
 	clear: both;
 }
@@ -310,3 +312,17 @@
 	z-index: 10;
 	display: none;
 }
+
+#BasicInfoV5 .buttons .feature-icon { display: block; width: 32px; height: 32px; }
+#BasicInfoV5 .buttons > *:has(.feature-icon):active .feature-icon { transform: translateY(1px); }
+
+#BasicInfoV5 .buttons > *:has(.feature-icon) { padding: 0; cursor: pointer; }
+
+#BasicInfoV5 .buttons #item, #BasicInfoV5 .buttons #info { position: relative; }
+#BasicInfoV5 .buttons #item .btn_overlay, #BasicInfoV5 .buttons #info .status-dot { position: absolute; top: 0; right: 0; left: auto; width: 8px; height: 8px; box-sizing: border-box; background: #ef7189; border: 1px solid white; border-radius: 50%; z-index: 10; pointer-events: none; display: none; }
+#BasicInfoV5 .buttons #item:active .btn_overlay { top: 0; }
+#BasicInfoV5 .buttons #info .status-dot.visible { display: block; }
+
+#BasicInfoV5 .buttons #skill, #BasicInfoV5 .buttons #attendance, #BasicInfoV5 .buttons #mail { position: relative; }
+#BasicInfoV5 .buttons .notice-dot { position: absolute; top: 0; right: 0; width: 8px; height: 8px; box-sizing: border-box; background: #ef7189; border: 1px solid white; border-radius: 50%; z-index: 10; pointer-events: none; display: none; }
+#BasicInfoV5 .buttons .notice-dot.visible { display: block; }

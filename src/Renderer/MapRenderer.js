@@ -254,6 +254,8 @@ class MapRenderer {
 
 			Renderer.render(MapRenderer.onRender);
 			Mouse.intersect = true;
+		}, () => {
+			if (loadId === MapRenderer._loadId) MapRenderer.onVisible();
 		});
 	}
 
@@ -433,6 +435,7 @@ class MapRenderer {
 	 * Callback to execute once the map is loaded
 	 */
 	static onLoad() {}
+	static onVisible() {}
 }
 
 /**
@@ -665,7 +668,10 @@ function onMapComplete(success, error) {
 			const mapname = _nextMap;
 			_nextMap = null;
 			MapRenderer.setMap(mapname);
+			return;
 		}
+	}, () => {
+		if (loadId === MapRenderer._loadId) MapRenderer.onVisible();
 	});
 }
 

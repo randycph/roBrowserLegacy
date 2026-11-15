@@ -66,6 +66,10 @@ const TKM_ICON_OVERRIDE = {
 /**
  * Start rendering icons
  */
+StatusIcons.hasStatus = function hasStatus(index) {
+	return Object.prototype.hasOwnProperty.call(_status, index);
+};
+
 StatusIcons.onAppend = function onAppend() {
 	Renderer.render(rendering);
 };

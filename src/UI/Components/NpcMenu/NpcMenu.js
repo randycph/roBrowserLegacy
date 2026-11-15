@@ -14,7 +14,7 @@ import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import 'UI/Elements/Elements.js';
-import htmlText from './NpcMenu.html?raw';
+import htmlText from './NpcMenu.html?raw&v=english1';
 import cssText from './NpcMenu.css?raw';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
 

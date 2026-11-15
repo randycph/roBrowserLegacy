@@ -252,6 +252,11 @@ NpcStore.onAppend = function onAppend() {
  * Released movement and save preferences
  */
 NpcStore.onRemove = function onRemove() {
+	// Release the server-side shop before saving layout or clearing the UI.
+	if (!_closePacketSent) {
+		NpcStore.StoreClosePacket(_type);
+	}
+
 	const root = NpcStore.getRoot();
 	const InputWindow = root.querySelector('.InputWindow');
 	const OutputWindow = root.querySelector('.OutputWindow');
@@ -291,9 +296,6 @@ NpcStore.onRemove = function onRemove() {
 		r.textContent = '0';
 	});
 
-	if (!_closePacketSent) {
-		NpcStore.StoreClosePacket(_type);
-	}
 };
 
 /**

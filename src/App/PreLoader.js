@@ -19,48 +19,27 @@ const PRELOADER_CSS = `
 		transition: opacity 0.3s ease;  
 	}  
 	#ro-preloader.fade-out { opacity: 0; }  
-	#ro-preloader .pre-spinner {  
-		width: 48px; height: 48px;  
-		margin: 0 auto 16px;  
-		border: 4px solid rgba(232, 184, 75, 0.2);  
-		border-top-color: #e8b84b;  
-		border-radius: 50%;  
-		animation: ro-pre-spin 0.8s linear infinite;  
-	}  
-	#ro-preloader .pre-text {  
-		font-family: serif;  
-		font-size-adjust: none; /* keep serif's native x-height, outside body's Arial normalization */  
-		font-size: 16px;  
-		letter-spacing: 3px;  
-		text-transform: uppercase;  
-		color: #e8b84b;  
-	}  
-	#ro-preloader .pre-text span {  
-		display: inline-block;  
-		animation: ro-pre-wave 1.2s ease-in-out infinite;  
-		animation-delay: calc(var(--i) * 0.08s);  
-	}  
-	@keyframes ro-pre-spin { to { transform: rotate(360deg); } }  
-	@keyframes ro-pre-wave {  
-		0%, 100% { transform: translateY(0); }  
-		50% { transform: translateY(-6px); }  
-	}  
+	#ro-preloader .pre-scene {
+		position: relative; width: 130px; height: 130px; overflow: hidden;
+	}
+	#ro-preloader .pre-poring {
+		position: absolute; left: 50%; top: 50%; width: 96px;
+		object-fit: contain; image-rendering: pixelated;
+		animation: ro-pre-bounce 1.15s ease-in-out infinite;
+	}
+	@keyframes ro-pre-bounce {
+		0%, 100% { transform: translate(-50%, -40%) scale(1.08, 0.92); }
+		50% { transform: translate(-50%, -75%) scale(0.94, 1.06); }
+	}
+	@media (prefers-reduced-motion: reduce) {
+		#ro-preloader .pre-poring { animation: none; transform: translate(-50%, -50%); }
+	}
 `;
 
 const PRELOADER_INNER_HTML =
-	'<div class="pre-spinner"></div>' +
-	'<p class="pre-text">' +
-	'<span style="--i:0">L</span>' +
-	'<span style="--i:1">o</span>' +
-	'<span style="--i:2">a</span>' +
-	'<span style="--i:3">d</span>' +
-	'<span style="--i:4">i</span>' +
-	'<span style="--i:5">n</span>' +
-	'<span style="--i:6">g</span>' +
-	'<span style="--i:7">.</span>' +
-	'<span style="--i:8">.</span>' +
-	'<span style="--i:9">.</span>' +
-	'</p>';
+	'<div class="pre-scene" aria-hidden="true">' +
+	'<img class="pre-poring" src="/applications/pwa/assets/poring-chasing.webp" alt="" />' +
+	'</div>';
 
 export const roInitSpinner = {
 	divElem: null,

@@ -44,11 +44,8 @@ function onUIOpen(pkt) {
 		case 7:
 			if (Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307) {
 				CheckAttendance.prepare();
-				CheckAttendance.setData(pkt.data);
 				CheckAttendance.cleanUI();
-				CheckAttendance.append();
-				CheckAttendance.ui.show();
-				CheckAttendance.focus();
+				CheckAttendance.setData(pkt.data);
 			}
 			break;
 		case 8:

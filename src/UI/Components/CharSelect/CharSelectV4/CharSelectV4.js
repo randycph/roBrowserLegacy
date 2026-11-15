@@ -8,9 +8,9 @@
  * @author Vincent Thibault
  */
 
-import htmlText from './CharSelectV4.html?raw';
-import cssText from './CharSelectV4.css?raw';
-import { createCharSelect } from '../CharSelectCommon.js';
+import htmlText from './CharSelectV4.html?raw&v=carousel7';
+import cssText from './CharSelectV4.css?raw&v=carousel7';
+import { createCharSelect } from '../CharSelectCommon.js?v=carousel7';
 
 export default createCharSelect({
 	name: 'CharSelectV4',
@@ -18,5 +18,5 @@ export default createCharSelect({
 	cssText,
 	gridLayout: true,
 	deleteReservation: true,
-	defaultMaxSlots: 15
+	defaultMaxSlots: 18
 });

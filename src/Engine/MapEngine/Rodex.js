@@ -9,6 +9,7 @@
 /**
  * Load dependencies
  */
+import { setToolbarNotice } from 'UI/ToolbarNotifications.js';
 import DB from 'DB/DBManager.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Network from 'Network/NetworkManager.js';
@@ -258,6 +259,7 @@ WriteRodex.validateName = function (name) {
  * @param {object} pkt - PACKET.ZC.RODEX_ICON
  */
 function rodexIcon(pkt) {
+	setToolbarNotice('mail', !!pkt.show);
 	if (pkt.show) {
 		RodexIcon.append();
 	} else {

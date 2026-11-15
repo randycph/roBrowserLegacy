@@ -126,6 +126,7 @@ Roulette.onAppend = function onAppend() {
 	}
 
 	if (ROConfig.enableRoulette === false) {
+		this._host.style.display = 'none';
 		return;
 	}
 

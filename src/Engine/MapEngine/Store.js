@@ -15,6 +15,7 @@ import DB from 'DB/DBManager.js';
 import Session from 'Engine/SessionStorage.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
+import PacketRegister from 'Network/PacketRegister.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import EntityManager from 'Renderer/EntityManager.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
@@ -535,9 +536,11 @@ export default function MainEngine() {
 	Network.hookPacket(PACKET.ZC.PC_PURCHASE_ITEMLIST_FROMMC3, onVendingStoreList);
 	Network.hookPacket(PACKET.ZC.ACK_ITEMLIST_BUYING_STORE, onBuyingStoreList);
 	Network.hookPacket(PACKET.ZC.FAILED_TRADE_BUYING_STORE_TO_SELLER, onSellToBuyingStoreResult);
+	Network.hookPacket(PACKET.ZC.NPC_MARKET_OPEN, onMarketShop);
 	Network.hookPacket(PACKET.ZC.NPC_MARKET_OPEN2, onMarketShop);
 	Network.hookPacket(PACKET.ZC.NPC_MARKET_PURCHASE_RESULT, onMarketShopResult);
 	Network.hookPacket(PACKET.ZC.NPC_MARKET_PURCHASE_RESULT2, onMarketShopResult);
+	Network.hookPacket(PacketRegister[0xb0e], onBarterBuyList);
 	Network.hookPacket(PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO, onBarterBuyList);
 	Network.hookPacket(PACKET.ZC.NPC_EXPANDED_BARTER_MARKET_ITEMINFO, onExpandedBarterBuyList);
 }

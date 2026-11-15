@@ -79,6 +79,14 @@ export function createCharSelect(config) {
 	 * @var {Array} list of entities (index by slot)
 	 */
 	const _entitySlots = [];
+	Component.getViewSnapshot = () => ({
+		TotalSlotNum: _maxSlots,
+		PremiumStartSlot: 0,
+		sex: _sex,
+		charInfo: _slots.filter(Boolean)
+	});
+	Component.getSelectedIndex = () => _index;
+	Component.selectSlot = index => moveCursorTo(index);
 
 	/**
 	 * @var {number} selector index
@@ -89,6 +97,7 @@ export function createCharSelect(config) {
 	 * @var {Array} canvas context
 	 */
 	const _ctx = [];
+	let _advancedContexts = [];
 
 	/**
 	 * var {number} sex
@@ -125,9 +134,10 @@ export function createCharSelect(config) {
 			root.querySelector('.delete').addEventListener('click', reserve);
 			root.querySelector('.canceldelete').addEventListener('click', removedelete);
 			root.querySelector('.finaldelete').addEventListener('click', suppress);
+			root.querySelector('.classic-toggle')?.addEventListener('click', () => Component.onClassicView?.());
 
 			// Bind canvas
-			for (let i = 0; i < 15; i++) {
+			for (let i = 0; i < _maxSlots; i++) {
 				const slot = root.querySelector(`#slot${i}`);
 				if (slot) {
 					slot.addEventListener('mousedown', genericCanvasDown(i));
@@ -151,7 +161,7 @@ export function createCharSelect(config) {
 			});
 
 			// Load default slot backgrounds
-			for (let i = 0; i < 15; i++) {
+			for (let i = 0; i < _maxSlots; i++) {
 				const slotCanvas = root.querySelector(`#slot${i}`);
 				if (slotCanvas) {
 					Client.loadFile(`${DB.INTERFACE_PATH}select_character_ver3/img_slot2_normal.bmp`, dataURI => {
@@ -164,6 +174,9 @@ export function createCharSelect(config) {
 		}
 
 		this.draggable();
+		if (name === 'CharSelectV3') {
+			root.querySelector('.advanced-toggle').addEventListener('click', () => Component.onAdvancedView?.());
+		}
 
 		// Bind buttons
 		root.querySelector('.ok').addEventListener('click', connect);
@@ -1149,6 +1162,7 @@ export function createCharSelect(config) {
 	/**
 	 * Render sprites to canvas (V1 / V2 / V3)
 	 */
+
 	function renderPaginated() {
 		Camera.direction = 4;
 		const idx = Math.floor(_index / 3) * 3;
@@ -1162,6 +1176,7 @@ export function createCharSelect(config) {
 				_entitySlots[idx + i].renderEntity();
 			}
 		}
+
 	}
 
 	/* ------------------------------------------------------------------ *

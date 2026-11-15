@@ -97,6 +97,7 @@
 
 /** Page info **/
 #CharSelectV4 .pageinfo {
+	display: none;
 	position: absolute;
 	left: 275px;
 	top: 185px;
@@ -109,8 +110,9 @@
 
 /** Characters infos **/
 #CharSelectV4 .charinfo {
-	height: 585px;
+	height: 493px;
 	max-height: 80vh;
+	overflow: hidden;
 	width: 185px;
 	background-repeat: no-repeat;
 	margin-top: 10px;
@@ -262,3 +264,5 @@
 #CharSelectV4 .hidden {
 	display: none;
 }
+
+#CharSelectV4 .classic-toggle { position:absolute; top:4px; right:32px; z-index:40; padding:4px 10px; border:1px solid #aabbd7; border-radius:4px; background:#e9f0fb; color:#3d5d91; font:bold 12px Arial,sans-serif; cursor:pointer; }

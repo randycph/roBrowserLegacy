@@ -8,7 +8,7 @@
  */
 
 import MiniMap from './MiniMap/MiniMap.js';
-import MiniMapV2 from './MiniMapV2/MiniMapV2.js';
+import MiniMapV2 from './MiniMapV2/MiniMapV2.js?v=modern2';
 import UIVersionManager from 'UI/UIVersionManager.js';
 
 const publicName = 'MiniMap';

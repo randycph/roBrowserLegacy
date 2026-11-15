@@ -22,8 +22,8 @@ import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import 'UI/Elements/Elements.js';
 import ContextMenu from 'UI/Components/ContextMenu/ContextMenu.js';
-import htmlText from './ChatBox.html?raw';
-import cssText from './ChatBox.css?raw';
+import htmlText from './ChatBox.html?raw&v=chatmodern1';
+import cssText from './ChatBox.css?raw&v=chatmodern1';
 import Commands from 'Controls/ProcessCommand.js';
 import ChatBoxSettings from 'UI/Components/ChatBoxSettings/ChatBoxSettings.js';
 import Configs from 'Core/Configs.js';
@@ -667,7 +667,11 @@ ChatBox.init = function init() {
 		// Load saved tabs
 		for (let i = 0; i < _preferences.tabs.length; i++) {
 			if (_preferences.tabs[i]) {
-				const tabName = _preferences.tabs[i].name;
+				let tabName = _preferences.tabs[i].name;
+				// Repair default names saved before the message table was available.
+				if ((i === 0 && tabName === 'NO MSG 1291') || (i === 1 && tabName === 'NO MSG 1292')) {
+					tabName = DB.getMessage(i === 0 ? 1291 : 1292);
+				}
 				const tabSettings = _preferences.tabOption[i];
 				ChatBox.addNewTab(tabName, tabSettings);
 			}

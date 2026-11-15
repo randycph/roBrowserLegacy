@@ -10,6 +10,13 @@
 
 import PACKET from './PacketStructure.js';
 
+// Older barter lists have the same version-dependent payload parser, but need
+// their own constructor because registration assigns each constructor one id.
+function BarterMarketItemInfoLegacy(fp, end) {
+	PACKET.ZC.NPC_BARTER_MARKET_ITEMINFO.call(this, fp, end);
+}
+BarterMarketItemInfoLegacy.size = -1;
+
 export default {
 	0x69: PACKET.AC.ACCEPT_LOGIN, // ok
 	0x6a: PACKET.AC.REFUSE_LOGIN, // ok
@@ -879,6 +886,7 @@ export default {
 	0xb0b: PACKET.ZC.SPLIT_SEND_ITEMLIST_RESULT,
 	0xb0c: PACKET.ZC.ADD_QUEST3, // ok
 	0xb0f: PACKET.CZ.NPC_BARTER_MARKET_PURCHASE,
+	0xb0e: BarterMarketItemInfoLegacy,
 	0xb12: PACKET.CZ.NPC_BARTER_MARKET_CLOSE,
 	0xb14: PACKET.CZ.REQ_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE,
 	0xb15: PACKET.ZC.ACK_OPEN_MSGBOX_EXTEND_BODYITEM_SIZE,

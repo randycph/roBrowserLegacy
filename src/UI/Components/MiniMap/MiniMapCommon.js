@@ -168,12 +168,12 @@ export function createMiniMap({
 			_kafra.src = dataURI;
 		});
 
-		root.querySelector('.plus').addEventListener('mousedown', event => {
+		root.querySelector('.plus').addEventListener(coordinates ? 'click' : 'mousedown', event => {
 			MiniMap.updateZoom(+1);
 			event.stopImmediatePropagation();
 			event.preventDefault();
 		});
-		root.querySelector('.minus').addEventListener('mousedown', event => {
+		root.querySelector('.minus').addEventListener(coordinates ? 'click' : 'mousedown', event => {
 			MiniMap.updateZoom(-1);
 			event.stopImmediatePropagation();
 			event.preventDefault();
@@ -182,17 +182,30 @@ export function createMiniMap({
 		if (townInfoToggle) {
 			const objectBtn = root.querySelector('.object');
 			if (objectBtn) {
-				objectBtn.addEventListener('mousedown', () => {
+				objectBtn.setAttribute('aria-pressed', String(_preferences.townInfoShow));
+				objectBtn.addEventListener('click', () => {
 					_preferences.townInfoShow = !_preferences.townInfoShow;
+					objectBtn.setAttribute('aria-pressed', String(_preferences.townInfoShow));
 					_preferences.save();
 				});
 			}
 		}
 
+		const miniBtn = root.querySelector('.mini');
+		if (miniBtn && miniBtn.tagName === 'BUTTON') {
+			miniBtn.addEventListener('click', () => {
+				const collapsed = root.querySelector('.MiniMapUI').classList.toggle('collapsed');
+				const label = collapsed ? 'Expand minimap' : 'Collapse minimap';
+				miniBtn.title = label;
+				miniBtn.setAttribute('aria-label', label);
+				miniBtn.setAttribute('aria-expanded', String(!collapsed));
+			});
+		}
+
 		if (worldMap) {
 			const viewonBtn = root.querySelector('.viewon');
 			if (viewonBtn) {
-				viewonBtn.addEventListener('mousedown', () => {
+				viewonBtn.addEventListener('click', () => {
 					worldMap.toggle();
 				});
 			}
@@ -217,7 +230,10 @@ export function createMiniMap({
 	MiniMap.setMap = function setMap(mapname) {
 		_map.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
 
-		_towninfo = DB.getTownInfo(mapname.replace(/\..*/, ''));
+		const mapId = mapname.replace(/\..*/, '');
+		const title = this.getRoot().querySelector('.map-title');
+		if (title) title.textContent = (DB.getMapName(mapId + '.rsw', '') || 'Unknown location').toUpperCase();
+		_towninfo = DB.getTownInfo(mapId);
 
 		let path = DB.INTERFACE_PATH.replace('data/texture/', '') + 'map/' + mapname.replace(/\..*/, '.bmp');
 		path = path.replace(/\//g, '\\');

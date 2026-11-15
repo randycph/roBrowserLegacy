@@ -11,6 +11,7 @@
 /**
  * Load dependencies
  */
+import { setToolbarNotice } from 'UI/ToolbarNotifications.js';
 import DB from 'DB/DBManager.js';
 import StatusProperty from 'DB/Status/StatusProperty.js';
 import EffectConst from 'DB/Effects/EffectConst.js';
@@ -35,6 +36,11 @@ import BasicInfo from 'UI/Components/BasicInfo/BasicInfo.js';
 import SkillList from 'UI/Components/SkillList/SkillList.js';
 import WinStats from 'UI/Components/WinStats/WinStats.js';
 import RankingTypes from 'DB/Jobs/RankingTypes.js';
+
+function updateStatusDot(points) {
+	Session.availableStatusPoints = points;
+	if (BasicInfo._host) BasicInfo.getRoot().querySelector('.status-dot')?.classList.toggle('visible', points > 0);
+}
 
 /**
  * Move main player to the position specify
@@ -131,6 +137,7 @@ function onStatusParameterChange(pkt) {
 	WinStats.update('mdef', pkt.mdefPower);
 	WinStats.update('mdef2', pkt.plusmdefPower);
 	WinStats.update('statuspoint', pkt.point);
+	updateStatusDot(pkt.point);
 }
 
 /**
@@ -329,6 +336,7 @@ function onParameterChange(pkt) {
 
 		case StatusProperty.POINT:
 			WinStats.update('statuspoint', amount);
+			updateStatusDot(amount);
 			break;
 
 		case StatusProperty.CLEVEL:
@@ -353,6 +361,7 @@ function onParameterChange(pkt) {
 
 		case StatusProperty.SKPOINT:
 			SkillList.setPoints(amount);
+			setToolbarNotice('skill', amount > 0);
 			break;
 
 		case StatusProperty.STR:

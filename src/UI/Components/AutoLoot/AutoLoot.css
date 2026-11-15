@@ -1,0 +1,12 @@
+:host { width: 280px; height: 99px; }
+#AutoLoot { position: relative; width: 280px; color: #111; font: 11px Arial, sans-serif; background: white; border: 1px solid #a6a6a6; box-sizing: border-box; }
+.titlebar { height: 17px; background-color: white; background-repeat: repeat-x; border-radius: 3px 3px 0 0; cursor: move; }
+.titlebar .base { width: 11px; height: 11px; padding: 0; border: 0; background-color: transparent; background-repeat: no-repeat; vertical-align: middle; }
+.titlebar .left { float: left; margin-left: 3px; }
+.titlebar .right { float: right; margin-right: 3px; }
+.titlebar .text { display: inline-block; vertical-align: -2px; margin-left: 3px; font-size: 11px; text-shadow: 1px 1px white; }
+.content { height: 48px; padding: 8px 10px; box-sizing: border-box; background: white; }
+.content p { margin: 0; }
+.footer { height: 23px; border-top: 1px solid #ccc; background: repeating-linear-gradient(to bottom, #f1f1f1 0, #f1f1f1 2px, #fff 2px, #fff 4px); }
+.footer label { display: flex; align-items: center; gap: 4px; height: 100%; padding-left: 4px; font-weight: bold; cursor: pointer; }
+.footer input { width: 13px; height: 13px; margin: 0; accent-color: #8d9ba9; }

@@ -36,9 +36,10 @@ function _popupPosition() {
 function _createButton(name, onClick) {
 	const btn = document.createElement('button');
 	btn.className = 'btn';
-	btn.dataset.background = `btn_${name}.bmp`;
-	btn.dataset.hover = `btn_${name}_a.bmp`;
-	btn.dataset.down = `btn_${name}_b.bmp`;
+	const imagePrefix = name === 'ok' || name === 'cancel' ? 'english_btn_' : 'btn_';
+	btn.dataset.background = `${imagePrefix}${name}.bmp`;
+	btn.dataset.hover = `${imagePrefix}${name}_a.bmp`;
+	btn.dataset.down = `${imagePrefix}${name}_b.bmp`;
 
 	let clicked = false;
 	btn.addEventListener('click', () => {

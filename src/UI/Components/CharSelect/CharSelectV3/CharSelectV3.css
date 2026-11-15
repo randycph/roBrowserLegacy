@@ -222,3 +222,6 @@
 #CharSelectV3 .timedelete.slot3 {
 	left: 389px;
 }
+
+
+#CharSelectV3 .advanced-toggle { position:fixed; top:4px; right:32px; z-index:40; padding:4px 10px; border:1px solid #aabbd7; border-radius:4px; background:#e9f0fb; color:#3d5d91; font:bold 12px Arial,sans-serif; cursor:pointer; }

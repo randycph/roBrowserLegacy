@@ -8,9 +8,9 @@
  * @author Vincent Thibault
  */
 
-import htmlText from './CharSelectV3.html?raw';
-import cssText from './CharSelectV3.css?raw';
-import { createCharSelect } from '../CharSelectCommon.js';
+import htmlText from './CharSelectV3.html?raw&v=carousel8';
+import cssText from './CharSelectV3.css?raw&v=carousel8';
+import { createCharSelect } from '../CharSelectCommon.js?v=carousel8';
 
 export default createCharSelect({
 	name: 'CharSelectV3',

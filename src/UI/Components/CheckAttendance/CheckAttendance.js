@@ -15,9 +15,9 @@ import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import Network from 'Network/NetworkManager.js';
 import PACKET from 'Network/PacketStructure.js';
-import htmlText from './CheckAttendance.html?raw';
-import cssText from './CheckAttendance.css?raw';
-import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
+import { setToolbarNotice } from 'UI/ToolbarNotifications.js';
+import htmlText from './CheckAttendance.html?raw&v=attendance3';
+import cssText from './CheckAttendance.css?raw&v=attendance6';
 import 'UI/Elements/Elements.js';
 
 /**
@@ -31,6 +31,19 @@ CheckAttendance.render = () => htmlText;
  * @var {object} _checkAttendanceData
  */
 let _checkAttendanceData;
+let _attendancePending = false;
+let _attendanceMapReady = false;
+
+function currentPeriod() {
+	const now = new Date();
+	const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+	const anchor = Date.UTC(2026, 10, 14);
+	const cycle = Math.max(0, Math.floor((today - anchor) / (20 * 86400000)));
+	const start = new Date(anchor + cycle * 20 * 86400000);
+	const end = new Date(start.getTime() + 19 * 86400000);
+	const dateKey = date => date.toISOString().slice(0, 10).replaceAll('-', '');
+	return { start, end, today, StartDate: dateKey(start), EndDate: dateKey(end) };
+}
 
 /**
  * @var {object} _CheckAttendanceInfo
@@ -53,7 +66,18 @@ const _preferences = Preferences.get(
  * Initialize the component (event listener, etc.)
  */
 CheckAttendance.init = function init() {
-	_CheckAttendanceInfo = DB.getCheckAttendanceInfo();
+	// Match the server's repeating 20-day attendance periods.
+	const rewardItems = [
+		[501, 10], [601, 5], [502, 5], [602, 2], [503, 5],
+		[506, 5], [504, 3], [601, 10], [505, 2], [602, 3],
+		[503, 10], [504, 5], [506, 10], [601, 15], [505, 3],
+		[504, 8], [602, 5], [610, 1], [505, 5], [608, 1]
+	];
+	const period = currentPeriod();
+	_CheckAttendanceInfo = {
+		Config: { StartDate: period.StartDate, EndDate: period.EndDate },
+		Rewards: rewardItems.map(([item_id, quantity], index) => ({ day: index + 1, item_id, quantity }))
+	};
 	const root = this.getRoot();
 
 	const baseEl = root.querySelector('.base');
@@ -80,16 +104,8 @@ CheckAttendance.onAppend = function onAppend() {
 		left: `${Math.min(Math.max(0, _preferences.x), Renderer.width - this._host.getBoundingClientRect().width)}px`
 	});
 
-	if (!_preferences.show) {
-		this._host.style.display = 'none';
-	}
-
-	if (_checkAttendanceData >= 0 && _CheckAttendanceInfo.Config) {
-		CheckAttendance.updateUI();
-		this.focus();
-	} else {
-		ChatBox.addText('Currently there is no attendance check event.', ChatBox.TYPE.ERROR | ChatBox.TYPE.SELF);
-	}
+	this._host.style.display = 'none';
+	CheckAttendance.openIfReady();
 };
 
 /**
@@ -126,6 +142,27 @@ CheckAttendance.toggle = function toggle() {
  */
 CheckAttendance.setData = function setData(data) {
 	_checkAttendanceData = data;
+	setToolbarNotice('attendance', data >= 0 && data % 10 === 0 && Math.floor(data / 10) < 20);
+	_attendancePending = true;
+	CheckAttendance.openIfReady();
+};
+
+CheckAttendance.mapLoading = function mapLoading() {
+	_attendanceMapReady = false;
+	if (this._host) this._host.style.display = 'none';
+};
+
+CheckAttendance.mapReady = function mapReady() {
+	_attendanceMapReady = true;
+	CheckAttendance.openIfReady();
+};
+
+CheckAttendance.openIfReady = function openIfReady() {
+	if (!_attendancePending || !_attendanceMapReady || !this._host?.isConnected) return;
+	_attendancePending = false;
+	this.updateUI();
+	this._host.style.display = '';
+	this.focus();
 };
 
 /**
@@ -138,13 +175,14 @@ CheckAttendance.updateUI = function updateUI() {
 	let current_day = 1;
 
 	if (_CheckAttendanceInfo.Config) {
-		const regex = /(\d{4})(\d{2})(\d{2})/;
-		const start = regex.exec(_CheckAttendanceInfo.Config.StartDate);
-		const end = regex.exec(_CheckAttendanceInfo.Config.EndDate);
-		const period_string = `Event Period: From ${start[2]}/${start[3]} ~ Until ${end[2]}/${end[3]} (Month/Day) 24:00`;
+		const period = currentPeriod();
+		_CheckAttendanceInfo.Config.StartDate = period.StartDate;
+		_CheckAttendanceInfo.Config.EndDate = period.EndDate;
+		const dateLabel = date => date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+		const period_string = `Attendance period: ${dateLabel(period.start)} – ${dateLabel(period.end)} (UTC)`;
 		const periodEl = root.querySelector('.top-panel-period');
 		if (periodEl) {
-			periodEl.innerHTML = period_string;
+			periodEl.textContent = period_string;
 		}
 
 		if (_checkAttendanceData >= 0) {
@@ -156,9 +194,7 @@ CheckAttendance.updateUI = function updateUI() {
 					? `${attendance_count} Day attendance success`
 					: `Click the item to claim day ${current_day} reward`;
 
-			const end_date = new Date(`${end[1]}-${end[2]}-${end[3]}`);
-			const now_date = new Date();
-			const remaining_days = Math.round(Math.abs((end_date.getTime() - now_date.getTime()) / (1000 * 3600 * 24)));
+			const remaining_days = Math.max(0, Math.ceil((period.end.getTime() - period.today) / 86400000));
 
 			const totalDaysEl = root.querySelector('.total-days');
 			if (totalDaysEl) {
@@ -261,15 +297,11 @@ function onClickAttendance(e) {
 	if (checkedHidden) {
 		checkedHidden.className = 'checked';
 	}
-	const completedDiv = document.createElement('div');
-	completedDiv.className = 'completed';
-	completedDiv.dataset.background = 'check_attendance/bt_slot_complete.tga';
-	el.appendChild(completedDiv);
-	GUIComponent.processDataAttrs(completedDiv);
 
 	const current_day = parseInt(_checkAttendanceData / 10) + 1;
 	// keep the claim when updateUI rebuilds the list on a map change; the next server data overwrites it
 	_checkAttendanceData = current_day * 10 + 1;
+	setToolbarNotice('attendance', false);
 	const total_days_string = `${current_day} Day attendance success`;
 	const totalDaysEl = root.querySelector('.total-days');
 	if (totalDaysEl) {

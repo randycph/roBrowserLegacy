@@ -12,7 +12,7 @@ import Renderer from 'Renderer/Renderer.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
 import 'UI/Elements/Elements.js';
-import htmlText from './WinPopup.html?raw';
+import htmlText from './WinPopup.html?raw&v=english1';
 import cssText from './WinPopup.css?raw';
 
 /**

@@ -11,8 +11,8 @@
 /**
  * Dependencies
  */
-import htmlText from './WinLoginV2.html?raw';
-import cssText from './WinLoginV2.css?raw';
+import htmlText from './WinLoginV2.html?raw&v=forever-login5';
+import cssText from './WinLoginV2.css?raw&v=forever-login5';
 import { createWinLogin } from '../WinLoginCommon.js';
 
 export default createWinLogin({

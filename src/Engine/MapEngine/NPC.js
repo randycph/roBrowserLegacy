@@ -53,11 +53,17 @@ function onNextAppear(pkt) {
  * @param {object} pkt - PACKET.ZC.CLOSE_DIALOG
  */
 function onCloseAppear(pkt) {
-	// Should not happened, but sometimes dev write a "close" in script instead of
-	// a "end" when there is no message.
 	if (NpcBox.ui && NpcBox.ui.is(':visible')) {
 		NpcBox.addClose(pkt.NAID);
+		return;
 	}
+
+	// A close/close2 can arrive without a visible message window. The server
+	// still waits for the close acknowledgement before it can finish or open
+	// a shop, so dismissing the window locally must not leave it unanswered.
+	const reply = new PACKET.CZ.CLOSE_DIALOG();
+	reply.NAID = pkt.NAID;
+	Network.sendPacket(reply);
 }
 
 /**

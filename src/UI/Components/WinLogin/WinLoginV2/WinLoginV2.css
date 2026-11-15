@@ -1,40 +1,49 @@
 :host {
-	top: 60%;
-	left: calc(50% - 140px);
-	width: 301px;
-	height: 132px;
+	width: 420px;
+	height: 180px;
+	top: 61%;
+	left: calc(50% - 210px);
 }
 
 #WinLogin {
 	position: absolute;
-	width: 301px;
-	height: 132px;
+	width: 280px;
+	height: 120px;
+	transform: scale(1.5);
+	transform-origin: top left;
 }
-#WinLogin .win_login {
-	width: 100%;
-	height: 100%;
-}
-#WinLogin .win_login input {
+#WinLogin .window-title {
 	position: absolute;
-	left: 17px;
+	left: 15px;
+	top: 1px;
+	width: 47px;
+	height: 14px;
+	background: linear-gradient(to bottom, #b3c1dd, #cad4e9 22%, #99aed9 42%, #cadffb 78%, #c5def3);
+	color: #111;
+	font: 12px/14px Arial, sans-serif;
+	text-shadow: 1px 1px #fff;
+	pointer-events: none;
+}
+#WinLogin input {
+	position: absolute;
+	left: 91px;
 	height: 18px;
 	width: 127px;
 	border: none;
 	background-color: transparent;
 	padding-left: 2px;
 	outline: none;
-	text-align: center;
 }
-#WinLogin .win_login input.user {
-	top: 39px;
+#WinLogin input.user {
+	top: 29px;
 }
-#WinLogin .win_login input.pass {
+#WinLogin input.pass {
 	top: 61px;
 }
-#WinLogin .win_login .save {
+#WinLogin .save {
 	position: absolute;
-	top: 85px;
-	left: 57px;
+	top: 32px;
+	right: 10px;
 	display: block;
 	width: 38px;
 	height: 10px;
@@ -42,44 +51,34 @@
 	background-color: transparent;
 	background-repeat: no-repeat;
 }
-#WinLogin .win_login .btn {
+#WinLogin .btn {
 	position: absolute;
 	border: 0;
+	width: 42px;
+	height: 20px;
+	bottom: 4px;
 	background-color: transparent;
 }
-#WinLogin .win_login .btn.connect {
-	width: 84px;
-	height: 84px;
-	right: 25px;
-	bottom: 15px;
+#WinLogin .btn.connect {
+	right: 5px;
 }
-#WinLogin .win_login .btn.signup {
-	width: 84px;
-	height: 21px;
-	right: 120px;
-	bottom: 10px;
+#WinLogin .btn.signup {
+	left: 5px;
 }
-#WinLogin .btn.replay {
-	width: 84px;
-	height: 21px;
-	right: 210px;
-	bottom: 10px;
-}
-#WinLogin .win_login .btn.exit {
-	width: 24px;
-	height: 23px;
-	right: 7px;
-	bottom: 96px;
+#WinLogin .btn.exit {
+	right: 5px;
 }
 
 /* Override browser autofill styles */
-#WinLogin .win_login input:-webkit-autofill,
-#WinLogin .win_login input:-webkit-autofill:hover,
-#WinLogin .win_login input:-webkit-autofill:focus,
-#WinLogin .win_login input:-webkit-autofill:active,
-#WinLogin .win_login input:-internal-autofill-selected,
-#WinLogin .win_login input:-internal-autofill-previewed {
+#WinLogin input:-webkit-autofill,
+#WinLogin input:-webkit-autofill:hover,
+#WinLogin input:-webkit-autofill:focus,
+#WinLogin input:-webkit-autofill:active,
+#WinLogin input:-internal-autofill-selected,
+#WinLogin input:-internal-autofill-previewed {
 	-webkit-background-clip: text;
 	transition: background-color 5000sease-in-out 0s;
 	box-shadow: inset 0 0 20px 20px #ffffff00;
 }
+
+#WinLogin .btn.signup { cursor: pointer; }

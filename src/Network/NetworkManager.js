@@ -14,7 +14,7 @@ import Configs from 'Core/Configs.js';
 import BinaryReader from 'Utils/BinaryReader.js';
 import PACKETVER from './PacketVerManager.js';
 import PacketVersions from './PacketVersions.js';
-import PacketRegister from './PacketRegister.js';
+import PacketRegister from 'Network/PacketRegister.js';
 import PacketCrypt from './PacketCrypt.js';
 import PacketLength from './PacketLength.js';
 import WebSocket from './SocketHelpers/WebSocket.js';

@@ -8,9 +8,9 @@
  * @author Vincent Thibault
  */
 
-import htmlText from './BasicInfoV4.html?raw';
-import cssText from './BasicInfoV4.css?raw';
-import { createBasicInfo } from '../BasicInfoCommon.js';
+import htmlText from './BasicInfoV4.html?raw&v=combat2';
+import cssText from './BasicInfoV4.css?raw&v=combat2';
+import { createBasicInfo } from '../BasicInfoCommon.js?v=combat2';
 
 export default createBasicInfo({
 	name: 'BasicInfoV4',

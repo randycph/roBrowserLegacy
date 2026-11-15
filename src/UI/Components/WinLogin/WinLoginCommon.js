@@ -55,9 +55,11 @@ export function createWinLogin({ name, htmlText, cssText }) {
 		});
 
 		// Connect / Signup / Exit
-		root.querySelector('.signup').addEventListener('click', signup);
+		const signupControl = root.querySelector('.signup');
+		signupControl.addEventListener('mousedown', event => event.stopPropagation());
+		signupControl.addEventListener('click', signup);
 		root.querySelector('.connect').addEventListener('click', connect);
-		root.querySelector('.exit').addEventListener('click', exit);
+		root.querySelector('.exit')?.addEventListener('click', exit);
 
 		// Replay Upload, only present on the UI versions supporting replays
 		const replayUpload = root.querySelector('.replay-upload');
@@ -183,15 +185,7 @@ export function createWinLogin({ name, htmlText, cssText }) {
 	function signup() {
 		const url = Configs.get('registrationweb');
 		if (url) {
-			UIManager.showPromptBox(
-				DB.getMessage(662),
-				'ok',
-				'cancel',
-				() => {
-					window.open(url);
-				},
-				null
-			);
+			window.open(url, '_blank', 'noopener');
 		} else {
 			UIManager.showPromptBox(
 				'No registration URL was provided.\nIf this server uses simplified registration, then input your new:\n - Username followed by _M for Male and _F for Female account (Eg: MyUser_M)\n - Password.',

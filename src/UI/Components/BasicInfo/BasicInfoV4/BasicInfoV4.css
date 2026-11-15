@@ -188,6 +188,9 @@
 	margin: 6px;
 	background: transparent;
 }
+#BasicInfoV4 .buttons #autoloot { padding: 0; }
+#BasicInfoV4 .buttons #autoloot svg { display: block; width: 32px; height: 32px; image-rendering: pixelated; }
+#BasicInfoV4 .buttons #autoloot:active svg { transform: translateY(1px); }
 
 /* REDUCED */
 #BasicInfoV4 .small .line1 {
@@ -250,3 +253,17 @@
 	pointer-events: none;
 	top: -5px;
 }
+
+#BasicInfoV4 .buttons .feature-icon { display: block; width: 32px; height: 32px; }
+#BasicInfoV4 .buttons > *:has(.feature-icon):active .feature-icon { transform: translateY(1px); }
+
+#BasicInfoV4 .buttons > *:has(.feature-icon) { padding: 0; cursor: pointer; }
+
+#BasicInfoV4 .buttons #item, #BasicInfoV4 .buttons #info { position: relative; }
+#BasicInfoV4 .buttons #item .btn_overlay, #BasicInfoV4 .buttons #info .status-dot { position: absolute; top: 0; right: 0; left: auto; width: 8px; height: 8px; box-sizing: border-box; background: #ef7189; border: 1px solid white; border-radius: 50%; z-index: 10; pointer-events: none; display: none; }
+#BasicInfoV4 .buttons #item:active .btn_overlay { top: 0; }
+#BasicInfoV4 .buttons #info .status-dot.visible { display: block; }
+
+#BasicInfoV4 .buttons #skill, #BasicInfoV4 .buttons #attendance, #BasicInfoV4 .buttons #mail { position: relative; }
+#BasicInfoV4 .buttons .notice-dot { position: absolute; top: 0; right: 0; width: 8px; height: 8px; box-sizing: border-box; background: #ef7189; border: 1px solid white; border-radius: 50%; z-index: 10; pointer-events: none; display: none; }
+#BasicInfoV4 .buttons .notice-dot.visible { display: block; }

@@ -9,9 +9,9 @@
  */
 
 import WorldMap from 'UI/Components/WorldMap/WorldMap.js';
-import htmlText from './MiniMapV2.html?raw';
-import cssText from './MiniMapV2.css?raw';
-import { createMiniMap } from '../MiniMapCommon.js';
+import htmlText from './MiniMapV2.html?raw&v=modern2';
+import cssText from './MiniMapV2.css?raw&v=modern2';
+import { createMiniMap } from '../MiniMapCommon.js?v=modern2';
 
 export default createMiniMap({
 	name: 'MiniMapV2',

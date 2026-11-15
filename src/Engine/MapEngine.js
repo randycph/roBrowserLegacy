@@ -63,6 +63,8 @@ import LaphineUpg from 'UI/Components/LaphineUpg/LaphineUpg.js';
 import Rodex from 'UI/Components/Rodex/Rodex.js';
 import RodexIcon from 'UI/Components/Rodex/RodexIcon.js';
 import Roulette from 'UI/Components/Roulette/Roulette.js';
+import AutoLoot from 'UI/Components/AutoLoot/AutoLoot.js';
+import AutoCombat from 'UI/Components/AutoCombat/AutoCombat.js';
 import PCGoldTimer from 'UI/Components/PCGoldTimer/PCGoldTimer.js';
 import Refine from 'UI/Components/Refine/Refine.js';
 import Reputation from 'UI/Components/Reputation/Reputation.js';
@@ -90,9 +92,9 @@ import JoystickUI from 'UI/Components/JoystickUI/JoystickUI.js';
 import CashShopIcon from 'UI/Components/CashShopIcon/CashShopIcon.js';
 import Achievement from 'UI/Components/Achievement/Achievement.js';
 
-import MainEngine from './MapEngine/Main.js';
+import MainEngine from './MapEngine/Main.js?v=notices6';
 import MapStateEngine from './MapEngine/MapState.js';
-import NPCEngine from './MapEngine/NPC.js';
+import NPCEngine from './MapEngine/NPC.js?v=npcclose1';
 import EntityEngine from './MapEngine/Entity.js';
 import ItemEngine from './MapEngine/Item.js';
 import MailEngine from './MapEngine/Mail.js';
@@ -105,12 +107,13 @@ import ChatRoomEngine from './MapEngine/ChatRoom.js';
 import PetEngine from './MapEngine/Pet.js';
 import HomunEngine from './MapEngine/Homun.js';
 import MercenaryEngine from './MapEngine/Mercenary.js';
-import StoreEngine from './MapEngine/Store.js';
+import StoreEngine from './MapEngine/Store.js?v=npcshop2';
 import TradeEngine from './MapEngine/Trade.js';
 import FriendsEngine from './MapEngine/Friends.js';
-import UIOpenEngine from './MapEngine/UIOpen.js';
+import UIOpenEngine from './MapEngine/UIOpen.js?v=attendance2';
 import QuestEngine from './MapEngine/Quest.js';
-import RodexEngine from './MapEngine/Rodex.js';
+import RodexEngine from './MapEngine/Rodex.js?v=notices6';
+import { resetToolbarNotices } from 'UI/ToolbarNotifications.js';
 import RouletteEngine from './MapEngine/Roulette.js';
 import PCGoldTimerEngine from './MapEngine/PCGoldTimer.js';
 import CaptchaEngine from './MapEngine/Captcha.js';
@@ -349,6 +352,8 @@ class MapEngine {
 			Rodex.prepare();
 			RodexIcon.prepare();
 			Roulette.prepare();
+			AutoLoot.prepare();
+			AutoCombat.prepare();
 			PCGoldTimer.prepare();
 			Navigation.prepare();
 			CaptchaUpload.prepare();
@@ -623,6 +628,9 @@ function onConnectionRefused(pkt) {
  * @param {object} pkt - PACKET.ZC.NPCACK_MAPMOVE
  */
 function onMapChange(pkt) {
+	CheckAttendance.mapLoading();
+	AutoCombat.mapLoading(pkt.mapName);
+	MapRenderer.onVisible = () => CheckAttendance.mapReady();
 	MapRenderer.onLoad = () => {
 		Session.Entity.set({
 			PosDir: [pkt.xPos, pkt.yPos, 0],
@@ -730,6 +738,8 @@ function onMapChange(pkt) {
 		JoystickUI.append();
 		Navigation.append();
 		Roulette.append();
+		AutoLoot.append();
+		AutoCombat.append();
 		if (Configs.get('enableAchievements') && PACKETVER.value >= 20150513) {
 			Achievement.append();
 		}
@@ -755,6 +765,8 @@ function onMapChange(pkt) {
 
 		// Map loaded
 		Network.sendPacket(new PACKET.CZ.NOTIFY_ACTORINIT());
+		AutoLoot.restore();
+		AutoCombat.mapReady();
 
 		// Rates Info
 		if (Session.ratesInfo) {
@@ -819,6 +831,7 @@ function clearNavigationForMapExit() {
 }
 
 function cleanGameUI() {
+	resetToolbarNotices();
 	clearNavigationForMapExit();
 	WhisperBox.clearAll();
 
@@ -827,6 +840,8 @@ function cleanGameUI() {
 		[PlayerViewEquip, 'remove'],
 		[StatusIcons, 'clean'],
 		[ChatBox, 'clean'],
+		[AutoLoot, 'remove'],
+		[AutoCombat, 'remove'],
 		[ShortCut, 'clean'],
 		[Quest, 'clean'],
 		[PartyFriends, 'clean'],
@@ -900,6 +915,7 @@ function onExitSuccess() {
  * Try to return to char-server
  */
 function onRestartRequest() {
+	AutoCombat.stop();
 	const pkt = new PACKET.CZ.RESTART();
 	pkt.type = 1;
 	Network.sendPacket(pkt);
@@ -909,6 +925,7 @@ function onRestartRequest() {
  * Go back to save point request
  */
 function onReturnSavePointRequest() {
+	AutoCombat.stop();
 	const pkt = new PACKET.CZ.RESTART();
 	pkt.type = 0;
 	Network.sendPacket(pkt);

@@ -243,7 +243,23 @@ class Background {
 	 * @param {function} callback once the background is display (optional)
 	 */
 	static setLoginBackground(callback) {
-		Background.setImage(Background.getLoginBackgroundName(), callback);
+		const exist = !!_container.parentNode;
+		Background._progress = -1;
+		Background._removal = null;
+		_container.innerHTML = '';
+		Object.assign(_container.style, {
+			backgroundImage: "url('/applications/pwa/assets/login-snowball.jpg')",
+			backgroundSize: 'cover',
+			backgroundPosition: 'center'
+		});
+		render();
+		if (!exist) {
+			transition(() => {
+				document.body.appendChild(_container);
+				document.body.appendChild(_canvas);
+				if (callback) callback();
+			});
+		} else if (callback) callback();
 	}
 
 	/**
@@ -267,9 +283,10 @@ class Background {
 	/**
 	 * Remove background
 	 *
-	 * @param {function} callback once the overlay hide the window (optional)
+	 * @param {function} callback once the loading image is removed (optional)
+	 * @param {function} afterReveal once the screen is visible again (optional)
 	 */
-	static remove(callback) {
+	static remove(callback, afterReveal) {
 		const removal = { zIndex: [_container.style.zIndex, _canvas.style.zIndex] };
 		Background._removal = removal;
 
@@ -297,7 +314,7 @@ class Background {
 			if (callback) {
 				callback();
 			}
-		});
+		}, afterReveal);
 	}
 
 	/**
@@ -336,7 +353,7 @@ class Background {
  *
  * @param {function} callback once the overlay hide the window
  */
-function transition(callback) {
+function transition(callback, afterReveal) {
 	const transitionDuration = Configs.get('transitionDuration') ? Configs.get('transitionDuration') : 500;
 
 	if (Background._overlayAnim) {
@@ -369,6 +386,7 @@ function transition(callback) {
 			if (_overlay.parentNode) {
 				_overlay.parentNode.removeChild(_overlay);
 			}
+			if (afterReveal) afterReveal();
 		});
 	});
 	Background._overlayAnim = anim;
