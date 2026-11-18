@@ -21,8 +21,8 @@ import PathFinding from 'Utils/PathFinding.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Events from 'Core/Events.js';
 import Client from 'Core/Client.js';
-import htmlText from './MobileUI.html?raw&v=mobilehud20261118b';
-import cssText from './MobileUI.css?raw&v=mobilehud20261118b';
+import htmlText from './MobileUI.html?raw&v=mobileslots20261118c';
+import cssText from './MobileUI.css?raw&v=mobileslots20261118c';
 import defaultTexts from './robrowser_mobileui.txt?raw';
 import glMatrix from 'Vendors/gl-matrix.js';
 import Camera from 'Renderer/Camera.js';
@@ -67,8 +67,17 @@ function refreshMobileShortcuts() {
 			}
 			const image = slot?.querySelector('.img');
 			const amount = slot?.querySelector('.amount');
-			button.style.backgroundImage = image?.style.backgroundImage || '';
-			button.dataset.amount = amount?.textContent || '';
+			const icon = image?.style.backgroundImage || '';
+			button.style.backgroundImage = icon;
+			button.classList.toggle('shortcut-empty', !icon || icon === 'none');
+			button.dataset.key = key.startsWith('n') ? key.slice(1) : key.toUpperCase();
+			let count = button.querySelector('.shortcut-amount');
+			if (!count) {
+				count = document.createElement('span');
+				count.className = 'shortcut-amount';
+				button.appendChild(count);
+			}
+			count.textContent = amount?.textContent || '';
 			button.setAttribute('aria-label', slot?.getAttribute('data-tooltip') || `Empty shortcut ${index + 1}`);
 		});
 	});
