@@ -267,3 +267,21 @@
 #BasicInfoV4 .buttons #skill, #BasicInfoV4 .buttons #attendance, #BasicInfoV4 .buttons #mail { position: relative; }
 #BasicInfoV4 .buttons .notice-dot { position: absolute; top: 0; right: 0; width: 8px; height: 8px; box-sizing: border-box; background: #ef7189; border: 1px solid white; border-radius: 50%; z-index: 10; pointer-events: none; display: none; }
 #BasicInfoV4 .buttons .notice-dot.visible { display: block; }
+
+
+#BasicInfoV4 .mobile-feature-icon {
+	display: none;
+}
+
+@media (pointer: coarse) {
+	#BasicInfoV4 .buttons .mobile-feature-icon {
+		display: block;
+		width: 32px;
+		height: 32px;
+		object-fit: contain;
+	}
+
+	#BasicInfoV4 .buttons .mobile-feature-icon + .feature-icon {
+		display: none;
+	}
+}

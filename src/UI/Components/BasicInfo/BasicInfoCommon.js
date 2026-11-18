@@ -16,6 +16,8 @@ import { syncToolbarNotices } from 'UI/ToolbarNotifications.js';
 import DB from 'DB/DBManager.js';
 import Configs from 'Core/Configs.js';
 import PACKETVER from 'Network/PacketVerManager.js';
+import Network from 'Network/NetworkManager.js';
+import PACKET from 'Network/PacketStructure.js';
 import MonsterTable from 'DB/Monsters/MonsterTable.js';
 import Client from 'Core/Client.js';
 import Preferences from 'Core/Preferences.js';
@@ -41,8 +43,10 @@ import Achievement from 'UI/Components/Achievement/Achievement.js';
 import Reputation from 'UI/Components/Reputation/Reputation.js';
 import AutoLoot from 'UI/Components/AutoLoot/AutoLoot.js';
 import AutoCombat from 'UI/Components/AutoCombat/AutoCombat.js';
+import mobileExperienceCss from './MobileExperience.css?raw';
 
 export function createBasicInfo(config) {
+	let mobileExperience = null;
 	const {
 		name,
 		htmlText,
@@ -147,6 +151,12 @@ export function createBasicInfo(config) {
 					CheckAttendance.toggle();
 				}
 				break;
+			case 'fieldshop': {
+				const packet = new PACKET.CZ.REQUEST_CHAT();
+				packet.msg = Session.Entity.display.name + ' : @fieldshop';
+				Network.sendPacket(packet);
+				break;
+			}
 			case 'autocombat':
 				AutoCombat.toggle();
 				break;
@@ -246,6 +256,19 @@ export function createBasicInfo(config) {
 	 */
 	Component.onAppend = function onAppend() {
 		const root = this.getRoot();
+		mobileExperience = document.createElement('div');
+		mobileExperience.className = 'mobile-experience';
+		mobileExperience.innerHTML = `
+			<style>${mobileExperienceCss}</style>
+			<div class="mobile-experience-track" data-type="bexp" aria-label="Base experience">
+				<div class="mobile-experience-fill mobile-experience-base"></div>
+				<span>Base Lv. <span data-level="blvl">—</span></span>
+			</div>
+			<div class="mobile-experience-track" data-type="jexp" aria-label="Job experience">
+				<div class="mobile-experience-fill mobile-experience-job"></div>
+				<span>Job Lv. <span data-level="jlvl">—</span></span>
+			</div>`;
+		document.body.appendChild(mobileExperience);
 		syncToolbarNotices(root);
 		const hostRect = this._host.getBoundingClientRect();
 		root.querySelector('.status-dot')?.classList.toggle('visible', (Session.availableStatusPoints || 0) > 0);
@@ -297,6 +320,8 @@ export function createBasicInfo(config) {
 	 * Once remove, save preferences
 	 */
 	Component.onRemove = function onRemove() {
+		mobileExperience?.remove();
+		mobileExperience = null;
 		const root = this.getRoot();
 		const inner = root.querySelector(innerId);
 		const buttons = root.querySelector('.buttons');
@@ -469,6 +494,12 @@ export function createBasicInfo(config) {
 			case 'name':
 			case 'blvl':
 			case 'jlvl':
+				if (type === 'blvl' || type === 'jlvl') {
+					const level = mobileExperience?.querySelector(`[data-level="${type}"]`);
+					if (level) {
+						level.textContent = val1;
+					}
+				}
 				root.querySelectorAll(`.${type}_value`).forEach(el => {
 					el.textContent = val1;
 				});
@@ -496,6 +527,12 @@ export function createBasicInfo(config) {
 
 			case 'bexp':
 			case 'jexp': {
+				const mobileTrack = mobileExperience?.querySelector(`[data-type="${type}"]`);
+				if (mobileTrack) {
+					const percent = val2 > 0 ? Math.max(0, Math.min(100, (val1 / val2) * 100)) : 0;
+					mobileTrack.querySelector('.mobile-experience-fill').style.width = `${percent}%`;
+					mobileTrack.title = val2 > 0 ? `${percent.toFixed(1)}%` : 'Experience unavailable';
+				}
 				const expEl = root.querySelector(`.${type}`);
 				if (!val2) {
 					if (expEl) {

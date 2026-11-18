@@ -276,6 +276,10 @@
 	z-index: 1000;
 }
 
+#MobileUI #buttonContainer .mobileKeys {
+	margin: 0;
+}
+
 /* Attack Button (center and larger) -MicromeX */
 #MobileUI .atkButton {
 	position: absolute;
@@ -676,4 +680,107 @@
 	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.4);
 	touch-action: none;
 	cursor: grab;
+}
+
+/* Mobile action controls */
+#MobileUI .joystick-container {
+	left: max(6.2%, env(safe-area-inset-left));
+	bottom: max(12.5%, env(safe-area-inset-bottom));
+	width: min(23vmin, 220px);
+	height: min(23vmin, 220px);
+}
+
+#MobileUI .joystick-base,
+#MobileUI .atkButton,
+#MobileUI .FButton,
+#MobileUI .pickupButton,
+#MobileUI .switchshorcutButton {
+	background: linear-gradient(145deg, rgba(135, 154, 191, .8), rgba(54, 70, 110, .88));
+	border: 3px solid rgba(224, 236, 255, .94);
+	box-shadow: inset 0 2px 8px rgba(255, 255, 255, .35), 0 3px 8px rgba(15, 27, 52, .65);
+}
+
+#MobileUI .joystick-thumb {
+	width: 44%;
+	height: 44%;
+	background: linear-gradient(145deg, #b9c8ec, #758cc3);
+	border: 3px solid #e6efff;
+	box-shadow: inset 0 2px 6px rgba(255, 255, 255, .6), 0 3px 6px rgba(20, 31, 59, .65);
+}
+
+#MobileUI .joystick-arrow {
+	position: absolute;
+	width: 12%;
+	height: 10%;
+	background: #e2ecff;
+	clip-path: polygon(50% 0, 100% 100%, 50% 75%, 0 100%);
+	pointer-events: none;
+}
+
+#MobileUI .joystick-arrow-up { top: 6%; }
+#MobileUI .joystick-arrow-right { right: 6%; transform: rotate(90deg); }
+#MobileUI .joystick-arrow-down { bottom: 6%; transform: rotate(180deg); }
+#MobileUI .joystick-arrow-left { left: 6%; transform: rotate(270deg); }
+
+#MobileUI #buttonContainer {
+	bottom: max(6%, env(safe-area-inset-bottom));
+	right: max(3%, env(safe-area-inset-right));
+	width: min(40vmin, 380px);
+	height: min(34vmin, 320px);
+}
+
+#MobileUI #attackButton {
+	width: 38%;
+	height: auto;
+	aspect-ratio: 1;
+	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+#MobileUI #attackButton svg {
+	width: 68%;
+	height: 68%;
+	fill: #f2f7ff;
+	stroke: #435779;
+	stroke-width: 1.5;
+	stroke-linejoin: round;
+	filter: drop-shadow(0 2px 1px #283a60);
+}
+
+#MobileUI .FButton {
+	width: 16%;
+	height: auto;
+	aspect-ratio: 1;
+	font-size: 0;
+	transform: none;
+}
+
+#MobileUI #f1Button, #MobileUI #n1Button, #MobileUI #qButton, #MobileUI #aButton { left: 0; top: 0; }
+#MobileUI #f2Button, #MobileUI #n2Button, #MobileUI #wButton, #MobileUI #sButton { left: 20%; top: 0; }
+#MobileUI #f3Button, #MobileUI #n3Button, #MobileUI #eButton, #MobileUI #dButton { left: 40%; top: 0; }
+#MobileUI #f4Button, #MobileUI #n4Button, #MobileUI #rButton, #MobileUI #fButton { left: 60%; top: 0; }
+#MobileUI #f5Button, #MobileUI #n5Button, #MobileUI #tButton, #MobileUI #gButton { left: 0; top: 27%; }
+#MobileUI #f6Button, #MobileUI #n6Button, #MobileUI #yButton, #MobileUI #hButton { left: 20%; top: 27%; }
+#MobileUI #f7Button, #MobileUI #n7Button, #MobileUI #uButton, #MobileUI #jButton { left: 40%; top: 27%; }
+#MobileUI #f8Button, #MobileUI #n8Button, #MobileUI #iButton, #MobileUI #kButton { left: 60%; top: 27%; }
+#MobileUI #f9Button, #MobileUI #n9Button, #MobileUI #oButton, #MobileUI #lButton { display: none; }
+
+#MobileUI #pickupButton {
+	width: 19%;
+	height: auto;
+	aspect-ratio: 1;
+	bottom: 4%;
+	left: 8%;
+	transform: none;
+}
+
+#MobileUI #switchshorcutButton {
+	width: 16%;
+	height: auto;
+	aspect-ratio: 1;
+	left: 84%;
+	bottom: auto;
+	top: 12%;
+	transform: none;
 }

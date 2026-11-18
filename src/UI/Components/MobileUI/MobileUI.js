@@ -1113,8 +1113,8 @@ function setupJoystick() {
 
 	maxDistance = _joystickBase.offsetWidth / 2;
 
-	_joystickThumb.addEventListener('mousedown', startDrag);
-	_joystickThumb.addEventListener('touchstart', startDrag);
+	_joystickBase.addEventListener('mousedown', startDrag);
+	_joystickBase.addEventListener('touchstart', startDrag, { passive: false });
 }
 
 function startDrag(event) {
@@ -1123,6 +1123,7 @@ function startDrag(event) {
 	const touch = event.touches ? event.touches[0] : event;
 
 	const rect = _joystickBase.getBoundingClientRect();
+	maxDistance = rect.width / 2;
 	centerX = rect.left + rect.width / 2;
 	centerY = rect.top + rect.height / 2;
 
@@ -1368,6 +1369,9 @@ function isFreeCell(x, y) {
 MobileUI.onAppend = function onAppend() {
 	if (Session.isTouchDevice) {
 		this._host.style.display = 'block';
+		if (!showButtons) {
+			toggleButtons();
+		}
 		showGuideOnActivate();
 	} else {
 		this._host.style.display = 'none';
