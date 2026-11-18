@@ -21,8 +21,8 @@ import PathFinding from 'Utils/PathFinding.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Events from 'Core/Events.js';
 import Client from 'Core/Client.js';
-import htmlText from './MobileUI.html?raw&v=mobileslots20261118c';
-import cssText from './MobileUI.css?raw&v=mobileslots20261118c';
+import htmlText from './MobileUI.html?raw&v=mobilehud20261118d';
+import cssText from './MobileUI.css?raw&v=mobilehud20261118d';
 import defaultTexts from './robrowser_mobileui.txt?raw';
 import glMatrix from 'Vendors/gl-matrix.js';
 import Camera from 'Renderer/Camera.js';
@@ -71,6 +71,7 @@ function refreshMobileShortcuts() {
 			button.style.backgroundImage = icon;
 			button.classList.toggle('shortcut-empty', !icon || icon === 'none');
 			button.dataset.key = key.startsWith('n') ? key.slice(1) : key.toUpperCase();
+			button.dataset.shortcutIndex = String(row * 9 + index);
 			let count = button.querySelector('.shortcut-amount');
 			if (!count) {
 				count = document.createElement('span');
@@ -557,6 +558,28 @@ function bindButton(root, selector, handler) {
  */
 MobileUI.init = function init() {
 	const root = MobileUI.getRoot();
+	root.querySelectorAll('.FButton').forEach(button => {
+		button.addEventListener('dragover', event => {
+			if (window._OBJ_DRAG_) {
+				event.preventDefault();
+			}
+		});
+		button.addEventListener('drop', event => {
+			event.preventDefault();
+			event.stopPropagation();
+			const index = Number(button.dataset.shortcutIndex);
+			if (!Number.isInteger(index) || !event.dataTransfer) {
+				return;
+			}
+			const slot = ShortCut.getRoot()?.querySelector(`.container[data-index="${index}"]`);
+			if (!slot) {
+				return;
+			}
+			const forwardedDrop = new Event('drop', { bubbles: true, composed: true, cancelable: true });
+			Object.defineProperty(forwardedDrop, 'dataTransfer', { value: event.dataTransfer });
+			slot.dispatchEvent(forwardedDrop);
+		});
+	});
 
 	bindButton(root, '#toggleUIButton', e => {
 		toggleButtons();

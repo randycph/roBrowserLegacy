@@ -14,13 +14,20 @@
 		transform-origin: top right;
 	}
 
+	body > #StatusIcons {
+		position: fixed !important;
+		top: clamp(58px, 17vh, 150px) !important;
+		left: max(1%, env(safe-area-inset-left)) !important;
+		right: auto !important;
+	}
+
 	.mobile-menu {
 		position: fixed;
 		top: max(1%, env(safe-area-inset-top));
 		right: max(18%, env(safe-area-inset-right));
 		z-index: 1200;
 		display: block;
-		width: min(31vw, 52vh);
+		width: min(36vw, 62vh);
 		min-width: 230px;
 		font-family: Arial, sans-serif;
 	}
@@ -68,8 +75,8 @@
 	.mobile-menu-button img,
 	.mobile-menu-button svg {
 		display: block;
-		width: min(5.8vw, 7vh);
-		height: min(5.8vw, 7vh);
+		width: min(7vw, 9vh);
+		height: min(7vw, 9vh);
 		max-width: 100%;
 		object-fit: contain;
 		margin: 0 auto 1px;

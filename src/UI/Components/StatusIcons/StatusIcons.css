@@ -36,3 +36,19 @@
 	width: 32px;
 	height: 32px;
 }
+
+@media (pointer: coarse) {
+	#StatusIcons {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 3px;
+		max-width: 35vw;
+	}
+
+	#StatusIcons .state {
+		position: relative;
+		top: auto !important;
+		right: auto !important;
+		flex: 0 0 32px;
+	}
+}
