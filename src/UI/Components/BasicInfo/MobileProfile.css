@@ -114,3 +114,55 @@
 		place-items: center;
 	}
 }
+
+@media (pointer: coarse) and (orientation: portrait) {
+	.mobile-profile {
+		width: min(68vw, 330px);
+		height: clamp(64px, 19vw, 86px);
+		min-height: 0;
+		font-size: clamp(10px, 3vw, 14px);
+	}
+
+	.mobile-profile-avatar {
+		width: clamp(54px, 15vw, 68px);
+		height: clamp(54px, 15vw, 68px);
+		min-width: 0;
+		min-height: 0;
+		border-width: 2px;
+	}
+
+	.mobile-profile-level {
+		top: clamp(48px, 13vw, 60px);
+		left: 2px;
+		width: clamp(52px, 14vw, 64px);
+		min-width: 0;
+		font-size: clamp(10px, 2.8vw, 13px);
+	}
+
+	.mobile-profile-details {
+		top: 0;
+		left: clamp(62px, 17vw, 78px);
+		width: calc(100% - clamp(62px, 17vw, 78px));
+	}
+
+	.mobile-profile-name {
+		height: clamp(16px, 4.5vw, 20px);
+	}
+
+	.mobile-profile-gauge {
+		height: clamp(17px, 4.7vw, 22px);
+		margin-bottom: 3px;
+		border-width: 1px;
+	}
+
+	.mobile-profile-label {
+		width: clamp(25px, 7vw, 30px);
+		border-width: 1px;
+	}
+
+	.mobile-profile-values {
+		left: 28px;
+		font-size: clamp(9px, 2.7vw, 12px);
+		white-space: nowrap;
+	}
+}

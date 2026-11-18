@@ -46,8 +46,8 @@ import Reputation from 'UI/Components/Reputation/Reputation.js';
 import AutoLoot from 'UI/Components/AutoLoot/AutoLoot.js';
 import AutoCombat from 'UI/Components/AutoCombat/AutoCombat.js';
 import mobileExperienceCss from './MobileExperience.css?raw';
-import mobileMenuCss from './MobileMenu.css?raw&v=mobilehud20261118d';
-import mobileProfileCss from './MobileProfile.css?raw&v=mobileprofile20261118';
+import mobileMenuCss from './MobileMenu.css?raw&v=portrait20261118';
+import mobileProfileCss from './MobileProfile.css?raw&v=portrait20261118';
 import CashShopIcon from 'UI/Components/CashShopIcon/CashShopIcon.js';
 
 export function createBasicInfo(config) {

@@ -8,9 +8,9 @@
  * @author Vincent Thibault
  */
 
-import htmlText from './BasicInfoV5.html?raw&v=mobileprofile20261118';
-import cssText from './BasicInfoV5.css?raw&v=mobileprofile20261118';
-import { createBasicInfo } from '../BasicInfoCommon.js?v=mobileprofile20261118';
+import htmlText from './BasicInfoV5.html?raw&v=portrait20261118';
+import cssText from './BasicInfoV5.css?raw&v=portrait20261118';
+import { createBasicInfo } from '../BasicInfoCommon.js?v=portrait20261118';
 
 export default createBasicInfo({
 	name: 'BasicInfoV5',
