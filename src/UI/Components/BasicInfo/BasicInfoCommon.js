@@ -269,6 +269,8 @@ export function createBasicInfo(config) {
 				<span>Job Lv. <span data-level="jlvl">—</span></span>
 			</div>`;
 		document.body.appendChild(mobileExperience);
+		mobileExperience.querySelector('[data-level="blvl"]').textContent = Session.Entity?.clevel ?? '—';
+		mobileExperience.querySelector('[data-level="jlvl"]').textContent = Session.Entity?.joblevel ?? '—';
 		syncToolbarNotices(root);
 		const hostRect = this._host.getBoundingClientRect();
 		root.querySelector('.status-dot')?.classList.toggle('visible', (Session.availableStatusPoints || 0) > 0);
