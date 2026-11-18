@@ -21,14 +21,15 @@ import PathFinding from 'Utils/PathFinding.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Events from 'Core/Events.js';
 import Client from 'Core/Client.js';
-import htmlText from './MobileUI.html?raw&v=mobile20261118';
-import cssText from './MobileUI.css?raw&v=mobile20261118';
+import htmlText from './MobileUI.html?raw&v=mobilehud20261118b';
+import cssText from './MobileUI.css?raw&v=mobilehud20261118b';
 import defaultTexts from './robrowser_mobileui.txt?raw';
 import glMatrix from 'Vendors/gl-matrix.js';
 import Camera from 'Renderer/Camera.js';
 import BattleMode from 'Controls/BattleMode.js';
 import ProcessCommand from 'Controls/ProcessCommand.js';
 import StatusIcons from 'UI/Components/StatusIcons/StatusIcons.js';
+import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
 
 const vec2 = glMatrix.vec2;
 const mat2 = glMatrix.mat2;
@@ -41,6 +42,48 @@ const rotate = mat2.create();
 const targetPos = [0, 0];
 
 let movementTimer = null; // Timer for continuous joystick movement
+let shortcutObserver = null;
+
+function refreshMobileShortcuts() {
+	const root = MobileUI.getRoot();
+	const shortcutRoot = ShortCut.getRoot();
+	if (!root || !shortcutRoot) {
+		return;
+	}
+
+	const groups = [
+		['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'],
+		['n1', 'n2', 'n3', 'n4', 'n5', 'n6', 'n7', 'n8'],
+		['q', 'w', 'e', 'r', 't', 'y', 'u', 'i'],
+		['a', 's', 'd', 'f', 'g', 'h', 'j', 'k']
+	];
+
+	groups.forEach((group, row) => {
+		group.forEach((key, index) => {
+			const button = root.querySelector(`#${key}Button`);
+			const slot = shortcutRoot.querySelector(`.container[data-index="${row * 9 + index}"]`);
+			if (!button) {
+				return;
+			}
+			const image = slot?.querySelector('.img');
+			const amount = slot?.querySelector('.amount');
+			button.style.backgroundImage = image?.style.backgroundImage || '';
+			button.dataset.amount = amount?.textContent || '';
+			button.setAttribute('aria-label', slot?.getAttribute('data-tooltip') || `Empty shortcut ${index + 1}`);
+		});
+	});
+}
+
+function observeMobileShortcuts() {
+	shortcutObserver?.disconnect();
+	const root = ShortCut.getRoot();
+	if (!root) {
+		return;
+	}
+	shortcutObserver = new MutationObserver(refreshMobileShortcuts);
+	shortcutObserver.observe(root, { childList: true, subtree: true, attributes: true, characterData: true });
+	refreshMobileShortcuts();
+}
 
 /**
  * Create Component
@@ -1368,6 +1411,7 @@ function isFreeCell(x, y) {
  */
 MobileUI.onAppend = function onAppend() {
 	if (Session.isTouchDevice) {
+		observeMobileShortcuts();
 		this._host.style.display = 'block';
 		if (!showButtons) {
 			toggleButtons();
@@ -1414,6 +1458,8 @@ MobileUI.onShortCut = function onShortCut(key) {
  * Removes MobileUI
  */
 MobileUI.onRemove = function onRemove() {
+	shortcutObserver?.disconnect();
+	shortcutObserver = null;
 	_preferences.y = 0;
 	_preferences.x = 0;
 	_preferences.zIndex = 1000;

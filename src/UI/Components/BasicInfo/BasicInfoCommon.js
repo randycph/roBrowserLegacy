@@ -44,7 +44,7 @@ import Reputation from 'UI/Components/Reputation/Reputation.js';
 import AutoLoot from 'UI/Components/AutoLoot/AutoLoot.js';
 import AutoCombat from 'UI/Components/AutoCombat/AutoCombat.js';
 import mobileExperienceCss from './MobileExperience.css?raw';
-import mobileMenuCss from './MobileMenu.css?raw&v=mobilemenu20261118';
+import mobileMenuCss from './MobileMenu.css?raw&v=mobilehud20261118b';
 import CashShopIcon from 'UI/Components/CashShopIcon/CashShopIcon.js';
 
 export function createBasicInfo(config) {
@@ -163,6 +163,9 @@ export function createBasicInfo(config) {
 			case 'cashshop':
 				CashShopIcon.getRoot()?.querySelector('.cashshop-icon')?.click();
 				break;
+			case 'hotkeys':
+				document.getElementById('MobileUI')?.shadowRoot?.querySelector('#f12Button')?.click();
+				break;
 			case 'autocombat':
 				AutoCombat.toggle();
 				break;
@@ -263,25 +266,31 @@ export function createBasicInfo(config) {
 	Component.onAppend = function onAppend() {
 		const root = this.getRoot();
 		const menuEntries = [
-			{ key: 'attendance', label: 'Attendance', icon: 'attendance', enabled: Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307 },
-			{ key: 'fieldshop', label: 'Mini Store', icon: 'mini-store', enabled: true },
-			{ key: 'cashshop', label: 'Shop', icon: 'shop', enabled: Configs.get('enableCashShop') },
-			{ key: 'mail', label: 'Mail', icon: 'mail', enabled: true },
-			{ key: 'option', label: 'Options', icon: 'options', enabled: true },
 			{ key: 'info', label: 'Stats', icon: 'stats', enabled: true },
-			{ key: 'equip', label: 'Equip', icon: 'equip', enabled: true },
 			{ key: 'item', label: 'Inventory', icon: 'inventory', enabled: true },
 			{ key: 'skill', label: 'Skills', icon: 'skills', enabled: true },
+			{ key: 'fieldshop', label: 'Mini Store', icon: 'mini-store', enabled: true },
+			{ key: 'option', label: 'Options', icon: 'options', enabled: true },
+			{ key: 'attendance', label: 'Attendance', icon: 'attendance', enabled: Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307 },
+			{ key: 'cashshop', label: 'Shop', icon: 'shop', enabled: Configs.get('enableCashShop') },
+			{ key: 'mail', label: 'Mail', icon: 'mail', enabled: true },
+			{ key: 'equip', label: 'Equip', icon: 'equip', enabled: true },
 			{ key: 'skill', label: 'Skill Tree', icon: 'skill-tree', enabled: true },
 			{ key: 'party', label: 'Party', icon: 'party', enabled: true },
 			{ key: 'guild', label: 'Guild', icon: 'guild', enabled: true },
 			{ key: 'map', label: 'World Map', icon: 'world-map', enabled: true },
-			{ key: 'navigation', label: 'Navigation', icon: 'navigation', enabled: true }
+			{ key: 'navigation', label: 'Navigation', icon: 'navigation', enabled: true },
+			{ key: 'quest', label: 'Quest', icon: null, enabled: true },
+			{ key: 'bank', label: 'Bank', icon: null, enabled: true },
+			{ key: 'achievment', label: 'Achievement', icon: null, enabled: Configs.get('enableAchievements') && PACKETVER.value >= 20150513 },
+			{ key: 'autoloot', label: 'Auto Loot', icon: null, enabled: true },
+			{ key: 'autocombat', label: 'Auto Combat', icon: null, enabled: true },
+			{ key: 'hotkeys', label: 'Hotkeys', icon: 'skills', enabled: true }
 		];
 		const renderMenuButton = entry => `
 			<button type="button" class="mobile-menu-button" data-action="${entry.key}"
 				${entry.enabled ? '' : 'disabled title="Currently unavailable"'}>
-				<img src="/src/UI/Components/BasicInfo/mobile-icons/${entry.icon}.png" alt="" />
+				${entry.icon ? `<img src="/src/UI/Components/BasicInfo/mobile-icons/${entry.icon}.png" alt="" />` : ''}
 				<span>${entry.label}</span>
 			</button>`;
 		mobileMenu = document.createElement('div');
@@ -289,9 +298,15 @@ export function createBasicInfo(config) {
 		mobileMenu.innerHTML = `
 			<style>${mobileMenuCss}</style>
 			<div class="mobile-menu-top">${menuEntries.slice(0, 5).map(renderMenuButton).join('')}</div>
-			<div class="mobile-menu-panel" id="mobile-menu-panel">${menuEntries.slice(5).map(renderMenuButton).join('')}</div>
-			<button type="button" class="mobile-menu-toggle" aria-label="Toggle menu" aria-expanded="true" aria-controls="mobile-menu-panel">›</button>`;
+			<div class="mobile-menu-panel" id="mobile-menu-panel" hidden>${menuEntries.slice(5).map(renderMenuButton).join('')}</div>
+			<button type="button" class="mobile-menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-menu-panel">‹</button>`;
 		mobileMenu.querySelectorAll('[data-action]').forEach(button => {
+			if (!button.querySelector('img')) {
+				const originalIcon = root.querySelector(`#${button.dataset.action} svg`);
+				if (originalIcon) {
+					button.prepend(originalIcon.cloneNode(true));
+				}
+			}
 			button.addEventListener('click', event => {
 				event.stopPropagation();
 				dispatchButton(button.dataset.action);

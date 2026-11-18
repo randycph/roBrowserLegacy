@@ -3,6 +3,17 @@
 }
 
 @media (pointer: coarse) {
+	body > #ChatBox,
+	body > #ChatBoxSettings {
+		display: none !important;
+	}
+
+	body > #MiniMap,
+	body > #MiniMapV2 {
+		scale: 0.58;
+		transform-origin: top right;
+	}
+
 	.mobile-menu {
 		position: fixed;
 		top: max(1%, env(safe-area-inset-top));
@@ -54,7 +65,8 @@
 		cursor: pointer;
 	}
 
-	.mobile-menu-button img {
+	.mobile-menu-button img,
+	.mobile-menu-button svg {
 		display: block;
 		width: min(5.8vw, 7vh);
 		height: min(5.8vw, 7vh);
@@ -74,7 +86,7 @@
 
 	.mobile-menu-toggle {
 		position: absolute;
-		top: min(17vh, 9vw);
+		top: 1vh;
 		right: -2.5vh;
 		width: 4.5vh;
 		height: 5.5vh;

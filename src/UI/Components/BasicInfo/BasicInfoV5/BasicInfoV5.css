@@ -344,3 +344,10 @@
 		display: none;
 	}
 }
+
+@media (pointer: coarse) {
+	#BasicInfoV5 .buttons,
+	#BasicInfoV5 .bt_menu {
+		display: none !important;
+	}
+}

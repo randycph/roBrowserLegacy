@@ -285,3 +285,10 @@
 		display: none;
 	}
 }
+
+@media (pointer: coarse) {
+	#BasicInfoV4 .buttons,
+	#BasicInfoV4 .bt_menu {
+		display: none !important;
+	}
+}
