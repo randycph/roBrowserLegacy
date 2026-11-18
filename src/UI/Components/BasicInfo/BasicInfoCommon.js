@@ -44,9 +44,12 @@ import Reputation from 'UI/Components/Reputation/Reputation.js';
 import AutoLoot from 'UI/Components/AutoLoot/AutoLoot.js';
 import AutoCombat from 'UI/Components/AutoCombat/AutoCombat.js';
 import mobileExperienceCss from './MobileExperience.css?raw';
+import mobileMenuCss from './MobileMenu.css?raw&v=mobilemenu20261118';
+import CashShopIcon from 'UI/Components/CashShopIcon/CashShopIcon.js';
 
 export function createBasicInfo(config) {
 	let mobileExperience = null;
+	let mobileMenu = null;
 	const {
 		name,
 		htmlText,
@@ -157,6 +160,9 @@ export function createBasicInfo(config) {
 				Network.sendPacket(packet);
 				break;
 			}
+			case 'cashshop':
+				CashShopIcon.getRoot()?.querySelector('.cashshop-icon')?.click();
+				break;
 			case 'autocombat':
 				AutoCombat.toggle();
 				break;
@@ -256,6 +262,48 @@ export function createBasicInfo(config) {
 	 */
 	Component.onAppend = function onAppend() {
 		const root = this.getRoot();
+		const menuEntries = [
+			{ key: 'attendance', label: 'Attendance', icon: 'attendance', enabled: Configs.get('enableCheckAttendance') && PACKETVER.value >= 20180307 },
+			{ key: 'fieldshop', label: 'Mini Store', icon: 'mini-store', enabled: true },
+			{ key: 'cashshop', label: 'Shop', icon: 'shop', enabled: Configs.get('enableCashShop') },
+			{ key: 'mail', label: 'Mail', icon: 'mail', enabled: true },
+			{ key: 'option', label: 'Options', icon: 'options', enabled: true },
+			{ key: 'info', label: 'Stats', icon: 'stats', enabled: true },
+			{ key: 'equip', label: 'Equip', icon: 'equip', enabled: true },
+			{ key: 'item', label: 'Inventory', icon: 'inventory', enabled: true },
+			{ key: 'skill', label: 'Skills', icon: 'skills', enabled: true },
+			{ key: 'skill', label: 'Skill Tree', icon: 'skill-tree', enabled: true },
+			{ key: 'party', label: 'Party', icon: 'party', enabled: true },
+			{ key: 'guild', label: 'Guild', icon: 'guild', enabled: true },
+			{ key: 'map', label: 'World Map', icon: 'world-map', enabled: true },
+			{ key: 'navigation', label: 'Navigation', icon: 'navigation', enabled: true }
+		];
+		const renderMenuButton = entry => `
+			<button type="button" class="mobile-menu-button" data-action="${entry.key}"
+				${entry.enabled ? '' : 'disabled title="Currently unavailable"'}>
+				<img src="/src/UI/Components/BasicInfo/mobile-icons/${entry.icon}.png" alt="" />
+				<span>${entry.label}</span>
+			</button>`;
+		mobileMenu = document.createElement('div');
+		mobileMenu.className = 'mobile-menu';
+		mobileMenu.innerHTML = `
+			<style>${mobileMenuCss}</style>
+			<div class="mobile-menu-top">${menuEntries.slice(0, 5).map(renderMenuButton).join('')}</div>
+			<div class="mobile-menu-panel" id="mobile-menu-panel">${menuEntries.slice(5).map(renderMenuButton).join('')}</div>
+			<button type="button" class="mobile-menu-toggle" aria-label="Toggle menu" aria-expanded="true" aria-controls="mobile-menu-panel">›</button>`;
+		mobileMenu.querySelectorAll('[data-action]').forEach(button => {
+			button.addEventListener('click', event => {
+				event.stopPropagation();
+				dispatchButton(button.dataset.action);
+			});
+		});
+		mobileMenu.querySelector('.mobile-menu-toggle').addEventListener('click', event => {
+			const panel = mobileMenu.querySelector('.mobile-menu-panel');
+			panel.hidden = !panel.hidden;
+			event.currentTarget.setAttribute('aria-expanded', String(!panel.hidden));
+			event.currentTarget.textContent = panel.hidden ? '‹' : '›';
+		});
+		document.body.appendChild(mobileMenu);
 		mobileExperience = document.createElement('div');
 		mobileExperience.className = 'mobile-experience';
 		mobileExperience.innerHTML = `
@@ -322,6 +370,8 @@ export function createBasicInfo(config) {
 	 * Once remove, save preferences
 	 */
 	Component.onRemove = function onRemove() {
+		mobileMenu?.remove();
+		mobileMenu = null;
 		mobileExperience?.remove();
 		mobileExperience = null;
 		const root = this.getRoot();

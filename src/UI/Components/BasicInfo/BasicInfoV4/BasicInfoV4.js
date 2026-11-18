@@ -10,7 +10,7 @@
 
 import htmlText from './BasicInfoV4.html?raw&v=mobile20261118';
 import cssText from './BasicInfoV4.css?raw&v=mobile20261118';
-import { createBasicInfo } from '../BasicInfoCommon.js?v=mobile20261118';
+import { createBasicInfo } from '../BasicInfoCommon.js?v=mobilemenu20261118';
 
 export default createBasicInfo({
 	name: 'BasicInfoV4',
