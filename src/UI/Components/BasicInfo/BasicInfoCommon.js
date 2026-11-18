@@ -22,6 +22,8 @@ import MonsterTable from 'DB/Monsters/MonsterTable.js';
 import Client from 'Core/Client.js';
 import Preferences from 'Core/Preferences.js';
 import Renderer from 'Renderer/Renderer.js';
+import Camera from 'Renderer/Camera.js';
+import SpriteRenderer from 'Renderer/SpriteRenderer.js';
 import Session from 'Engine/SessionStorage.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
@@ -45,11 +47,99 @@ import AutoLoot from 'UI/Components/AutoLoot/AutoLoot.js';
 import AutoCombat from 'UI/Components/AutoCombat/AutoCombat.js';
 import mobileExperienceCss from './MobileExperience.css?raw';
 import mobileMenuCss from './MobileMenu.css?raw&v=mobilehud20261118d';
+import mobileProfileCss from './MobileProfile.css?raw&v=mobileprofile20261118';
 import CashShopIcon from 'UI/Components/CashShopIcon/CashShopIcon.js';
 
 export function createBasicInfo(config) {
 	let mobileExperience = null;
 	let mobileMenu = null;
+	let mobileProfile = null;
+	let lastPortraitDraw = 0;
+	const portraitAnimation = { tick: 0, frame: 0, repeat: true, play: true, next: false, delay: 0, save: false };
+	const portraitCanvas = document.createElement('canvas');
+	portraitCanvas.width = 180;
+	portraitCanvas.height = 180;
+	const portraitContext = portraitCanvas.getContext('2d', { willReadFrequently: true });
+
+	function drawMobilePortrait() {
+		if (!mobileProfile || !window.matchMedia('(pointer: coarse)').matches || !Session.Entity?.effectColor || !Session.Entity?.ACTION || !portraitContext) {
+			return;
+		}
+		if (Date.now() - lastPortraitDraw < 1000) {
+			return;
+		}
+		lastPortraitDraw = Date.now();
+		const character = Session.Entity;
+		const saved = {
+			camera: Camera.direction,
+			direction: character.direction,
+			headDir: character.headDir,
+			action: character.action,
+			animation: character.animation,
+			color: new Float32Array(character.effectColor),
+			spriteRender: SpriteRenderer.render,
+			spriteXSize: SpriteRenderer.xSize,
+			spriteYSize: SpriteRenderer.ySize,
+			spriteShadow: SpriteRenderer.shadow,
+			spriteZIndex: SpriteRenderer.zIndex
+		};
+		try {
+			Camera.direction = 4;
+			character.direction = 4;
+			character.headDir = 0;
+			character.action = character.ACTION.IDLE;
+			character.animation = portraitAnimation;
+			character.effectColor.set([1, 1, 1, 1]);
+			portraitContext.clearRect(0, 0, 180, 180);
+			SpriteRenderer.bind2DContext(portraitContext, 90, 150);
+			character.renderEntity();
+			const pixels = portraitContext.getImageData(0, 0, 180, 180).data;
+			let left = 180, right = -1, top = 180, bottom = -1;
+			for (let y = 0; y < 180; y++) {
+				for (let x = 0; x < 180; x++) {
+					if (pixels[(y * 180 + x) * 4 + 3] > 16) {
+						left = Math.min(left, x);
+						right = Math.max(right, x);
+						top = Math.min(top, y);
+						bottom = Math.max(bottom, y);
+					}
+				}
+			}
+			if (right >= left && bottom >= top) {
+				const side = Math.min(180, Math.max(right - left + 1, Math.round((bottom - top + 1) * 0.6), 32));
+				const sx = Math.max(0, Math.min(180 - side, Math.round((left + right - side) / 2)));
+				const sy = Math.max(0, Math.min(180 - side, top));
+				const canvas = mobileProfile.querySelector('canvas');
+				const ctx = canvas.getContext('2d');
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				ctx.imageSmoothingEnabled = false;
+				ctx.drawImage(portraitCanvas, sx, sy, side, side, 0, 0, canvas.width, canvas.height);
+			}
+		} catch (error) {
+			console.warn('Mobile profile portrait could not be drawn.', error);
+		} finally {
+			Camera.direction = saved.camera;
+			character.direction = saved.direction;
+			character.headDir = saved.headDir;
+			character.action = saved.action;
+			character.animation = saved.animation;
+			character.effectColor.set(saved.color);
+			SpriteRenderer.render = saved.spriteRender;
+			SpriteRenderer.xSize = saved.spriteXSize;
+			SpriteRenderer.ySize = saved.spriteYSize;
+			SpriteRenderer.shadow = saved.spriteShadow;
+			SpriteRenderer.zIndex = saved.spriteZIndex;
+		}
+	}
+
+	function updateMobileGauge(type, value, maximum) {
+		const gauge = mobileProfile?.querySelector(`[data-gauge="${type}"]`);
+		if (!gauge) return;
+		const valid = Number.isFinite(value) && Number.isFinite(maximum) && maximum > 0;
+		const percent = valid ? Math.max(0, Math.min(100, (value / maximum) * 100)) : 0;
+		gauge.querySelector('.mobile-profile-fill').style.width = `${percent}%`;
+		gauge.querySelector('.mobile-profile-values').textContent = valid ? `${value} / ${maximum}` : '— / —';
+	}
 	const {
 		name,
 		htmlText,
@@ -265,6 +355,23 @@ export function createBasicInfo(config) {
 	 */
 	Component.onAppend = function onAppend() {
 		const root = this.getRoot();
+		mobileProfile = document.createElement('div');
+		mobileProfile.className = 'mobile-profile';
+		mobileProfile.innerHTML = `
+			<style>${mobileProfileCss}</style>
+			<div class="mobile-profile-avatar"><canvas width="96" height="96" aria-label="Character portrait"></canvas></div>
+			<div class="mobile-profile-level">Lv.<span data-profile-level>—</span></div>
+			<div class="mobile-profile-details">
+				<div class="mobile-profile-name" data-profile-name></div>
+				<div class="mobile-profile-gauge" data-gauge="hp"><div class="mobile-profile-fill"></div><span class="mobile-profile-label">HP</span><span class="mobile-profile-values">— / —</span></div>
+				<div class="mobile-profile-gauge" data-gauge="sp"><div class="mobile-profile-fill"></div><span class="mobile-profile-label">SP</span><span class="mobile-profile-values">— / —</span></div>
+			</div>`;
+		document.body.appendChild(mobileProfile);
+		mobileProfile.querySelector('[data-profile-name]').textContent = Session.Entity?.display?.name || '';
+		mobileProfile.querySelector('[data-profile-level]').textContent = Session.Entity?.clevel ?? '—';
+		updateMobileGauge('hp', Session.Entity?.life?.hp, Session.Entity?.life?.hp_max);
+		updateMobileGauge('sp', Session.Entity?.life?.sp, Session.Entity?.life?.sp_max);
+		Renderer.render(drawMobilePortrait);
 		const menuEntries = [
 			{ key: 'info', label: 'Stats', icon: 'stats', enabled: true },
 			{ key: 'item', label: 'Inventory', icon: 'inventory', enabled: true },
@@ -385,6 +492,9 @@ export function createBasicInfo(config) {
 	 * Once remove, save preferences
 	 */
 	Component.onRemove = function onRemove() {
+		Renderer.stop(drawMobilePortrait);
+		mobileProfile?.remove();
+		mobileProfile = null;
 		mobileMenu?.remove();
 		mobileMenu = null;
 		mobileExperience?.remove();
@@ -561,6 +671,12 @@ export function createBasicInfo(config) {
 			case 'name':
 			case 'blvl':
 			case 'jlvl':
+				if (type === 'name' && mobileProfile) {
+					mobileProfile.querySelector('[data-profile-name]').textContent = val1;
+				}
+				if (type === 'blvl' && mobileProfile) {
+					mobileProfile.querySelector('[data-profile-level]').textContent = val1;
+				}
 				if (type === 'blvl' || type === 'jlvl') {
 					const level = mobileExperience?.querySelector(`[data-level="${type}"]`);
 					if (level) {
@@ -636,6 +752,7 @@ export function createBasicInfo(config) {
 
 			case 'hp':
 			case 'sp': {
+				updateMobileGauge(type, val1, val2);
 				const perc = Math.floor((val1 * 100) / val2);
 				updateBar(root, type, val1, val2, perc < 25 ? 'red' : 'blue');
 				break;
