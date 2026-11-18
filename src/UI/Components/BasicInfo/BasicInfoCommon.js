@@ -46,8 +46,8 @@ import Reputation from 'UI/Components/Reputation/Reputation.js';
 import AutoLoot from 'UI/Components/AutoLoot/AutoLoot.js';
 import AutoCombat from 'UI/Components/AutoCombat/AutoCombat.js';
 import mobileExperienceCss from './MobileExperience.css?raw';
-import mobileMenuCss from './MobileMenu.css?raw&v=portrait20261118';
-import mobileProfileCss from './MobileProfile.css?raw&v=portrait20261118';
+import mobileMenuCss from './MobileMenu.css?raw&v=modernhud20261118';
+import mobileProfileCss from './MobileProfile.css?raw&v=modernhud20261118';
 import CashShopIcon from 'UI/Components/CashShopIcon/CashShopIcon.js';
 
 export function createBasicInfo(config) {
@@ -360,15 +360,19 @@ export function createBasicInfo(config) {
 		mobileProfile.innerHTML = `
 			<style>${mobileProfileCss}</style>
 			<div class="mobile-profile-avatar"><canvas width="96" height="96" aria-label="Character portrait"></canvas></div>
-			<div class="mobile-profile-level">Lv.<span data-profile-level>—</span></div>
 			<div class="mobile-profile-details">
 				<div class="mobile-profile-name" data-profile-name></div>
+				<div class="mobile-profile-meta">Lv.<span data-profile-level>—</span> <span data-profile-job></span></div>
 				<div class="mobile-profile-gauge" data-gauge="hp"><div class="mobile-profile-fill"></div><span class="mobile-profile-label">HP</span><span class="mobile-profile-values">— / —</span></div>
 				<div class="mobile-profile-gauge" data-gauge="sp"><div class="mobile-profile-fill"></div><span class="mobile-profile-label">SP</span><span class="mobile-profile-values">— / —</span></div>
+				<div class="mobile-profile-zeny">Zeny <span data-profile-zeny>—</span></div>
 			</div>`;
 		document.body.appendChild(mobileProfile);
 		mobileProfile.querySelector('[data-profile-name]').textContent = Session.Entity?.display?.name || '';
 		mobileProfile.querySelector('[data-profile-level]').textContent = Session.Entity?.clevel ?? '—';
+		mobileProfile.querySelector('[data-profile-job]').textContent = MonsterTable[Session.Entity?.job] || '';
+		const currentZeny = Session.zeny ?? Session.Entity?.money;
+		mobileProfile.querySelector('[data-profile-zeny]').textContent = Number.isFinite(currentZeny) ? currentZeny.toLocaleString('en-US') : '—';
 		updateMobileGauge('hp', Session.Entity?.life?.hp, Session.Entity?.life?.hp_max);
 		updateMobileGauge('sp', Session.Entity?.life?.sp, Session.Entity?.life?.sp_max);
 		Renderer.render(drawMobilePortrait);
@@ -697,12 +701,18 @@ export function createBasicInfo(config) {
 				for (let i = 0; i < count; i++) {
 					str = list[count - i - 1] + (i && i % 3 === 0 ? ',' : '') + str;
 				}
+				if (mobileProfile) {
+					mobileProfile.querySelector('[data-profile-zeny]').textContent = str;
+				}
 				root.querySelectorAll(`.${type}_value`).forEach(el => {
 					el.textContent = str;
 				});
 				break;
 			}
 			case 'job':
+				if (mobileProfile) {
+					mobileProfile.querySelector('[data-profile-job]').textContent = MonsterTable[val1] || '';
+				}
 				root.querySelectorAll('.job_value').forEach(el => {
 					el.textContent = MonsterTable[val1];
 				});
