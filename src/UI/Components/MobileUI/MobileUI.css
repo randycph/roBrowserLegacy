@@ -70,16 +70,6 @@
 	transform: translate(0, 50%);
 }
 
-#MobileUI #rightBar {
-	right: 1%;
-	bottom: 35%;
-	transform: translate(0, 50%);
-}
-
-#MobileUI #rightBar .buttons {
-	float: right;
-}
-
 #MobileUI .active {
 	background: linear-gradient(135deg, rgba(144, 238, 144, 0.5), rgba(193, 255, 193, 0.8));
 	border: 2px solid rgba(144, 238, 144, 0.8);
@@ -153,6 +143,10 @@
 	text-shadow: 1px 1px black;
 	pointer-events: auto;
 	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+:host(.mobile-guide-open) {
+	z-index: 1200 !important;
 }
 
 #MobileUI .guideWindow.disabled {
@@ -365,190 +359,6 @@
 	cursor: pointer;
 }
 
-/* Positioning Buttons Around Attack Button -MicromeX */
-#MobileUI #f1Button {
-	top: 97%;
-	left: 35%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #f2Button {
-	top: 78%;
-	left: 24%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #f3Button {
-	top: 56%;
-	left: 24%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #f4Button {
-	top: 37%;
-	left: 35%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #f5Button {
-	top: 30%;
-	left: 57%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #f6Button {
-	top: 37%;
-	left: 80%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #f7Button {
-	top: 7%;
-	left: 35%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #f8Button {
-	top: 7%;
-	left: 57%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #f9Button {
-	top: 7%;
-	left: 80%;
-	transform: translate(-50%, -50%);
-}
-/* Positioning Buttons Around Attack Button -MicromeX */
-#MobileUI #n1Button {
-	top: 97%;
-	left: 35%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #n2Button {
-	top: 78%;
-	left: 24%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #n3Button {
-	top: 56%;
-	left: 24%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #n4Button {
-	top: 37%;
-	left: 35%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #n5Button {
-	top: 30%;
-	left: 57%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #n6Button {
-	top: 37%;
-	left: 80%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #n7Button {
-	top: 7%;
-	left: 35%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #n8Button {
-	top: 7%;
-	left: 57%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #n9Button {
-	top: 7%;
-	left: 80%;
-	transform: translate(-50%, -50%);
-}
-/* Positioning Buttons Around Attack Button -MicromeX */
-#MobileUI #qButton {
-	top: 97%;
-	left: 35%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #wButton {
-	top: 78%;
-	left: 24%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #eButton {
-	top: 56%;
-	left: 24%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #rButton {
-	top: 37%;
-	left: 35%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #tButton {
-	top: 30%;
-	left: 57%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #yButton {
-	top: 37%;
-	left: 80%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #uButton {
-	top: 7%;
-	left: 35%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #iButton {
-	top: 7%;
-	left: 57%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #oButton {
-	top: 7%;
-	left: 80%;
-	transform: translate(-50%, -50%);
-}
-/* Positioning Buttons Around Attack Button -MicromeX */
-#MobileUI #aButton {
-	top: 97%;
-	left: 35%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #sButton {
-	top: 78%;
-	left: 24%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #dButton {
-	top: 56%;
-	left: 24%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #fButton {
-	top: 37%;
-	left: 35%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #gButton {
-	top: 30%;
-	left: 57%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #hButton {
-	top: 37%;
-	left: 80%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #jButton {
-	top: 7%;
-	left: 35%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #kButton {
-	top: 7%;
-	left: 57%;
-	transform: translate(-50%, -50%);
-}
-#MobileUI #lButton {
-	top: 7%;
-	left: 80%;
-	transform: translate(-50%, -50%);
-}
 /* Pickup Button (slightly below attackButton) -MicromeX */
 #MobileUI #attackButton {
 	bottom: -10%;
@@ -684,8 +494,12 @@
 
 /* Mobile action controls */
 #MobileUI .joystick-container {
-	left: max(6.2%, env(safe-area-inset-left));
-	bottom: max(12.5%, env(safe-area-inset-bottom));
+	left: calc(max(0.8vw, env(safe-area-inset-left)) + 2.2vw);
+	/* Keep the joystick clear of the five chat lines and the chat launcher. */
+	bottom: calc(
+		max(0.5vh, env(safe-area-inset-bottom)) + clamp(15px, 3.35vmin, 28px) +
+		5 * clamp(11px, 2.8vmin, 15px) + 62px
+	);
 	width: min(23vmin, 220px);
 	height: min(23vmin, 220px);
 }
@@ -724,8 +538,9 @@
 
 #MobileUI #buttonContainer {
 	bottom: max(6%, env(safe-area-inset-bottom));
-	right: max(3%, env(safe-area-inset-right));
-	width: min(49vmin, 460px);
+	right: max(1.8%, calc(env(safe-area-inset-right) + min(1.1vmin, 10.2px)));
+	--controls-width: min(55vmin, 510px);
+	width: var(--controls-width);
 	height: min(41vmin, 390px);
 }
 
@@ -734,7 +549,7 @@
 	height: auto;
 	aspect-ratio: 1;
 	bottom: 0;
-	left: 50%;
+	left: 55.9%;
 	transform: translateX(-50%);
 }
 
@@ -756,22 +571,14 @@
 	transform: none;
 }
 
-#MobileUI #f1Button, #MobileUI #n1Button, #MobileUI #qButton, #MobileUI #aButton { left: 0; top: 0; }
-#MobileUI #f2Button, #MobileUI #n2Button, #MobileUI #wButton, #MobileUI #sButton { left: 20%; top: 0; }
-#MobileUI #f3Button, #MobileUI #n3Button, #MobileUI #eButton, #MobileUI #dButton { left: 40%; top: 0; }
-#MobileUI #f4Button, #MobileUI #n4Button, #MobileUI #rButton, #MobileUI #fButton { left: 60%; top: 0; }
-#MobileUI #f5Button, #MobileUI #n5Button, #MobileUI #tButton, #MobileUI #gButton { left: 0; top: 27%; }
-#MobileUI #f6Button, #MobileUI #n6Button, #MobileUI #yButton, #MobileUI #hButton { left: 20%; top: 27%; }
-#MobileUI #f7Button, #MobileUI #n7Button, #MobileUI #uButton, #MobileUI #jButton { left: 40%; top: 27%; }
-#MobileUI #f8Button, #MobileUI #n8Button, #MobileUI #iButton, #MobileUI #kButton { left: 60%; top: 27%; }
 #MobileUI #f9Button, #MobileUI #n9Button, #MobileUI #oButton, #MobileUI #lButton { display: none; }
 
 #MobileUI #pickupButton {
-	width: 19%;
+	width: 17%;
 	height: auto;
 	aspect-ratio: 1;
-	bottom: 4%;
-	left: 8%;
+	bottom: calc(var(--controls-width) * 0.032);
+	left: 16.8%;
 	transform: none;
 }
 
@@ -840,23 +647,19 @@
 
 @media (pointer: coarse) and (orientation: portrait) {
 	#MobileUI .joystick-container {
-		left: max(3%, env(safe-area-inset-left));
+		left: max(0.8vw, env(safe-area-inset-left));
 		bottom: max(8%, env(safe-area-inset-bottom));
 		width: min(25vw, 130px);
 		height: min(25vw, 130px);
 	}
 
 	#MobileUI #buttonContainer {
-		right: max(2%, env(safe-area-inset-right));
+		right: max(1.3%, calc(env(safe-area-inset-right) + min(1.16vw, 6px)));
 		bottom: max(5%, env(safe-area-inset-bottom));
-		width: min(58vw, 300px);
+		--controls-width: min(58vw, 300px);
 		height: min(49vw, 255px);
 	}
 
-	#MobileUI #talktonpcButton {
-		left: 90%;
-		bottom: 0;
-	}
 }
 
 /* Dark, gold-rimmed mobile controls. */
@@ -887,7 +690,7 @@
 }
 
 #MobileUI #attackButton {
-	width: 42%;
+	width: 33%;
 }
 
 #MobileUI #attackButton svg {
@@ -914,4 +717,312 @@
 	#MobileUI #attackButton {
 		width: 38%;
 	}
+}
+
+/* Mobile HUD finish */
+#MobileUI .joystick-base {
+	box-sizing: border-box;
+	touch-action: none;
+	border: 1px solid #64738b8c;
+	background: linear-gradient(155deg, #aeb8ce4d, #68789552 72%, #59698560);
+	box-shadow: inset 0 1px 4px #e6edff40, 0 1px 3px #25344d33;
+	opacity: 0.74;
+	transition: opacity 160ms ease-out;
+}
+
+#MobileUI .joystick-base.is-held {
+	opacity: 1;
+}
+
+#MobileUI .joystick-thumb {
+	box-sizing: border-box;
+	pointer-events: none;
+	border: 1.5px solid #a5b2caac;
+	background: linear-gradient(145deg, #a7b3ca90, #6f7d9c9e 62%, #596782a1);
+	box-shadow: inset 0 1px 4px #edf3ff40, 0 1px 4px #26354c45;
+	transition: transform 130ms ease-out, box-shadow 130ms ease-out;
+}
+
+#MobileUI .joystick-base.is-held .joystick-thumb {
+	transition: box-shadow 130ms ease-out;
+	box-shadow: inset 0 1px 4px #eef3ff72, 0 0 7px #bfdaff5c, 0 2px 5px #26354c65;
+}
+
+#MobileUI .joystick-arrow {
+	width: 10%;
+	height: 9%;
+	background: #e0e8f4;
+	opacity: 0.37;
+	clip-path: polygon(50% 0, 100% 100%, 50% 52%, 0 100%);
+	transition: background-color 120ms ease, opacity 120ms ease;
+}
+
+#MobileUI .joystick-arrow-up { top: 7%; }
+#MobileUI .joystick-arrow-right { right: 7%; }
+#MobileUI .joystick-arrow-down { bottom: 7%; }
+#MobileUI .joystick-arrow-left { left: 7%; }
+
+#MobileUI [data-direction="up"] .joystick-arrow-up,
+#MobileUI [data-direction="right"] .joystick-arrow-right,
+#MobileUI [data-direction="down"] .joystick-arrow-down,
+#MobileUI [data-direction="left"] .joystick-arrow-left {
+	background: #e8f2ff;
+	opacity: 1;
+}
+
+#MobileUI .FButton {
+	width: 19%;
+	border: 1.5px solid #bfcae0;
+	background-color: #202c43;
+	background-image: linear-gradient(155deg, #576481, #202c43 63%);
+	box-shadow: inset 0 1px 3px #e2ebff63, 0 2px 5px #11182bae;
+}
+
+#MobileUI .FButton::after {
+	bottom: -18%;
+	background: linear-gradient(#374765, #172239);
+}
+
+#MobileUI #attackButton,
+#MobileUI #pickupButton {
+	display: grid;
+	place-items: center;
+	background-image: radial-gradient(ellipse at 42% 7%, #586784, #28354e 50%, #172339);
+	box-shadow: inset 0 1px 4px #dce7ff85, 0 3px 7px #10182cbd;
+}
+
+#MobileUI #attackButton { border: clamp(2px, 0.9vmin, 5px) solid #ffd37f; }
+#MobileUI #pickupButton { border-color: #becde4; }
+#MobileUI #attackButton img,
+#MobileUI #pickupButton img {
+	position: absolute;
+	inset: 0;
+	margin: auto;
+	width: 60%;
+	height: 60%;
+	object-fit: contain;
+	pointer-events: none;
+	filter: drop-shadow(0 2px 2px #0e172d);
+}
+
+#MobileUI #pickupButton img {
+	width: 72%;
+	height: 72%;
+}
+
+#MobileUI #attackButton:active,
+#MobileUI #pickupButton:active {
+	animation: none;
+	border-color: #ffdc9d;
+	box-shadow: inset 0 0 8px #ffde9266, 0 2px 5px #10182cbd;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#MobileUI .joystick-base,
+	#MobileUI .joystick-base.is-held .joystick-thumb,
+	#MobileUI .joystick-thumb,
+	#MobileUI .joystick-arrow { transition: none; }
+}
+
+#MobileUI #buttonContainer::before {
+	content: '';
+	position: absolute;
+	inset: auto 0 0;
+	aspect-ratio: 4 / 3;
+	background: var(--hotkey-guides) center / 100% 100% no-repeat;
+	pointer-events: none;
+}
+
+#MobileUI #buttonContainer .FButton,
+#MobileUI #buttonContainer .hotkeyAction {
+	box-sizing: border-box;
+	width: 19%;
+	height: auto;
+	aspect-ratio: 1;
+	padding: 0;
+	transform: translateY(calc(-1 * clamp(8px, 3vmin, 22px)));
+}
+
+#MobileUI #buttonContainer .FButton {
+	top: auto;
+	left: var(--hotkey-x);
+	bottom: calc(var(--controls-width) * var(--hotkey-y));
+	width: var(--hotkey-size, 16.5%);
+	transform: translate(-50%, 50%);
+}
+
+/* F1–F4 use the inner arc, F5–F8 the outer arc. Row switching reuses these slots. */
+#MobileUI #f1Button, #MobileUI #n1Button, #MobileUI #qButton, #MobileUI #aButton {
+	--hotkey-x: 10.8%;
+	--hotkey-y: 0.339;
+}
+
+#MobileUI #f2Button, #MobileUI #n2Button, #MobileUI #wButton, #MobileUI #sButton {
+	--hotkey-x: 28.1%;
+	--hotkey-y: 0.413;
+	--hotkey-size: 15%;
+}
+
+#MobileUI #f3Button, #MobileUI #n3Button, #MobileUI #eButton, #MobileUI #dButton {
+	--hotkey-x: 47.0%;
+	--hotkey-y: 0.441;
+	--hotkey-size: 15%;
+}
+
+#MobileUI #f4Button, #MobileUI #n4Button, #MobileUI #rButton, #MobileUI #fButton {
+	--hotkey-x: 65.3%;
+	--hotkey-y: 0.427;
+	--hotkey-size: 15%;
+}
+
+#MobileUI #f5Button, #MobileUI #n5Button, #MobileUI #tButton, #MobileUI #gButton {
+	--hotkey-x: 10.8%;
+	--hotkey-y: 0.539;
+}
+
+#MobileUI #f6Button, #MobileUI #n6Button, #MobileUI #yButton, #MobileUI #hButton {
+	--hotkey-x: 30.5%;
+	--hotkey-y: 0.600;
+}
+
+#MobileUI #f7Button, #MobileUI #n7Button, #MobileUI #uButton, #MobileUI #jButton {
+	--hotkey-x: 50.5%;
+	--hotkey-y: 0.620;
+}
+
+#MobileUI #f8Button, #MobileUI #n8Button, #MobileUI #iButton, #MobileUI #kButton {
+	--hotkey-x: 70.2%;
+	--hotkey-y: 0.587;
+}
+
+#MobileUI #buttonContainer .hotkeyAction {
+	position: absolute;
+	top: auto;
+	left: var(--action-x);
+	bottom: calc(var(--controls-width) * var(--action-y));
+	width: 15%;
+	transform: translate(-50%, 50%);
+	display: grid;
+	place-items: center;
+	border: 1.5px solid #adbedc;
+	border-radius: 50%;
+	background: radial-gradient(ellipse at 40% 8%, #576883, #283650 56%, #18253e);
+	box-shadow: inset 0 1px 3px #d6e5ff80, 0 2px 5px #11182bb3;
+}
+
+#MobileUI #buttonContainer .hotkeyAction img {
+	width: 63%;
+	aspect-ratio: 1;
+	object-fit: contain;
+	pointer-events: none;
+	filter: drop-shadow(0 1px 2px #10192a);
+}
+
+#MobileUI #buttonContainer .hotkeyAction.active,
+#MobileUI #buttonContainer .hotkeyAction:active {
+	animation: none;
+	border-color: #f2cc88;
+	box-shadow: inset 0 0 8px #ffdb9266, 0 2px 5px #11182bb3;
+}
+
+#MobileUI #toggleAutoTargetButton { --action-x: 89.9%; --action-y: 0.504; }
+#MobileUI #switchshorcutButton { --action-x: 92.5%; --action-y: 0.337; }
+#MobileUI #toggleAutoFollowButton { --action-x: 88.7%; --action-y: 0.172; }
+
+#MobileUI #talktonpcButton {
+	--action-x: 89.9%;
+	--action-y: 0.675;
+}
+
+#MobileUI .npc-conversation-icon {
+	position: relative;
+	width: 63%;
+	aspect-ratio: 1;
+	pointer-events: none;
+	filter: drop-shadow(0 1px 2px #10192a);
+}
+
+#MobileUI .npc-conversation-icon::before,
+#MobileUI .npc-conversation-icon::after {
+	content: '';
+	position: absolute;
+	width: 73%;
+	height: 68%;
+	clip-path: polygon(0 0, 100% 0, 100% 79%, 45% 79%, 20% 100%, 20% 79%, 0 79%);
+	border-radius: 25%;
+}
+
+#MobileUI .npc-conversation-icon::before {
+	right: 0;
+	bottom: 5%;
+	background: #c49a62;
+	transform: scaleX(-1);
+}
+
+#MobileUI .npc-conversation-icon::after {
+	top: 6%;
+	left: 0;
+	background:
+		linear-gradient(#705333, #705333) 50% 29% / 57% 10% no-repeat,
+		linear-gradient(#705333, #705333) 32% 52% / 38% 10% no-repeat,
+		linear-gradient(#fff0cc, #e6b771);
+	box-shadow: 0 0 0 1px #202c43;
+}
+
+#MobileUI .guideIcon img {
+	width: 1.2em;
+	height: 1.2em;
+	object-fit: contain;
+}
+
+
+#MobileUI #buttonContainer .hotkeyAction[aria-pressed="true"] {
+	border-color: #ffe2a7;
+	background: radial-gradient(ellipse at 42% 8%, #667790, #304767 60%, #1b2d49);
+	box-shadow: inset 0 0 8px #ffe2a775, 0 0 0 1px #ffe2a760, 0 2px 5px #11182bb3;
+}
+
+#MobileUI .landscape-prompt {
+	position: fixed;
+	inset: 0;
+	box-sizing: border-box;
+	width: min(84vw, 320px);
+	max-width: 100%;
+	height: fit-content;
+	margin: auto;
+	padding: 26px 18px 22px;
+	border: 1px solid #d9b77d;
+	border-radius: 20px;
+	background: linear-gradient(150deg, #405373, #1b2943);
+	box-shadow: inset 0 1px 3px #c2d6f266, 0 6px 24px #0a1329b3;
+	color: #f5f7ff;
+	font-family: Arial, Helvetica, sans-serif;
+	text-align: center;
+	pointer-events: auto;
+}
+
+#MobileUI .landscape-prompt::backdrop {
+	background: #0b1425da;
+}
+
+#MobileUI .landscape-phone {
+	display: block;
+	box-sizing: border-box;
+	width: 44px;
+	height: 28px;
+	margin: 0 auto 14px;
+	border: 2px solid #f2d194;
+	border-right-width: 5px;
+	border-radius: 6px;
+}
+
+#MobileUI .landscape-prompt h2 {
+	margin: 0 0 7px;
+	font-size: 21px;
+}
+
+#MobileUI .landscape-prompt p {
+	margin: 0;
+	color: #d5e0f5;
+	font-size: 14px;
 }

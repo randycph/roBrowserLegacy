@@ -33,12 +33,13 @@
 }
 
 #StatusIcons .state canvas {
-	width: 32px;
-	height: 32px;
+	width: var(--status-icon-size, 32px);
+	height: var(--status-icon-size, 32px);
 }
 
 @media (pointer: coarse) {
 	#StatusIcons {
+		--status-icon-size: 27px;
 		display: flex;
 		flex-wrap: wrap;
 		gap: 3px;
@@ -49,6 +50,35 @@
 		position: relative;
 		top: auto !important;
 		right: auto !important;
+		flex: 0 0 var(--status-icon-size);
+	}
+}
+
+@media (pointer: fine) {
+	:host {
+		position: fixed !important;
+		top: calc(max(1vh, env(safe-area-inset-top)) + clamp(48px, 15.3vmin, 128px) + 14px);
+		right: auto;
+		left: max(0.8vw, env(safe-area-inset-left));
+		width: max(174px, min(24vw, 54vmin, 430px));
+	}
+
+	#StatusIcons {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 4px;
+	}
+
+	#StatusIcons .state {
+		position: relative;
+		top: auto !important;
+		right: auto !important;
 		flex: 0 0 32px;
+	}
+
+	#StatusIcons .state .description {
+		top: 100%;
+		right: auto;
+		left: 0;
 	}
 }

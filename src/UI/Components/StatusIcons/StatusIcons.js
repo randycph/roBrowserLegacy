@@ -19,7 +19,7 @@ import GUIComponent from 'UI/GUIComponent.js';
 import ScreenEffectManager from 'Renderer/ScreenEffectManager.js';
 import Session from 'Engine/SessionStorage.js';
 import htmlText from './StatusIcons.html?raw';
-import cssText from './StatusIcons.css?raw&v=mobilehud20261118d';
+import cssText from './StatusIcons.css?raw&v=buffsize20261119';
 
 /**
  * Create component

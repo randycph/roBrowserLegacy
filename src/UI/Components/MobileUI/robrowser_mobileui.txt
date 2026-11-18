@@ -44,7 +44,7 @@ TIP_skillKey = Skill bar hotkey %s
 DESC_skillKey = Triggers the skill or item placed on slot %s of the skill bar.
 
 TIP_switchshorcutButton = Switch skill bar row (F1-F9 / 1-9 / Q-O / A-L)
-DESC_switchshorcutButton = Cycles the nine skill buttons through the four hotkey rows: F1-F9, 1-9, Q-O and A-L.
+DESC_switchshorcutButton = Cycles through five shortcuts at a time across the F1-F9, 1-9, Q-O and A-L rows.
 
 TIP_attackButton = Attack the selected target
 DESC_attackButton = Attacks the selected target. If nothing is selected, the nearest monster gets targeted and attacked.
@@ -64,14 +64,8 @@ DESC_f12Button = Changes the size of the skill bar, same as pressing F12 on a ke
 TIP_insButton = Sit down / stand up
 DESC_insButton = Makes your character sit down or stand up (the /sit command).
 
-TIP_toggleStatusButton = Show / hide status icons
-DESC_toggleStatusButton = Shows or hides the status effect icons on the right side of the screen.
-
-TIP_toggleTargetingButton = Toggle touch targeting
-DESC_toggleTargetingButton = Turns touch targeting on or off. While it is on, tapping a monster or player only selects it instead of attacking, and the auto follow and auto target buttons become available.
-
 TIP_toggleAutoFollowButton = Auto follow the selected target
-DESC_toggleAutoFollowButton = Makes your character follow the selected target around until you turn it off. Requires touch targeting.
+DESC_toggleAutoFollowButton = Makes your character follow the selected target around until you turn it off.
 
 TIP_toggleAutoTargetButton = Auto target the nearest monster
-DESC_toggleAutoTargetButton = Keeps selecting the nearest monster automatically so the attack button always has a target. Requires touch targeting.
+DESC_toggleAutoTargetButton = Keeps selecting the nearest monster automatically so the attack button always has a target.

@@ -21,14 +21,13 @@ import PathFinding from 'Utils/PathFinding.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Events from 'Core/Events.js';
 import Client from 'Core/Client.js';
-import htmlText from './MobileUI.html?raw&v=modernhud20261118';
-import cssText from './MobileUI.css?raw&v=modernhud20261118';
-import defaultTexts from './robrowser_mobileui.txt?raw';
+import htmlText from './MobileUI.html?raw&v=controls20261119';
+import cssText from './MobileUI.css?raw&v=controls20261119';
+import defaultTexts from './robrowser_mobileui.txt?raw&v=mobileprofile20261118';
 import glMatrix from 'Vendors/gl-matrix.js';
 import Camera from 'Renderer/Camera.js';
 import BattleMode from 'Controls/BattleMode.js';
 import ProcessCommand from 'Controls/ProcessCommand.js';
-import StatusIcons from 'UI/Components/StatusIcons/StatusIcons.js';
 import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
 
 const vec2 = glMatrix.vec2;
@@ -68,7 +67,7 @@ function refreshMobileShortcuts() {
 			const image = slot?.querySelector('.img');
 			const amount = slot?.querySelector('.amount');
 			const icon = image?.style.backgroundImage || '';
-			button.style.backgroundImage = icon;
+			button.style.backgroundImage = icon === 'none' ? '' : icon;
 			button.classList.toggle('shortcut-empty', !icon || icon === 'none');
 			button.dataset.key = key.startsWith('n') ? key.slice(1) : key.toUpperCase();
 			button.dataset.shortcutIndex = String(row * 9 + index);
@@ -127,6 +126,8 @@ const _preferences = Preferences.get(
 const C_LANG_FILE = 'data/robrowser_mobileui.txt';
 const _texts = parseTexts(defaultTexts);
 let guideShownThisSession = false;
+const mobilePointer = window.matchMedia('(pointer: coarse)');
+const portraitViewport = window.matchMedia('(orientation: portrait)');
 
 /**
  * Guide layout: sections and the buttons they describe.
@@ -167,8 +168,7 @@ const GUIDE_SECTIONS = [
 	{
 		title: 'GUIDE_SECTION_RIGHT',
 		entries: [
-			{ button: '#toggleStatusButton', key: 'toggleStatusButton' },
-			{ button: '#toggleTargetingButton', key: 'toggleTargetingButton' },
+
 			{ button: '#toggleAutoFollowButton', key: 'toggleAutoFollowButton' },
 			{ button: '#toggleAutoTargetButton', key: 'toggleAutoTargetButton' }
 		]
@@ -288,7 +288,12 @@ function buildGuide(root) {
 
 			const icon = document.createElement('span');
 			icon.className = 'guideIcon';
-			icon.textContent = button ? button.textContent.trim() : entry.icon;
+			const image = button?.querySelector('img[src]');
+			if (image) {
+				icon.appendChild(image.cloneNode());
+			} else {
+				icon.textContent = button ? button.textContent.trim() : entry.icon;
+			}
 
 			const text = document.createElement('div');
 			text.className = 'guideText';
@@ -325,6 +330,7 @@ function showGuide() {
 	root.querySelector('#guideNeverShow').checked = _preferences.guideNeverShow;
 	root.querySelector('#guideBody').scrollTop = 0;
 	guide.classList.remove('disabled');
+	MobileUI._host.classList.add('mobile-guide-open');
 	guideShownThisSession = true;
 }
 
@@ -336,6 +342,7 @@ function hideGuide() {
 	const container = root.querySelector('#MobileUI');
 
 	root.querySelector('#guideWindow').classList.add('disabled');
+	MobileUI._host.classList.remove('mobile-guide-open');
 
 	if (container.classList.contains('guideOnly')) {
 		container.classList.remove('guideOnly');
@@ -408,6 +415,7 @@ function setupGuide(root) {
 
 let showButtons = false;
 let autoTargetTimer;
+let touchTargetingFromAssist = false;
 const C_AUTOTARGET_DELAY = 500;
 const C_TOUCH_CLICK_GUARD = 750;
 const C_LONG_PRESS_DELAY = 1000;
@@ -415,6 +423,7 @@ const C_TOUCH_MOVE_TOLERANCE = 10;
 
 let centerX, centerY;
 let maxDistance = 0;
+let joystickPointer = null;
 let normalizedX = 0;
 let normalizedY = 0;
 
@@ -553,6 +562,26 @@ function bindButton(root, selector, handler) {
 	}
 }
 
+function bindActionButton(root, selector, action) {
+	const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+	let feedback;
+
+	bindButton(root, selector, event => {
+		const button = event.currentTarget;
+		feedback?.cancel();
+		const press = {
+			boxShadow: 'inset 0 0 12px #fff0b599, 0 0 0 3px #ffdb9299'
+		};
+		if (!reduceMotion.matches) press.scale = '0.91';
+		feedback = button.animate([press, {}], {
+			duration: 220,
+			easing: 'cubic-bezier(0.2, 0.75, 0.25, 1)'
+		});
+		action();
+		stopPropagation(event);
+	});
+}
+
 /**
  * Initialize UI
  */
@@ -658,37 +687,11 @@ MobileUI.init = function init() {
 		stopPropagation(e);
 	});
 
-	bindButton(root, '#toggleStatusButton', e => {
-		toggleStatus();
-		stopPropagation(e);
-	});
-	bindButton(root, '#toggleTargetingButton', e => {
-		toggleTouchTargeting();
-		stopPropagation(e);
-	});
-	bindButton(root, '#toggleAutoFollowButton', e => {
-		toggleAutoFollow();
-		stopPropagation(e);
-	});
-	bindButton(root, '#toggleAutoTargetButton', e => {
-		toggleAutoTargeting();
-		stopPropagation(e);
-	});
-
-	bindButton(root, '#attackButton', e => {
-		attackTargeted();
-		stopPropagation(e);
-	});
-
-	bindButton(root, '#pickupButton', e => {
-		pickUpItem();
-		stopPropagation(e);
-	});
-
-	bindButton(root, '#switchshorcutButton', e => {
-		switchSkillButtons();
-		stopPropagation(e);
-	});
+	bindActionButton(root, '#toggleAutoFollowButton', toggleAutoFollow);
+	bindActionButton(root, '#toggleAutoTargetButton', toggleAutoTargeting);
+	bindActionButton(root, '#attackButton', attackTargeted);
+	bindActionButton(root, '#pickupButton', pickUpItem);
+	bindActionButton(root, '#switchshorcutButton', switchSkillButtons);
 
 	// Press effect for .buttons and .FButton
 	root.querySelectorAll('.buttons').forEach(btn => {
@@ -709,6 +712,12 @@ MobileUI.init = function init() {
 	setupJoystick();
 	// Initialize the NPC Talk Button - MicromeX
 	setupTalkToNpcButton();
+
+	const landscapePrompt = root.querySelector('.landscape-prompt');
+	landscapePrompt.addEventListener('cancel', event => event.preventDefault());
+	for (const type of ['touchstart', 'touchmove', 'touchend', 'touchcancel', 'mousedown', 'mouseup']) {
+		landscapePrompt.addEventListener(type, event => event.stopPropagation());
+	}
 
 	setupGuide(root);
 	applyTexts();
@@ -769,11 +778,11 @@ function toggleButtons() {
 	const root = MobileUI.getRoot();
 
 	if (showButtons) {
+		stopDrag();
 		// Hide all bars and buttons
 		[
 			'#topBar',
 			'#leftBar',
-			'#rightBar',
 			'#joystickContainer',
 			'#buttonContainer',
 			'#attackButton',
@@ -829,7 +838,6 @@ function toggleButtons() {
 		[
 			'#topBar',
 			'#leftBar',
-			'#rightBar',
 			'#joystickContainer',
 			'#buttonContainer',
 			'#attackButton',
@@ -910,40 +918,37 @@ function switchSkillButtons() {
 }
 
 /**
- * Toggles status view
- */
-function toggleStatus() {
-	const button = MobileUI.getRoot().querySelector('#toggleStatusButton');
-	const host = StatusIcons.getRoot().host;
-	const show = host.style.display === 'none';
-
-	host.style.display = show ? '' : 'none';
-	button.classList.toggle('active', show);
-}
-
-/**
  * Toggles touch targeting
  */
 function toggleTouchTargeting() {
-	const root = MobileUI.getRoot();
+	const enabled = !Session.TouchTargeting;
+	Session.TouchTargeting = enabled;
+	touchTargetingFromAssist = false;
 
-	if (Session.TouchTargeting) {
-		root.querySelector('#toggleTargetingButton').classList.remove('active');
-		root.querySelector('#toggleAutoFollowButton').classList.add('disabled');
-		root.querySelector('#toggleAutoTargetButton').classList.add('disabled');
-
-		if (Session.AutoTargeting) {
-			toggleAutoTargeting();
-		}
-
-		Session.TouchTargeting = false;
-	} else {
-		root.querySelector('#toggleTargetingButton').classList.add('active');
-		root.querySelector('#toggleAutoFollowButton').classList.remove('disabled');
-		root.querySelector('#toggleAutoTargetButton').classList.remove('disabled');
-
-		Session.TouchTargeting = true;
+	if (!enabled) {
+		if (Session.AutoTargeting) toggleAutoTargeting();
+		if (Session.autoFollow) toggleAutoFollow();
 	}
+}
+
+function enableTouchTargetingForAssist() {
+	if (!Session.TouchTargeting) {
+		Session.TouchTargeting = true;
+		touchTargetingFromAssist = true;
+	}
+}
+
+function restoreTouchTargeting() {
+	if (touchTargetingFromAssist && !Session.AutoTargeting && !Session.autoFollow) {
+		Session.TouchTargeting = false;
+		touchTargetingFromAssist = false;
+	}
+}
+
+function setTargetControlState(root, selector, enabled) {
+	const button = root.querySelector(selector);
+	button.classList.toggle('active', enabled);
+	button.setAttribute('aria-pressed', String(enabled));
 }
 
 /**
@@ -953,10 +958,13 @@ function toggleAutoTargeting() {
 	const root = MobileUI.getRoot();
 
 	if (Session.AutoTargeting) {
-		root.querySelector('#toggleAutoTargetButton').classList.remove('active');
 		Session.AutoTargeting = false;
+		stopAutoTarget();
+		setTargetControlState(root, '#toggleAutoTargetButton', false);
+		restoreTouchTargeting();
 	} else {
-		root.querySelector('#toggleAutoTargetButton').classList.add('active');
+		enableTouchTargetingForAssist();
+		setTargetControlState(root, '#toggleAutoTargetButton', true);
 		Session.AutoTargeting = true;
 		autoTarget();
 	}
@@ -969,12 +977,14 @@ function toggleAutoFollow() {
 	const root = MobileUI.getRoot();
 
 	if (Session.autoFollow) {
-		root.querySelector('#toggleAutoFollowButton').classList.remove('active');
+		setTargetControlState(root, '#toggleAutoFollowButton', false);
 		Session.autoFollow = false;
+		restoreTouchTargeting();
 	} else {
 		const entityFocus = EntityManager.getFocusEntity();
 		if (entityFocus) {
-			root.querySelector('#toggleAutoFollowButton').classList.add('active');
+			enableTouchTargetingForAssist();
+			setTargetControlState(root, '#toggleAutoFollowButton', true);
 			Session.autoFollow = true;
 			Session.autoFollowTarget = entityFocus;
 			onAutoFollow();
@@ -1074,9 +1084,8 @@ function startAutoTarget() {
 
 /**
  * Stopping automatic targeting cycle
- * Currently unused, preserved for future development
  */
-function _stopAutoTarget() {
+function stopAutoTarget() {
 	window.clearTimeout(autoTargetTimer);
 }
 
@@ -1121,7 +1130,8 @@ function onAutoFollow() {
 
 		Events.setTimeout(onAutoFollow, 500);
 	} else {
-		root.querySelector('#toggleAutoFollowButton').classList.remove('active');
+		setTargetControlState(root, '#toggleAutoFollowButton', false);
+		restoreTouchTargeting();
 	}
 }
 
@@ -1186,68 +1196,74 @@ function setupJoystick() {
 	_joystickBase = root.querySelector('#joystickBase');
 	_joystickThumb = root.querySelector('#joystickThumb');
 
-	maxDistance = _joystickBase.offsetWidth / 2;
+	const guides = new URL('./hotkey-guides.png', import.meta.url);
+	root.querySelector('#buttonContainer').style.setProperty('--hotkey-guides', `url(${guides.href})`);
+	root.querySelector('#attackButton img').src = new URL('./attack-gold.png', import.meta.url).href;
+	root.querySelector('#pickupButton img').src = new URL('./pickup-gold.png', import.meta.url).href;
+	root.querySelector('#toggleAutoTargetButton img').src = new URL('./auto-target.png', import.meta.url).href;
+	root.querySelector('#switchshorcutButton img').src = new URL('./switch-hotkeys.png', import.meta.url).href;
+	root.querySelector('#toggleAutoFollowButton img').src = new URL('./auto-follow.png', import.meta.url).href;
 
-	_joystickBase.addEventListener('mousedown', startDrag);
-	_joystickBase.addEventListener('touchstart', startDrag, { passive: false });
+	_joystickBase.addEventListener('pointerdown', startDrag);
+	_joystickBase.addEventListener('pointermove', moveJoystick);
+	_joystickBase.addEventListener('pointerup', stopDrag);
+	_joystickBase.addEventListener('pointercancel', stopDrag);
+	_joystickBase.addEventListener('lostpointercapture', stopDrag);
 }
 
 function startDrag(event) {
+	if (event.button !== 0 || joystickPointer !== null) return;
 	event.preventDefault();
 
-	const touch = event.touches ? event.touches[0] : event;
-
 	const rect = _joystickBase.getBoundingClientRect();
-	maxDistance = rect.width / 2;
+	const thumb = _joystickThumb.getBoundingClientRect();
+	maxDistance = Math.max(1, (rect.width - thumb.width) / 2);
 	centerX = rect.left + rect.width / 2;
 	centerY = rect.top + rect.height / 2;
-
-	document.addEventListener('mousemove', moveJoystick);
-	document.addEventListener('mouseup', stopDrag);
-	document.addEventListener('touchmove', moveJoystick);
-	document.addEventListener('touchend', stopDrag);
-
-	moveJoystick(touch);
+	joystickPointer = event.pointerId;
+	_joystickBase.setPointerCapture(joystickPointer);
+	_joystickBase.classList.add('is-held');
+	moveJoystick(event);
 	startMovement();
 }
 
 function moveJoystick(event) {
-	const deadZone = 15;
+	if (event.pointerId !== joystickPointer) return;
 
-	const touch = event.touches ? event.touches[0] : event;
-
-	const deltaX = touch.clientX - centerX;
-	const deltaY = touch.clientY - centerY;
-
-	const distance = Math.min(Math.sqrt(deltaX ** 2 + deltaY ** 2), maxDistance);
+	const deltaX = event.clientX - centerX;
+	const deltaY = event.clientY - centerY;
+	const distance = Math.min(Math.hypot(deltaX, deltaY), maxDistance);
 	const angle = Math.atan2(deltaY, deltaX);
-
 	const offsetX = Math.cos(angle) * distance;
 	const offsetY = Math.sin(angle) * distance;
 
 	_joystickThumb.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-
-	if (distance < deadZone) {
+	if (distance < maxDistance * 0.24) {
 		normalizedX = 0;
 		normalizedY = 0;
+		delete _joystickBase.dataset.direction;
 		return;
 	}
 
+	const directions = ['right', 'down', 'left', 'up'];
+	const quadrant = Math.round(angle / (Math.PI / 2));
+	_joystickBase.dataset.direction = directions[(quadrant + 4) % 4];
 	normalizedX = offsetX / maxDistance;
 	normalizedY = -offsetY / maxDistance;
 }
 
-function stopDrag() {
+function stopDrag(event) {
+	if (joystickPointer === null || (event && event.pointerId !== joystickPointer)) return;
+	const pointer = joystickPointer;
+	joystickPointer = null;
+	if (_joystickBase.hasPointerCapture(pointer)) _joystickBase.releasePointerCapture(pointer);
+
+	_joystickBase.classList.remove('is-held');
+	delete _joystickBase.dataset.direction;
 	_joystickThumb.style.transform = 'translate(0, 0)';
 	normalizedX = 0;
 	normalizedY = 0;
-
 	stopMovement();
-
-	document.removeEventListener('mousemove', moveJoystick);
-	document.removeEventListener('mouseup', stopDrag);
-	document.removeEventListener('touchmove', moveJoystick);
-	document.removeEventListener('touchend', stopDrag);
 }
 
 function startMovement() {
@@ -1438,26 +1454,45 @@ function isFreeCell(x, y) {
 	return free;
 }
 
+function syncLandscapePrompt() {
+	const prompt = MobileUI.getRoot().querySelector('.landscape-prompt');
+	const mobile = mobilePointer.matches || (Session.isTouchDevice && navigator.maxTouchPoints > 0);
+	const locked = mobile && portraitViewport.matches;
+	if (locked && !prompt.open) {
+		stopDrag();
+		prompt.showModal();
+	} else if (!locked && prompt.open) {
+		prompt.close();
+	}
+	return locked;
+}
+
+function onMobilePointerChange(event) {
+	if (event.matches) MobileUI.show();
+	else syncLandscapePrompt();
+}
+
+function onPortraitChange() {
+	const prompt = MobileUI.getRoot().querySelector('.landscape-prompt');
+	const wasOpen = prompt.open;
+	if (!syncLandscapePrompt() && wasOpen) showGuideOnActivate();
+}
+
 /**
  * Apply preferences once append to body
  */
 MobileUI.onAppend = function onAppend() {
-	if (Session.isTouchDevice) {
-		observeMobileShortcuts();
-		this._host.style.display = 'block';
-		if (!showButtons) {
-			toggleButtons();
-		}
-		showGuideOnActivate();
-	} else {
-		this._host.style.display = 'none';
-	}
-
 	this._host.style.top = '0px';
 	this._host.style.left = '0px';
 	this._host.style.zIndex = '1000';
-	// Width/height handled by CSS :host { width:100%; height:100% }
-	// so the overlay always matches the viewport on resize/rotate.
+
+	mobilePointer.addEventListener('change', onMobilePointerChange);
+	portraitViewport.addEventListener('change', onPortraitChange);
+	if (Session.isTouchDevice || mobilePointer.matches) {
+		this.show();
+	} else {
+		this._host.style.display = 'none';
+	}
 };
 
 /**
@@ -1468,7 +1503,6 @@ MobileUI.onAppend = function onAppend() {
 MobileUI.onShortCut = function onShortCut(key) {
 	switch (key.cmd) {
 		case 'SHOW':
-			Session.isTouchDevice = true;
 			this.show();
 			break;
 		case 'TOGGLE':
@@ -1490,6 +1524,12 @@ MobileUI.onShortCut = function onShortCut(key) {
  * Removes MobileUI
  */
 MobileUI.onRemove = function onRemove() {
+	mobilePointer.removeEventListener('change', onMobilePointerChange);
+	portraitViewport.removeEventListener('change', onPortraitChange);
+	const landscapePrompt = this.getRoot().querySelector('.landscape-prompt');
+	if (landscapePrompt.open) landscapePrompt.close();
+	hideGuide();
+	stopDrag();
 	shortcutObserver?.disconnect();
 	shortcutObserver = null;
 	_preferences.y = 0;
@@ -1499,9 +1539,8 @@ MobileUI.onRemove = function onRemove() {
 	_preferences.height = Renderer.height;
 	_preferences.save();
 
-	if (Session.AutoTargeting) {
-		toggleAutoTargeting();
-	}
+	if (Session.AutoTargeting) toggleAutoTargeting();
+	if (Session.TouchTargeting && Session.autoFollow) toggleAutoFollow();
 };
 
 /**
@@ -1510,9 +1549,14 @@ MobileUI.onRemove = function onRemove() {
  * @returns {boolean} the guide popup got opened by this activation
  */
 MobileUI.show = function show() {
+	if (!this._host?.isConnected) return false;
+
+	Session.isTouchDevice = true;
 	this.getRoot().querySelector('#MobileUI').classList.remove('guideOnly');
 	this._host.style.display = 'block';
-	return showGuideOnActivate();
+	if (!showButtons) toggleButtons();
+	if (!shortcutObserver) observeMobileShortcuts();
+	return syncLandscapePrompt() || showGuideOnActivate();
 };
 
 /**

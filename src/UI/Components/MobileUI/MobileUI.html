@@ -1,4 +1,9 @@
 <div id="MobileUI">
+	<dialog class="landscape-prompt" aria-labelledby="landscape-prompt-title">
+		<span class="landscape-phone" aria-hidden="true"></span>
+		<h2 id="landscape-prompt-title" tabindex="-1" autofocus>Rotate to landscape</h2>
+		<p>Turn your device sideways to play.</p>
+	</dialog>
 	<div id="buttonTip" class="buttonTip disabled"></div>
 
 	<div id="guideWindow" class="guideWindow disabled">
@@ -71,27 +76,22 @@
 		<button id="kButton" data-tip-arg="K" class="FButton mobileKeys vertical secondary disabled">K</button>
 		<button id="lButton" data-tip-arg="L" class="FButton mobileKeys vertical secondary disabled">L</button>
 
-		<button id="pickupButton" class="pickupButton mobileKeys vertical secondary disabled">🖐</button>
+		<button id="pickupButton" aria-label="Pick up items" class="pickupButton mobileKeys vertical secondary disabled"><img alt="" /></button>
 		<!-- Pick Up Button -MicromeX -->
-		<button id="talktonpcButton" class="talktonpcButton mobileKeys vertical secondary disabled">💬</button>
-		<!-- Talk to NPC Button -MicromeX -->
-		<button id="switchshorcutButton" class="switchshorcutButton mobileKeys vertical secondary disabled">🔄</button>
-		<!-- Auto Skill Button -MicromeX -->
+		<button type="button" id="talktonpcButton" class="hotkeyAction mobileKeys secondary disabled" aria-label="Talk to nearest NPC">
+			<span class="npc-conversation-icon" aria-hidden="true"></span>
+		</button>
+		<button type="button" id="toggleAutoTargetButton" class="hotkeyAction mobileKeys secondary" aria-label="Auto Target" aria-pressed="false"><img alt="" /></button>
+		<button type="button" id="switchshorcutButton" class="hotkeyAction mobileKeys secondary disabled" aria-label="Switch hotkey row"><img alt="" /></button>
+		<button type="button" id="toggleAutoFollowButton" class="hotkeyAction mobileKeys secondary" aria-label="Auto Follow" aria-pressed="false"><img alt="" /></button>
 
 		<!-- Attack Button -MicromeX -->
-		<button id="attackButton" aria-label="Attack" class="atkButton mobileKeys vertical secondary disabled"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M8 6 27 11 51 36 46 41 22 17 17 17 18 22 42 46 37 51 12 27Z"/><path d="M56 6 37 11 13 36 18 41 42 17 47 17 46 22 22 46 27 51 52 27Z"/><path d="m11 39 14 14-4 4-5-5-6 6-4-4 6-6-5-5Zm42 0L39 53l4 4 5-5 6 6 4-4-6-6 5-5Z"/></svg></button>
+		<button id="attackButton" aria-label="Attack" class="atkButton mobileKeys vertical secondary disabled"><img alt="" /></button>
 	</div>
 
 	<div id="leftBar" class="buttonBar disabled">
 		<button id="f10Button" class="buttons mobileKeys secondary vertical">⏫</button><br />
 		<button id="f12Button" class="buttons mobileKeys secondary vertical">🔢</button><br />
 		<button id="insButton" class="buttons mobileKeys secondary vertical">🧎</button><br />
-	</div>
-
-	<div id="rightBar" class="buttonBar disabled">
-		<button id="toggleStatusButton" class="buttons mobileKeys secondary vertical active">👀</button><br />
-		<button id="toggleTargetingButton" class="buttons mobileKeys secondary vertical">⚙️</button><br />
-		<button id="toggleAutoFollowButton" class="buttons mobileKeys vertical secondary disabled">👥</button><br />
-		<button id="toggleAutoTargetButton" class="buttons mobileKeys vertical secondary disabled">🎯</button><br />
 	</div>
 </div>
