@@ -24,6 +24,7 @@ import 'UI/Elements/Elements.js';
 import ContextMenu from 'UI/Components/ContextMenu/ContextMenu.js';
 import htmlText from './ChatBox.html?raw&v=chatmodern1';
 import cssText from './ChatBox.css?raw&v=chatmodern1';
+import mobileChatLayout from './MobileChatLayout.css?raw&v=mobilezoom20261119';
 import Commands from 'Controls/ProcessCommand.js';
 import ChatBoxSettings from 'UI/Components/ChatBoxSettings/ChatBoxSettings.js';
 import Configs from 'Core/Configs.js';
@@ -89,7 +90,7 @@ const _preferences = Preferences.get(
 /**
  * Create Basic Info component
  */
-const ChatBox = new GUIComponent('ChatBox', cssText);
+const ChatBox = new GUIComponent('ChatBox', cssText + '\n' + mobileChatLayout);
 
 /**
  * Helper: query inside shadow root

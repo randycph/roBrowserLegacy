@@ -12,8 +12,8 @@
 import BasicInfoV1 from './BasicInfoV1/BasicInfoV1.js';
 import BasicInfoV0 from './BasicInfoV0/BasicInfoV0.js';
 import BasicInfoV3 from './BasicInfoV3/BasicInfoV3.js';
-import BasicInfoV4 from './BasicInfoV4/BasicInfoV4.js?v=combatdock20261119';
-import BasicInfoV5 from './BasicInfoV5/BasicInfoV5.js?v=combatdock20261119';
+import BasicInfoV4 from './BasicInfoV4/BasicInfoV4.js?v=mobilezoom20261119';
+import BasicInfoV5 from './BasicInfoV5/BasicInfoV5.js?v=mobilezoom20261119';
 import UIVersionManager from 'UI/UIVersionManager.js';
 
 const publicName = 'BasicInfo';

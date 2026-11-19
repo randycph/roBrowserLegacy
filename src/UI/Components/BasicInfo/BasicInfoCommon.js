@@ -46,8 +46,8 @@ import Reputation from 'UI/Components/Reputation/Reputation.js';
 import AutoLoot from 'UI/Components/AutoLoot/AutoLoot.js';
 import AutoCombat from 'UI/Components/AutoCombat/AutoCombat.js';
 import mobileExperienceCss from './MobileExperience.css?raw&v=combatdock20261119';
-import mobileMenuCss from './MobileMenu.css?raw&v=combatdock20261119';
-import mobileProfileCss from './MobileProfile.css?raw&v=desktophud20261118';
+import mobileMenuCss from './MobileMenu.css?raw&v=mobilezoom20261119';
+import mobileProfileCss from './MobileProfile.css?raw&v=mobilezoom20261119';
 import CashShopIcon from 'UI/Components/CashShopIcon/CashShopIcon.js';
 
 export function createBasicInfo(config) {
@@ -55,6 +55,16 @@ export function createBasicInfo(config) {
 	let mobileMenu = null;
 	let mobileProfile = null;
 	let lastPortraitDraw = 0;
+
+	function syncMobileZoom(slider) {
+		const altitude = Math.abs(Camera.altitudeRange);
+		const maxZoom = DB.isIndoor(Camera.currentMap) ? Camera.MAX_ZOOM_INDOOR : Camera.MAX_ZOOM;
+		const farthest = altitude * maxZoom;
+		const nearest = altitude * Camera.MIN_ZOOM;
+		slider.min = String(nearest);
+		slider.max = String(farthest);
+		slider.value = String(farthest + nearest - Camera.zoomFinal);
+	}
 	const portraitAnimation = { tick: 0, frame: 0, repeat: true, play: true, next: false, delay: 0, save: false };
 	const portraitCanvas = document.createElement('canvas');
 	portraitCanvas.width = 180;
@@ -69,6 +79,7 @@ export function createBasicInfo(config) {
 			return;
 		}
 		lastPortraitDraw = Date.now();
+		syncMobileZoom(mobileProfile.querySelector('.mobile-profile-zoom'));
 		const character = Session.Entity;
 		const saved = {
 			camera: Camera.direction,
@@ -366,7 +377,19 @@ export function createBasicInfo(config) {
 				<div class="mobile-profile-gauge" data-gauge="hp"><span class="mobile-profile-label">HP</span><div class="mobile-profile-meter"><div class="mobile-profile-fill"></div><span class="mobile-profile-values">— / —</span></div></div>
 				<div class="mobile-profile-gauge" data-gauge="sp"><span class="mobile-profile-label">SP</span><div class="mobile-profile-meter"><div class="mobile-profile-fill"></div><span class="mobile-profile-values">— / —</span></div></div>
 				<div class="mobile-profile-zeny"><span class="mobile-profile-coin" aria-hidden="true">Z</span> Zeny <span data-profile-zeny>—</span></div>
-			</div>`;
+			</div>
+			<input type="range" class="mobile-profile-zoom" aria-label="Game camera zoom" step="any" />`;
+		const zoomSlider = mobileProfile.querySelector('.mobile-profile-zoom');
+		for (const eventName of ['pointerdown', 'mousedown', 'touchstart', 'click']) {
+			zoomSlider.addEventListener(eventName, event => event.stopPropagation());
+		}
+		zoomSlider.addEventListener('input', () => {
+			const distance = Number(zoomSlider.max) + Number(zoomSlider.min) - zoomSlider.valueAsNumber;
+			const delta = (distance - Camera.zoomFinal) / (Camera.zoomStep * Camera.zoomStepMult);
+			Camera.setZoom(delta);
+			syncMobileZoom(zoomSlider);
+		});
+		syncMobileZoom(zoomSlider);
 		document.body.appendChild(mobileProfile);
 		mobileProfile.querySelector('[data-profile-name]').textContent = Session.Entity?.display?.name || '';
 		mobileProfile.querySelector('[data-profile-level]').textContent = Session.Entity?.clevel ?? '—';

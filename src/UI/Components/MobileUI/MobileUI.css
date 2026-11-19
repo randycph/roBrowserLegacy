@@ -481,14 +481,11 @@
 
 /* Mobile action controls */
 #MobileUI .joystick-container {
-	/* Align with the launch button above the five-line chat preview. */
-	left: calc(max(0.8vw, env(safe-area-inset-left)) + 34px + clamp(6px, 1.5vmin, 12px));
-	bottom: calc(
-		max(0.5vh, env(safe-area-inset-bottom)) + clamp(15px, 3.35vmin, 28px) +
-		5 * clamp(11px, 2.8vmin, 15px) + 24px
-	);
-	width: min(23vmin, 220px);
-	height: min(23vmin, 220px);
+	--joystick-size: min(52vmin, 28vw, 360px, calc(34.5vw - 48px - max(1.4vw, env(safe-area-inset-left))));
+	left: max(1.4vw, env(safe-area-inset-left));
+	bottom: calc(max(0.5vh, env(safe-area-inset-bottom)) + clamp(15px, 3.35vmin, 28px) + 12px);
+	width: var(--joystick-size);
+	height: var(--joystick-size);
 }
 
 #MobileUI .joystick-base,
@@ -526,9 +523,12 @@
 #MobileUI #buttonContainer {
 	bottom: max(6%, env(safe-area-inset-bottom));
 	right: calc(env(safe-area-inset-right) + clamp(4px, 1vmin, 9px));
-	--controls-width: min(56vmin, 510px, var(--combat-available-width, 510px));
+	--controls-width: min(91vmin, 35vw, 700px);
+	--controls-height: min(calc(var(--controls-width) * 0.9), var(--combat-available-height, 58vmin));
+	--combat-button-cap: calc(var(--controls-height) * 0.36);
+	--attack-size: min(21vmin, 29%, calc(var(--controls-height) * 0.32));
 	width: var(--controls-width);
-	height: min(41vmin, 390px);
+	height: var(--controls-height);
 }
 
 #MobileUI #attackButton {
@@ -536,7 +536,7 @@
 	height: auto;
 	aspect-ratio: 1;
 	bottom: 0;
-	left: 81%;
+	left: calc(100% - var(--attack-size) / 2);
 	transform: translateX(-50%);
 }
 
@@ -561,11 +561,11 @@
 #MobileUI #f9Button, #MobileUI #n9Button, #MobileUI #oButton, #MobileUI #lButton { display: none; }
 
 #MobileUI #pickupButton {
-	width: 17%;
+	width: min(15%, calc(var(--controls-height) * 0.22));
 	height: auto;
 	aspect-ratio: 1;
-	bottom: calc(var(--controls-width) * 0.032);
-	left: 43.5%;
+	bottom: calc(var(--controls-height) * 0.035);
+	left: 54%;
 	transform: none;
 }
 
@@ -604,19 +604,12 @@
 	pointer-events: none;
 }
 
-@media (pointer: coarse) and (orientation: portrait) {
+@media (pointer: coarse) and (orientation: portrait), (max-width: 767px) and (orientation: portrait) {
 	#MobileUI #buttonContainer {
-		bottom: max(5%, env(safe-area-inset-bottom));
-		--controls-width: min(60vw, 300px, var(--combat-available-width, 300px));
-		height: min(49vw, 255px);
+		bottom: calc(max(0.5vh, env(safe-area-inset-bottom)) + 115px);
+		--controls-width: min(54vw, 380px);
 	}
 
-}
-
-/* Dark, gold-rimmed mobile controls. */
-#MobileUI .joystick-container {
-	width: min(26vmin, 240px);
-	height: min(26vmin, 240px);
 }
 
 #MobileUI .joystick-base,
@@ -641,7 +634,7 @@
 }
 
 #MobileUI #attackButton {
-	width: 33%;
+	width: var(--attack-size);
 }
 
 #MobileUI #attackButton svg {
@@ -654,10 +647,10 @@
 	font-weight: 400;
 }
 
-@media (pointer: coarse) and (orientation: portrait) {
+@media (pointer: coarse) and (orientation: portrait), (max-width: 767px) and (orientation: portrait) {
 	#MobileUI .joystick-container {
-		width: min(25vw, 130px);
-		height: min(25vw, 130px);
+		--joystick-size: min(42vw, 235px);
+		bottom: calc(max(0.5vh, env(safe-area-inset-bottom)) + 115px);
 	}
 
 }
@@ -762,8 +755,8 @@
 	position: absolute;
 	inset: 0;
 	margin: auto;
-	width: 60%;
-	height: 60%;
+	width: 87%;
+	height: 87%;
 	object-fit: contain;
 	pointer-events: none;
 	filter: drop-shadow(0 1px 2px #5b655d99);
@@ -792,6 +785,7 @@
 	position: absolute;
 	inset: auto 0 0;
 	width: 100%;
+	height: 100%;
 	z-index: 0;
 	stroke: #bad4e078;
 	stroke-width: 0.4;
@@ -802,61 +796,61 @@
 	box-sizing: border-box;
 	top: auto;
 	left: var(--hotkey-x);
-	bottom: calc(var(--controls-width) * var(--hotkey-y));
-	width: 18.5%;
+	bottom: calc(var(--controls-height) * var(--hotkey-y));
+	width: min(20.5%, var(--combat-button-cap));
 	height: auto;
 	aspect-ratio: 1;
 	padding: 0;
 	transform: translate(-50%, 50%);
 }
 
-/* F1–F4 use the inner arc, F5–F8 the outer arc. Row switching reuses these slots. */
+/* F1â€“F4 use the inner arc, F5â€“F8 the outer arc. Row switching reuses these slots. */
 #MobileUI #f1Button, #MobileUI #n1Button, #MobileUI #qButton, #MobileUI #aButton {
-	--hotkey-x: 25%;
-	--hotkey-y: 0.310;
+	--hotkey-x: 11%;
+	--hotkey-y: .39;
 }
 
 #MobileUI #f2Button, #MobileUI #n2Button, #MobileUI #wButton, #MobileUI #sButton {
-	--hotkey-x: 44%;
-	--hotkey-y: 0.415;
+	--hotkey-x: 33%;
+	--hotkey-y: .43;
 }
 
 #MobileUI #f3Button, #MobileUI #n3Button, #MobileUI #eButton, #MobileUI #dButton {
-	--hotkey-x: 63%;
-	--hotkey-y: 0.475;
+	--hotkey-x: 55%;
+	--hotkey-y: .47;
 }
 
 #MobileUI #f4Button, #MobileUI #n4Button, #MobileUI #rButton, #MobileUI #fButton {
-	--hotkey-x: 83%;
-	--hotkey-y: 0.490;
+	--hotkey-x: 77%;
+	--hotkey-y: .49;
 }
 
 #MobileUI #f5Button, #MobileUI #n5Button, #MobileUI #tButton, #MobileUI #gButton {
-	--hotkey-x: 24%;
-	--hotkey-y: 0.560;
+	--hotkey-x: 22%;
+	--hotkey-y: .77;
 }
 
 #MobileUI #f6Button, #MobileUI #n6Button, #MobileUI #yButton, #MobileUI #hButton {
 	--hotkey-x: 44%;
-	--hotkey-y: 0.665;
+	--hotkey-y: .79;
 }
 
 #MobileUI #f7Button, #MobileUI #n7Button, #MobileUI #uButton, #MobileUI #jButton {
-	--hotkey-x: 65%;
-	--hotkey-y: 0.720;
+	--hotkey-x: 66%;
+	--hotkey-y: .79;
 }
 
 #MobileUI #f8Button, #MobileUI #n8Button, #MobileUI #iButton, #MobileUI #kButton {
 	--hotkey-x: 88%;
-	--hotkey-y: 0.730;
+	--hotkey-y: .79;
 }
 
 #MobileUI #switchshorcutButton {
 	position: absolute;
 	top: auto;
-	left: 22.5%;
+	left: 31%;
 	bottom: 2%;
-	width: 15%;
+	width: min(13%, calc(var(--controls-height) * 0.21));
 	height: auto;
 	transform: none;
 }

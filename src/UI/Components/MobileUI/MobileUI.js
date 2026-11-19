@@ -21,8 +21,8 @@ import PathFinding from 'Utils/PathFinding.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Events from 'Core/Events.js';
 import Client from 'Core/Client.js';
-import htmlText from './MobileUI.html?raw&v=combatdock20261119';
-import cssText from './MobileUI.css?raw&v=mobilehotkeysclean20261119';
+import htmlText from './MobileUI.html?raw&v=mobilezoom20261119';
+import cssText from './MobileUI.css?raw&v=mobilezoom20261119';
 import defaultTexts from './robrowser_mobileui.txt?raw&v=mobileprofile20261118';
 import glMatrix from 'Vendors/gl-matrix.js';
 import Camera from 'Renderer/Camera.js';
@@ -1505,12 +1505,12 @@ function positionCombatHud() {
 	const dockInset = columnExtendsBelowMap ? hudBounds.right - controlsBounds.left + 6 : 0;
 	container.style.setProperty('--utility-dock-inset', `${dockInset}px`);
 
-	// The arcs rise about 83% of their width. Leave room above them for the utility row.
+	// Keep both hotkey arcs below the utility row.
 	const dock = container.querySelector('.utility-dock');
 	const combat = container.querySelector('#buttonContainer');
 	const bottomInset = parseFloat(getComputedStyle(combat).bottom);
 	const availableHeight = hudBounds.bottom - dock.getBoundingClientRect().bottom - bottomInset - 6;
-	container.style.setProperty('--combat-available-width', `${Math.max(64, availableHeight / 0.83)}px`);
+	container.style.setProperty('--combat-available-height', `${Math.max(64, availableHeight)}px`);
 }
 
 /**

@@ -3,7 +3,6 @@
 }
 
 @media (pointer: coarse) {
-	body > #ChatBox,
 	body > #ChatBoxSettings {
 		display: none !important;
 	}

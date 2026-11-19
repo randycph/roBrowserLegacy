@@ -1,0 +1,47 @@
+@media (pointer: coarse), (max-width: 1023px) {
+	:host {
+		position: fixed !important;
+		top: auto !important;
+		right: 0 !important;
+		left: 0 !important;
+		bottom: var(--chat-bottom, 28px);
+		width: min(28vw, 420px);
+		margin-inline: auto;
+	}
+
+	.mobile-chat-preview {
+		position: relative;
+		align-content: center;
+		min-height: 34px;
+	}
+
+	.mobile-chat-preview .mobile-chat-launcher {
+		position: absolute;
+		top: 50%;
+		right: calc(100% + 6px);
+		transform: translateY(-50%);
+	}
+
+	#chatbox {
+		left: 0;
+		width: 100%;
+	}
+
+	.mobile-chat-preview + #chatbox {
+		left: 50%;
+		width: min(76vw, 600px);
+		translate: -50% 0;
+	}
+
+	@media (orientation: portrait) {
+		:host {
+			width: min(75vw, 460px);
+		}
+
+		.mobile-chat-preview .mobile-chat-launcher {
+			right: calc(100% + 4px);
+			width: 30px;
+			height: 30px;
+		}
+	}
+}
