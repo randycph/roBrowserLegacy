@@ -723,8 +723,8 @@
 #MobileUI .joystick-base {
 	box-sizing: border-box;
 	touch-action: none;
-	border: 1px solid #64738b8c;
-	background: linear-gradient(155deg, #aeb8ce4d, #68789552 72%, #59698560);
+	border: 1px solid #e1f0f7d9;
+	background: radial-gradient(ellipse at 40% 20%, #f5fbff63, #c0d9ee42 72%, #8eb0c64d);
 	box-shadow: inset 0 1px 4px #e6edff40, 0 1px 3px #25344d33;
 	opacity: 0.74;
 	transition: opacity 160ms ease-out;
@@ -737,8 +737,8 @@
 #MobileUI .joystick-thumb {
 	box-sizing: border-box;
 	pointer-events: none;
-	border: 1.5px solid #a5b2caac;
-	background: linear-gradient(145deg, #a7b3ca90, #6f7d9c9e 62%, #596782a1);
+	border: 1.5px solid #e9f7ffde;
+	background: linear-gradient(145deg, #f2fbffbd, #b9d7eab0 62%, #91b7d1aa);
 	box-shadow: inset 0 1px 4px #edf3ff40, 0 1px 4px #26354c45;
 	transition: transform 130ms ease-out, box-shadow 130ms ease-out;
 }
@@ -773,25 +773,41 @@
 #MobileUI .FButton {
 	width: 19%;
 	border: 1.5px solid #bfcae0;
-	background-color: #202c43;
-	background-image: linear-gradient(155deg, #576481, #202c43 63%);
-	box-shadow: inset 0 1px 3px #e2ebff63, 0 2px 5px #11182bae;
+	background-color: #d8ebf7e8;
+	background-image: radial-gradient(ellipse at 41% 12%, #f9fdff, #d4e8f6 58%, #92b8d5);
+	box-shadow: inset 0 1px 4px #ffffffdc, 0 2px 5px #35577366;
 }
 
 #MobileUI .FButton::after {
 	bottom: -18%;
-	background: linear-gradient(#374765, #172239);
+	background: linear-gradient(#f7fbff, #bdd7e9);
+	border-color: #eef8ff;
+	color: #254360;
+	text-shadow: none;
+}
+
+#MobileUI #buttonContainer .FButton.shortcut-empty::before {
+	color: #456b8e;
+	text-shadow: 0 1px 1px #ffffffdc;
+}
+
+#MobileUI #buttonContainer .FButton .shortcut-amount {
+	padding: 0 3px;
+	border-radius: 999px;
+	background: #edf7ffed;
+	color: #254360;
+	text-shadow: none;
 }
 
 #MobileUI #attackButton,
 #MobileUI #pickupButton {
 	display: grid;
 	place-items: center;
-	background-image: radial-gradient(ellipse at 42% 7%, #586784, #28354e 50%, #172339);
+	background-image: radial-gradient(ellipse at 43% 12%, #fffef7f7, #e5edf1ed 56%, #b3cddfdc);
 	box-shadow: inset 0 1px 4px #dce7ff85, 0 3px 7px #10182cbd;
 }
 
-#MobileUI #attackButton { border: clamp(2px, 0.9vmin, 5px) solid #ffd37f; }
+#MobileUI #attackButton { border: clamp(2px, 0.9vmin, 5px) solid #f5e5bd; }
 #MobileUI #pickupButton { border-color: #becde4; }
 #MobileUI #attackButton img,
 #MobileUI #pickupButton img {
@@ -802,7 +818,7 @@
 	height: 60%;
 	object-fit: contain;
 	pointer-events: none;
-	filter: drop-shadow(0 2px 2px #0e172d);
+	filter: drop-shadow(0 1px 2px #5b655d99);
 }
 
 #MobileUI #pickupButton img {
@@ -906,7 +922,7 @@
 	place-items: center;
 	border: 1.5px solid #adbedc;
 	border-radius: 50%;
-	background: radial-gradient(ellipse at 40% 8%, #576883, #283650 56%, #18253e);
+	background: radial-gradient(ellipse at 40% 8%, #f9fdff, #d9edf6 56%, #accce1);
 	box-shadow: inset 0 1px 3px #d6e5ff80, 0 2px 5px #11182bb3;
 }
 
@@ -915,7 +931,7 @@
 	aspect-ratio: 1;
 	object-fit: contain;
 	pointer-events: none;
-	filter: drop-shadow(0 1px 2px #10192a);
+	filter: drop-shadow(0 1px 1px #455f7a99);
 }
 
 #MobileUI #buttonContainer .hotkeyAction.active,
@@ -938,12 +954,12 @@
 	position: relative;
 	width: 62%;
 	aspect-ratio: 1;
-	color: #f5ce8b;
+	color: #426889;
 	background:
 		linear-gradient(currentColor, currentColor) center 91% / 36% 7% no-repeat,
 		linear-gradient(currentColor, currentColor) center 83% / 8% 21% no-repeat;
 	pointer-events: none;
-	filter: drop-shadow(0 1px 2px #10192a);
+	filter: drop-shadow(0 1px 1px #455f7a99);
 }
 
 #MobileUI .npc-microphone-icon::before,
@@ -960,7 +976,7 @@
 	width: 30%;
 	height: 53%;
 	border-radius: 999px;
-	background: linear-gradient(135deg, #fff0cc, #e6b771);
+	background: linear-gradient(135deg, #7ba3c0, #426889);
 }
 
 #MobileUI .npc-microphone-icon::after {
@@ -981,7 +997,7 @@
 
 #MobileUI #buttonContainer .hotkeyAction[aria-pressed="true"] {
 	border-color: #ffe2a7;
-	background: radial-gradient(ellipse at 42% 8%, #667790, #304767 60%, #1b2d49);
+	background: radial-gradient(ellipse at 42% 8%, #fcfff5, #d3f0f2 60%, #9bcbd6);
 	box-shadow: inset 0 0 8px #ffe2a775, 0 0 0 1px #ffe2a760, 0 2px 5px #11182bb3;
 }
 

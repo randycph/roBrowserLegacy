@@ -45,9 +45,9 @@ import Achievement from 'UI/Components/Achievement/Achievement.js';
 import Reputation from 'UI/Components/Reputation/Reputation.js';
 import AutoLoot from 'UI/Components/AutoLoot/AutoLoot.js';
 import AutoCombat from 'UI/Components/AutoCombat/AutoCombat.js';
-import mobileExperienceCss from './MobileExperience.css?raw';
-import mobileMenuCss from './MobileMenu.css?raw&v=modernhud20261118';
-import mobileProfileCss from './MobileProfile.css?raw&v=modernhud20261118';
+import mobileExperienceCss from './MobileExperience.css?raw&v=desktophud20261118';
+import mobileMenuCss from './MobileMenu.css?raw&v=pearlhud20261119';
+import mobileProfileCss from './MobileProfile.css?raw&v=desktophud20261118';
 import CashShopIcon from 'UI/Components/CashShopIcon/CashShopIcon.js';
 
 export function createBasicInfo(config) {
@@ -62,7 +62,7 @@ export function createBasicInfo(config) {
 	const portraitContext = portraitCanvas.getContext('2d', { willReadFrequently: true });
 
 	function drawMobilePortrait() {
-		if (!mobileProfile || !window.matchMedia('(pointer: coarse)').matches || !Session.Entity?.effectColor || !Session.Entity?.ACTION || !portraitContext) {
+		if (!mobileProfile || !Session.Entity?.effectColor || !Session.Entity?.ACTION || !portraitContext) {
 			return;
 		}
 		if (Date.now() - lastPortraitDraw < 1000) {
@@ -363,9 +363,9 @@ export function createBasicInfo(config) {
 			<div class="mobile-profile-details">
 				<div class="mobile-profile-name" data-profile-name></div>
 				<div class="mobile-profile-meta">Lv.<span data-profile-level>—</span> <span data-profile-job></span></div>
-				<div class="mobile-profile-gauge" data-gauge="hp"><div class="mobile-profile-fill"></div><span class="mobile-profile-label">HP</span><span class="mobile-profile-values">— / —</span></div>
-				<div class="mobile-profile-gauge" data-gauge="sp"><div class="mobile-profile-fill"></div><span class="mobile-profile-label">SP</span><span class="mobile-profile-values">— / —</span></div>
-				<div class="mobile-profile-zeny">Zeny <span data-profile-zeny>—</span></div>
+				<div class="mobile-profile-gauge" data-gauge="hp"><span class="mobile-profile-label">HP</span><div class="mobile-profile-meter"><div class="mobile-profile-fill"></div><span class="mobile-profile-values">— / —</span></div></div>
+				<div class="mobile-profile-gauge" data-gauge="sp"><span class="mobile-profile-label">SP</span><div class="mobile-profile-meter"><div class="mobile-profile-fill"></div><span class="mobile-profile-values">— / —</span></div></div>
+				<div class="mobile-profile-zeny"><span class="mobile-profile-coin" aria-hidden="true">Z</span> Zeny <span data-profile-zeny>—</span></div>
 			</div>`;
 		document.body.appendChild(mobileProfile);
 		mobileProfile.querySelector('[data-profile-name]').textContent = Session.Entity?.display?.name || '';
@@ -398,18 +398,23 @@ export function createBasicInfo(config) {
 			{ key: 'autocombat', label: 'Auto Combat', icon: null, enabled: true },
 			{ key: 'hotkeys', label: 'Hotkeys', icon: 'skills', enabled: true }
 		];
-		const renderMenuButton = entry => `
+		const renderMenuButton = (entry, top = false) => `
 			<button type="button" class="mobile-menu-button" data-action="${entry.key}"
 				${entry.enabled ? '' : 'disabled title="Currently unavailable"'}>
-				${entry.icon ? `<img src="/src/UI/Components/BasicInfo/mobile-icons/${entry.icon}.png" alt="" />` : ''}
+				${entry.icon ? `<img src="/src/UI/Components/BasicInfo/mobile-icons/${top ? 'top/' : ''}${entry.icon}.png" alt="" />` : ''}
 				<span>${entry.label}</span>
 			</button>`;
 		mobileMenu = document.createElement('div');
 		mobileMenu.className = 'mobile-menu';
+		for (const type of ['mousedown', 'mouseup']) {
+			mobileMenu.addEventListener(type, event => {
+				if (event.target.closest('button')) event.stopPropagation();
+			});
+		}
 		mobileMenu.innerHTML = `
 			<style>${mobileMenuCss}</style>
-			<div class="mobile-menu-top">${menuEntries.slice(0, 5).map(renderMenuButton).join('')}</div>
-			<div class="mobile-menu-panel" id="mobile-menu-panel" hidden>${menuEntries.slice(5).map(renderMenuButton).join('')}</div>
+			<div class="mobile-menu-top">${menuEntries.slice(0, 5).map(entry => renderMenuButton(entry, true)).join('')}</div>
+			<div class="mobile-menu-panel" id="mobile-menu-panel" hidden>${menuEntries.slice(5).map(entry => renderMenuButton(entry)).join('')}</div>
 			<button type="button" class="mobile-menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-menu-panel">‹</button>`;
 		mobileMenu.querySelectorAll('[data-action]').forEach(button => {
 			if (!button.querySelector('img')) {
@@ -436,11 +441,13 @@ export function createBasicInfo(config) {
 			<style>${mobileExperienceCss}</style>
 			<div class="mobile-experience-track" data-type="bexp" aria-label="Base experience">
 				<div class="mobile-experience-fill mobile-experience-base"></div>
-				<span>Base Lv. <span data-level="blvl">—</span></span>
+				<span class="mobile-experience-level">Base Lv. <span data-level="blvl">—</span></span>
+				<span class="mobile-experience-percent">—</span>
 			</div>
 			<div class="mobile-experience-track" data-type="jexp" aria-label="Job experience">
 				<div class="mobile-experience-fill mobile-experience-job"></div>
-				<span>Job Lv. <span data-level="jlvl">—</span></span>
+				<span class="mobile-experience-level">Job Lv. <span data-level="jlvl">—</span></span>
+				<span class="mobile-experience-percent">—</span>
 			</div>`;
 		document.body.appendChild(mobileExperience);
 		mobileExperience.querySelector('[data-level="blvl"]').textContent = Session.Entity?.clevel ?? '—';
@@ -722,9 +729,13 @@ export function createBasicInfo(config) {
 			case 'jexp': {
 				const mobileTrack = mobileExperience?.querySelector(`[data-type="${type}"]`);
 				if (mobileTrack) {
-					const percent = val2 > 0 ? Math.max(0, Math.min(100, (val1 / val2) * 100)) : 0;
+					const valid = Number.isFinite(val1) && Number.isFinite(val2) && val2 >= 0;
+					const maxed = valid && (val2 === 0 || val1 >= val2);
+					const percent = maxed ? 100 : valid ? Math.max(0, (val1 / val2) * 100) : 0;
+					const label = maxed ? 'MAX' : valid ? `Exp. ${(Math.floor(percent * 10) / 10).toFixed(1)}%` : '—';
+					mobileTrack.querySelector('.mobile-experience-percent').textContent = label;
 					mobileTrack.querySelector('.mobile-experience-fill').style.width = `${percent}%`;
-					mobileTrack.title = val2 > 0 ? `${percent.toFixed(1)}%` : 'Experience unavailable';
+					mobileTrack.title = valid ? label : 'Experience unavailable';
 				}
 				const expEl = root.querySelector(`.${type}`);
 				if (!val2) {

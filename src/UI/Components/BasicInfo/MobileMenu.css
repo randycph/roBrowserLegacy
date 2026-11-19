@@ -21,6 +21,9 @@
 		right: auto !important;
 	}
 
+}
+
+@media all {
 	.mobile-menu {
 		position: fixed;
 		top: max(1%, env(safe-area-inset-top));
@@ -50,8 +53,8 @@
 		padding: 0.6vh 0.5vw 0.8vh;
 		border: 2px solid #d9e8ff;
 		border-radius: clamp(12px, 2vh, 24px);
-		background: linear-gradient(145deg, rgba(94, 113, 151, 0.94), rgba(49, 65, 99, 0.94));
-		box-shadow: inset 0 1px 4px rgba(255, 255, 255, 0.45), 0 3px 7px rgba(18, 32, 53, 0.65);
+		background: linear-gradient(145deg, #fcfcf3ee, #c7deebed);
+		box-shadow: inset 0 1px 4px rgba(255, 255, 255, 0.45), 0 3px 7px #35577356;
 	}
 
 	.mobile-menu-panel[hidden] {
@@ -63,10 +66,10 @@
 		padding: 0;
 		border: 0;
 		background: transparent;
-		color: white;
+		color: #284560;
 		font: 700 clamp(9px, 1.7vh, 17px) Arial, sans-serif;
 		line-height: 1.05;
-		text-shadow: 0 1px 3px #101b30, 1px 1px 2px #101b30;
+		text-shadow: 0 1px 2px #fffffff2, 0 0 3px #f2f8ff;
 		text-align: center;
 		touch-action: manipulation;
 		cursor: pointer;
@@ -99,8 +102,8 @@
 		height: 5.5vh;
 		border: 2px solid #d9e8ff;
 		border-radius: 50%;
-		background: #34496c;
-		color: white;
+		background: linear-gradient(#f8fcff, #bdd9ed);
+		color: #284560;
 		font: 700 clamp(18px, 4vh, 34px) Arial, sans-serif;
 		line-height: 1;
 		box-shadow: 0 2px 5px rgba(18, 32, 53, 0.6);
@@ -131,6 +134,15 @@
 		height: clamp(34px, 9vw, 44px);
 	}
 
+	.mobile-menu-top .mobile-menu-button img {
+		box-sizing: border-box;
+		padding: 4px;
+		border: 1px solid #e8f5fc;
+		border-radius: 50%;
+		background: radial-gradient(ellipse at 42% 14%, #fffdf1, #e5f3f6 66%, #a5c6dd);
+		box-shadow: 0 2px 4px #365a754d;
+	}
+
 	.mobile-menu-button span {
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -152,5 +164,95 @@
 
 	body > #StatusIcons {
 		top: max(177px, calc(env(safe-area-inset-top) + 177px)) !important;
+	}
+}
+
+@media (orientation: landscape), (pointer: fine), (pointer: none) {
+	.mobile-menu {
+		--top-menu-cell: clamp(44px, min(13.4vmin, 7.5vw), 68px);
+		--top-menu-disc: clamp(35px, min(11.2vmin, 6.3vw), 57px);
+		--mobile-map-panel: calc(clamp(84px, 23.5vmin, 116px) + clamp(16px, 4.3vmin, 21px) + 5px);
+		right: max(18vw, calc(max(10px, env(safe-area-inset-right)) + var(--mobile-map-panel) + 27px));
+		width: calc(5 * var(--top-menu-cell));
+		min-width: 0;
+	}
+
+	.mobile-menu-top {
+		gap: 0;
+	}
+
+	.mobile-menu-top .mobile-menu-button {
+		position: relative;
+		display: grid;
+		justify-items: center;
+		padding-top: calc(var(--top-menu-disc) * 0.17);
+		isolation: isolate;
+		font-size: clamp(10px, 2.65vmin, 15px);
+		line-height: 1.05;
+	}
+
+	.mobile-menu-top .mobile-menu-button::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 50%;
+		width: var(--top-menu-disc);
+		aspect-ratio: 1;
+		box-sizing: border-box;
+		transform: translateX(-50%);
+		border: 1.5px solid #b4c4df;
+		border-radius: 50%;
+		background: radial-gradient(ellipse at 42% 14%, #fffdf1, #e5f3f6 66%, #a5c6dd);
+		box-shadow: inset 0 1px 3px #dce8fc82, 0 2px 4px #365a754d;
+		z-index: -1;
+	}
+
+	.mobile-menu-top .mobile-menu-button img {
+		width: calc(var(--top-menu-disc) * 0.62);
+		height: calc(var(--top-menu-disc) * 0.62);
+		margin: 0;
+		filter: drop-shadow(0 1px 1px #415b766e);
+	}
+
+	.mobile-menu-top .mobile-menu-button span {
+		padding: 0 2px;
+		text-shadow: 0 1px 2px #ffffff, 0 0 4px #f7fbff;
+		letter-spacing: -0.02em;
+	}
+
+	.mobile-menu-top .mobile-menu-button:active::before {
+		border-color: #f6d28e;
+		box-shadow: inset 0 0 6px #ffda8e80, 0 2px 4px #365a754d;
+	}
+
+	.mobile-menu-toggle {
+		top: 3px;
+		right: -22px;
+		width: 21px;
+		height: 25px;
+		border-width: 1px;
+		background: linear-gradient(#f8fcff, #bdd9ed);
+		font-size: 20px;
+	}
+
+	body > #RodexIcon {
+		top: calc(max(12px, env(safe-area-inset-top)) + clamp(84px, 23.5vmin, 116px) + 49px) !important;
+		right: max(10px, env(safe-area-inset-right)) !important;
+		scale: 0.72;
+		transform-origin: top right;
+	}
+}
+
+@media (pointer: fine) and (max-width: 1400px) {
+	.mobile-menu {
+		top: 42px;
+	}
+}
+
+@media (pointer: fine) {
+	.mobile-menu {
+		/* Match the desktop minimap width and leave room for the More toggle. */
+		--mobile-map-panel: calc(clamp(112px, 15vh, 146px) + clamp(16px, 4.3vmin, 21px) + 5px);
+		right: calc(max(10px, env(safe-area-inset-right)) + var(--mobile-map-panel) + 30px);
 	}
 }
