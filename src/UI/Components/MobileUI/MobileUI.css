@@ -274,7 +274,6 @@
 	margin: 0;
 }
 
-/* Attack Button (center and larger) -MicromeX */
 #MobileUI .atkButton {
 	position: absolute;
 	width: 17.5vmin;
@@ -284,56 +283,6 @@
 	border-radius: 50%;
 	font-size: 7vmin;
 	color: white;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);
-	cursor: pointer;
-}
-
-/* Functional Buttons (around the attack button) -MicromeX */
-#MobileUI .pickupButton {
-	position: absolute;
-	width: 10vmin;
-	height: 10vmin;
-	background: rgba(193, 193, 193, 0.33);
-	border: 1px solid #666;
-	border-radius: 50%;
-	font-size: 6.25vmin;
-	color: rgb(0, 0, 0);
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);
-	cursor: pointer;
-}
-
-#MobileUI .talktonpcButton {
-	position: absolute;
-	width: 10vmin;
-	height: 10vmin;
-	background: rgba(193, 193, 193, 0.33);
-	border: 1px solid #666;
-	border-radius: 50%;
-	font-size: 6.25vmin;
-	color: rgb(0, 0, 0);
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);
-	cursor: pointer;
-}
-
-#MobileUI .switchshorcutButton {
-	position: absolute;
-	width: 10vmin;
-	height: 10vmin;
-	background: rgba(193, 193, 193, 0.33);
-	border: 1px solid #666;
-	border-radius: 50%;
-	font-size: 6.25vmin;
-	font-weight: bold;
-	color: rgb(0, 0, 0);
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -359,18 +308,6 @@
 	cursor: pointer;
 }
 
-/* Pickup Button (slightly below attackButton) -MicromeX */
-#MobileUI #attackButton {
-	bottom: -10%;
-	left: 60%;
-	transform: translate(-50%, 0);
-}
-/* Pickup Button (slightly below attackButton) -MicromeX */
-#MobileUI #pickupButton {
-	bottom: 10%;
-	left: 105%;
-	transform: translate(-50%, 0);
-}
 
 /* Hover Effect for Buttons -MicromeX */
 #MobileUI #f1Button:active,
@@ -488,16 +425,6 @@
 	height: var(--joystick-size);
 }
 
-#MobileUI .joystick-base,
-#MobileUI .atkButton,
-#MobileUI .FButton,
-#MobileUI .pickupButton,
-#MobileUI .switchshorcutButton {
-	background: linear-gradient(145deg, rgba(135, 154, 191, .8), rgba(54, 70, 110, .88));
-	border: 3px solid rgba(224, 236, 255, .94);
-	box-shadow: inset 0 2px 8px rgba(255, 255, 255, .35), 0 3px 8px rgba(15, 27, 52, .65);
-}
-
 #MobileUI .joystick-thumb {
 	width: 44%;
 	height: 44%;
@@ -521,54 +448,23 @@
 #MobileUI .joystick-arrow-left { left: 6%; transform: rotate(270deg); }
 
 #MobileUI #buttonContainer {
+	--control-gap: clamp(3px, 0.7vmin, 7px);
+	--combat-inset: calc(env(safe-area-inset-right) + clamp(4px, 1vmin, 9px));
+	--combat-width: calc(36vw - var(--combat-inset) - 6px);
+	--hotkey-size: min(
+		10.5vmin,
+		56px,
+		calc((var(--combat-width) - 5 * var(--control-gap)) / 6),
+		calc((var(--combat-available-height, 56vmin) - var(--control-gap)) / 2)
+	);
 	bottom: max(6%, env(safe-area-inset-bottom));
-	right: calc(env(safe-area-inset-right) + clamp(4px, 1vmin, 9px));
-	--controls-width: min(91vmin, 35vw, 700px);
-	--controls-height: min(calc(var(--controls-width) * 0.9), var(--combat-available-height, 58vmin));
-	--combat-button-cap: calc(var(--controls-height) * 0.235);
-	--attack-size: min(29vmin, 42%, calc(var(--controls-height) * 0.64));
-	--pickup-size: min(15%, calc(var(--controls-height) * 0.22));
-	--switch-size: min(13%, calc(var(--controls-height) * 0.21));
-	width: var(--controls-width);
-	height: var(--controls-height);
-}
-
-#MobileUI #attackButton {
-	width: 38%;
+	right: var(--combat-inset);
+	display: grid;
+	grid-template-columns: repeat(6, var(--hotkey-size));
+	grid-template-rows: repeat(2, var(--hotkey-size));
+	gap: var(--control-gap);
+	width: max-content;
 	height: auto;
-	aspect-ratio: 1;
-	bottom: 0;
-	left: calc(100% - var(--attack-size) / 2);
-	transform: translateX(-50%);
-}
-
-#MobileUI #attackButton svg {
-	width: 68%;
-	height: 68%;
-	fill: #f2f7ff;
-	stroke: #435779;
-	stroke-width: 1.5;
-	stroke-linejoin: round;
-	filter: drop-shadow(0 2px 1px #283a60);
-}
-
-#MobileUI .FButton {
-	width: 18%;
-	height: auto;
-	aspect-ratio: 1;
-	font-size: 0;
-	transform: none;
-}
-
-#MobileUI #f9Button, #MobileUI #n9Button, #MobileUI #oButton, #MobileUI #lButton { display: none; }
-
-#MobileUI #pickupButton {
-	width: var(--pickup-size);
-	height: auto;
-	aspect-ratio: 1;
-	bottom: calc(var(--controls-height) * 0.035);
-	left: calc(100% - var(--attack-size) - var(--pickup-size) - 8px);
-	transform: none;
 }
 
 #MobileUI #leftBar,
@@ -609,39 +505,14 @@
 @media (pointer: coarse) and (orientation: portrait), (max-width: 767px) and (orientation: portrait) {
 	#MobileUI #buttonContainer {
 		bottom: calc(max(0.5vh, env(safe-area-inset-bottom)) + 115px);
-		--controls-width: min(54vw, 380px);
+		--combat-width: calc(55vw - var(--combat-inset));
 	}
 
-}
-
-#MobileUI .joystick-base,
-#MobileUI .atkButton,
-#MobileUI .FButton,
-#MobileUI .pickupButton,
-#MobileUI .switchshorcutButton {
-	border: 2px solid #c9d7ec;
-	background-color: rgba(24, 38, 65, 0.92);
-	background-image: linear-gradient(155deg, rgba(82, 103, 140, 0.86), rgba(18, 30, 52, 0.96));
-	box-shadow: inset 0 1px 5px rgba(224, 236, 255, 0.28), 0 3px 7px rgba(8, 15, 27, 0.7);
-}
-
-#MobileUI .joystick-base,
-#MobileUI #attackButton {
-	border-color: #f3d49a;
 }
 
 #MobileUI .joystick-thumb {
 	border: 2px solid #bdcce4;
 	background: linear-gradient(145deg, #9daed4, #485e90);
-}
-
-#MobileUI #attackButton {
-	width: var(--attack-size);
-}
-
-#MobileUI #attackButton svg {
-	fill: #f6cd79;
-	stroke: #70562e;
 }
 
 #MobileUI .FButton.shortcut-empty::before {
@@ -668,8 +539,8 @@
 	box-sizing: border-box;
 	touch-action: none;
 	border: 1px solid #9bb4c5b3;
-	background: radial-gradient(ellipse at 40% 20%, #8dadc261, #6686a34d 72%, #435d7d70);
-	box-shadow: inset 0 1px 4px #e6edff40, 0 1px 3px #25344d33;
+	background: transparent;
+	box-shadow: none;
 	opacity: 0.74;
 	transition: opacity 160ms ease-out;
 }
@@ -693,25 +564,7 @@
 }
 
 #MobileUI .joystick-arrow {
-	width: 10%;
-	height: 9%;
-	background: #e0e8f4;
-	opacity: 0.37;
-	clip-path: polygon(50% 0, 100% 100%, 50% 52%, 0 100%);
-	transition: background-color 120ms ease, opacity 120ms ease;
-}
-
-#MobileUI .joystick-arrow-up { top: 7%; }
-#MobileUI .joystick-arrow-right { right: 7%; }
-#MobileUI .joystick-arrow-down { bottom: 7%; }
-#MobileUI .joystick-arrow-left { left: 7%; }
-
-#MobileUI [data-direction="up"] .joystick-arrow-up,
-#MobileUI [data-direction="right"] .joystick-arrow-right,
-#MobileUI [data-direction="down"] .joystick-arrow-down,
-#MobileUI [data-direction="left"] .joystick-arrow-left {
-	background: #e8f2ff;
-	opacity: 1;
+	display: none;
 }
 
 #MobileUI .FButton {
@@ -735,45 +588,27 @@
 	text-shadow: none;
 }
 
-#MobileUI #attackButton,
-#MobileUI #pickupButton {
+#MobileUI #attackButton {
+	grid-area: 1 / 6;
+	position: relative;
+	inset: auto;
+	transform: none;
 	display: grid;
 	place-items: center;
-	background-image: var(--control-face);
+	box-sizing: border-box;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	border: 2px solid #cfb784;
+	background: radial-gradient(ellipse at 42% 12%, #91bcb5, #5f958e 60%, #3b686c);
 	box-shadow: var(--control-shadow);
 }
 
-#MobileUI #attackButton {
-	border: clamp(2px, 0.9vmin, 5px) solid #cfb784;
-	background-image: radial-gradient(ellipse at 42% 12%, #91bcb5, #5f958e 60%, #3b686c);
-}
-
-#MobileUI #pickupButton {
-	border-color: var(--control-rim);
-}
-
-#MobileUI #attackButton img,
-#MobileUI #pickupButton img {
-	position: absolute;
-	inset: 0;
-	margin: auto;
+#MobileUI #attackButton img {
 	width: 87%;
 	height: 87%;
 	object-fit: contain;
 	pointer-events: none;
-	filter: drop-shadow(0 1px 2px #5b655d99);
-}
-
-#MobileUI #pickupButton img {
-	width: 72%;
-	height: 72%;
-}
-
-#MobileUI #attackButton:active,
-#MobileUI #pickupButton:active {
-	animation: none;
-	border-color: #ffdc9d;
-	box-shadow: inset 0 0 8px #ffde9266, 0 2px 5px #10182cbd;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -783,78 +618,63 @@
 	#MobileUI .joystick-arrow { transition: none; }
 }
 
-#MobileUI .hotkey-guides {
-	position: absolute;
-	inset: auto 0 0;
+#MobileUI .hotkey-slot {
+	position: relative;
+	grid-row: 2;
 	width: 100%;
 	height: 100%;
-	z-index: 0;
-	stroke: #bad4e078;
-	stroke-width: 0.4;
-	pointer-events: none;
+}
+
+#MobileUI .hotkey-slot:nth-child(n + 7) {
+	grid-row: 1;
+}
+
+#MobileUI .hotkey-slot:nth-child(7) {
+	grid-column: 3;
+}
+
+#MobileUI .hotkey-slot:nth-child(8) {
+	grid-column: 4;
+}
+
+#MobileUI .hotkey-slot:nth-child(9) {
+	grid-column: 5;
 }
 
 #MobileUI #buttonContainer .FButton {
 	box-sizing: border-box;
-	top: auto;
-	left: var(--hotkey-x);
-	bottom: calc(var(--controls-height) * var(--hotkey-y));
-	width: min(14.5%, var(--combat-button-cap));
-	height: auto;
-	aspect-ratio: 1;
+	inset: 0;
+	width: 100%;
+	height: 100%;
 	padding: 0;
-	transform: translate(-50%, 50%);
+	transform: none;
+	border-radius: 24%;
+	font-size: 0;
 }
 
-/* F1â€“F4 use the inner arc, F5â€“F8 the outer arc. Row switching reuses these slots. */
-#MobileUI #f1Button, #MobileUI #n1Button, #MobileUI #qButton, #MobileUI #aButton {
-	--hotkey-x: 36%;
-	--hotkey-y: .365;
+#MobileUI #buttonContainer .FButton.disabled {
+	display: none;
 }
 
-#MobileUI #f2Button, #MobileUI #n2Button, #MobileUI #wButton, #MobileUI #sButton {
-	--hotkey-x: 52%;
-	--hotkey-y: .46;
-}
-
-#MobileUI #f3Button, #MobileUI #n3Button, #MobileUI #eButton, #MobileUI #dButton {
-	--hotkey-x: 64.5%;
-	--hotkey-y: .685;
-}
-
-#MobileUI #f4Button, #MobileUI #n4Button, #MobileUI #rButton, #MobileUI #fButton {
-	--hotkey-x: 84%;
-	--hotkey-y: .865;
-}
-
-#MobileUI #f5Button, #MobileUI #n5Button, #MobileUI #tButton, #MobileUI #gButton {
-	--hotkey-x: 12.5%;
-	--hotkey-y: .49;
-}
-
-#MobileUI #f6Button, #MobileUI #n6Button, #MobileUI #yButton, #MobileUI #hButton {
-	--hotkey-x: 26%;
-	--hotkey-y: .64;
-}
-
-#MobileUI #f7Button, #MobileUI #n7Button, #MobileUI #uButton, #MobileUI #jButton {
-	--hotkey-x: 40.5%;
-	--hotkey-y: .79;
-}
-
-#MobileUI #f8Button, #MobileUI #n8Button, #MobileUI #iButton, #MobileUI #kButton {
-	--hotkey-x: 55%;
-	--hotkey-y: .875;
+#MobileUI #buttonContainer .FButton.shortcut-empty::before {
+	font-size: clamp(12px, 4.5vmin, 34px);
 }
 
 #MobileUI #switchshorcutButton {
-	position: absolute;
-	top: auto;
-	left: calc(100% - var(--attack-size) - var(--pickup-size) - var(--switch-size) - 16px);
-	bottom: 2%;
-	width: var(--switch-size);
-	height: auto;
+	grid-area: 1 / 1;
+	position: relative;
+	inset: auto;
+	width: 100%;
+	height: 100%;
 	transform: none;
+}
+
+#MobileUI #autoAttackButton {
+	grid-area: 1 / 2;
+	width: 100%;
+	height: 100%;
+	color: #eff6fb;
+	font: 700 clamp(8px, 2.7vmin, 14px)/1 Arial, sans-serif;
 }
 
 #MobileUI .utility-dock {

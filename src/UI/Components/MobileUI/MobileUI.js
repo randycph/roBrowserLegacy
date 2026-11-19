@@ -21,8 +21,8 @@ import PathFinding from 'Utils/PathFinding.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Events from 'Core/Events.js';
 import Client from 'Core/Client.js';
-import htmlText from './MobileUI.html?raw&v=attacksizing20261119';
-import cssText from './MobileUI.css?raw&v=attacksizing20261119';
+import htmlText from './MobileUI.html?raw&v=ninehotkeys20261119';
+import cssText from './MobileUI.css?raw&v=ninehotkeys20261119';
 import defaultTexts from './robrowser_mobileui.txt?raw&v=mobileprofile20261118';
 import glMatrix from 'Vendors/gl-matrix.js';
 import Camera from 'Renderer/Camera.js';
@@ -41,7 +41,15 @@ const rotate = mat2.create();
 //Memory
 const targetPos = [0, 0];
 
+const HOTKEY_ROWS = [
+	['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9'],
+	['n1', 'n2', 'n3', 'n4', 'n5', 'n6', 'n7', 'n8', 'n9'],
+	['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o'],
+	['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l']
+];
 let movementTimer = null; // Timer for continuous joystick movement
+let activeHotkeyRow = 0;
+
 let shortcutObserver = null;
 let minimapObserver = null;
 
@@ -52,14 +60,7 @@ function refreshMobileShortcuts() {
 		return;
 	}
 
-	const groups = [
-		['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'],
-		['n1', 'n2', 'n3', 'n4', 'n5', 'n6', 'n7', 'n8'],
-		['q', 'w', 'e', 'r', 't', 'y', 'u', 'i'],
-		['a', 's', 'd', 'f', 'g', 'h', 'j', 'k']
-	];
-
-	groups.forEach((group, row) => {
+	HOTKEY_ROWS.forEach((group, row) => {
 		group.forEach((key, index) => {
 			const button = root.querySelector(`#${key}Button`);
 			const slot = shortcutRoot.querySelector(`.container[data-index="${row * 9 + index}"]`);
@@ -416,8 +417,11 @@ function setupGuide(root) {
 
 let showButtons = false;
 let autoTargetTimer;
+let autoAttackTimer = null;
+let queuedAutoAttack = null;
 let touchTargetingFromAssist = false;
 const C_AUTOTARGET_DELAY = 500;
+const C_AUTOATTACK_DELAY = 750;
 const C_TOUCH_CLICK_GUARD = 750;
 const C_LONG_PRESS_DELAY = 1000;
 const C_TOUCH_MOVE_TOLERANCE = 10;
@@ -691,6 +695,7 @@ MobileUI.init = function init() {
 	bindActionButton(root, '#toggleAutoFollowButton', toggleAutoFollow);
 	bindActionButton(root, '#toggleAutoTargetButton', toggleAutoTargeting);
 	bindActionButton(root, '#attackButton', attackTargeted);
+	bindActionButton(root, '#autoAttackButton', () => setAutoAttack(autoAttackTimer === null));
 	bindActionButton(root, '#pickupButton', pickUpItem);
 	bindActionButton(root, '#switchshorcutButton', switchSkillButtons);
 
@@ -790,6 +795,7 @@ function toggleButtons() {
 
 	if (showButtons) {
 		stopDrag();
+		setAutoAttack(false);
 		// Hide all bars and buttons
 		[
 			'#topBar',
@@ -797,46 +803,12 @@ function toggleButtons() {
 			'#joystickContainer',
 			'#buttonContainer',
 			'#attackButton',
-			'#pickupButton',
 			'.utility-dock',
 			'#switchshorcutButton'
 		].forEach(sel => {
 			const el = root.querySelector(sel);
 			if (el) {
 				el.classList.add('disabled');
-			}
-		});
-
-		// Hide F-key buttons
-		for (let i = 1; i <= 9; i++) {
-			const fBtn = root.querySelector(`#f${i}Button`);
-			if (fBtn) {
-				fBtn.classList.add('disabled');
-			}
-		}
-
-		// Hide number, letter buttons
-		['n', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].forEach(key => {
-			const btn =
-				root.querySelector(`#${key}Button`) || root.querySelector(`#${key}${key === 'n' ? '' : 'B'}utton`);
-			if (btn) {
-				btn.classList.add('disabled');
-			}
-		});
-
-		// Hide number buttons specifically
-		for (let i = 1; i <= 9; i++) {
-			const nBtn = root.querySelector(`#n${i}Button`);
-			if (nBtn) {
-				nBtn.classList.add('disabled');
-			}
-		}
-
-		// Hide letter buttons
-		['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].forEach(key => {
-			const btn = root.querySelector(`#${key}Button`);
-			if (btn) {
-				btn.classList.add('disabled');
 			}
 		});
 
@@ -852,7 +824,6 @@ function toggleButtons() {
 			'#joystickContainer',
 			'#buttonContainer',
 			'#attackButton',
-			'#pickupButton',
 			'.utility-dock',
 			'#switchshorcutButton'
 		].forEach(sel => {
@@ -862,13 +833,7 @@ function toggleButtons() {
 			}
 		});
 
-		for (let i = 1; i <= 9; i++) {
-			const fBtn = root.querySelector(`#f${i}Button`);
-			if (fBtn) {
-				fBtn.classList.remove('disabled');
-			}
-		}
-
+		showHotkeyRow(root);
 		showButtons = true;
 	}
 }
@@ -877,55 +842,16 @@ function toggleButtons() {
  * Toggles switch skill
  */
 function switchSkillButtons() {
-	const root = MobileUI.getRoot();
+	activeHotkeyRow = (activeHotkeyRow + 1) % HOTKEY_ROWS.length;
+	showHotkeyRow(MobileUI.getRoot());
+}
 
-	const skillSets = [
-		[
-			'#f1Button',
-			'#f2Button',
-			'#f3Button',
-			'#f4Button',
-			'#f5Button',
-			'#f6Button',
-			'#f7Button',
-			'#f8Button',
-			'#f9Button'
-		],
-		[
-			'#n1Button',
-			'#n2Button',
-			'#n3Button',
-			'#n4Button',
-			'#n5Button',
-			'#n6Button',
-			'#n7Button',
-			'#n8Button',
-			'#n9Button'
-		],
-		['#qButton', '#wButton', '#eButton', '#rButton', '#tButton', '#yButton', '#uButton', '#iButton', '#oButton'],
-		['#aButton', '#sButton', '#dButton', '#fButton', '#gButton', '#hButton', '#jButton', '#kButton', '#lButton']
-	];
-
-	const currentSetIndex = switchSkillButtons.currentSetIndex || 0;
-	const nextSetIndex = (currentSetIndex + 1) % skillSets.length;
-
-	// Hide all skill sets
-	skillSets.flat().forEach(selector => {
-		const el = root.querySelector(selector);
-		if (el) {
-			el.classList.add('disabled');
-		}
+function showHotkeyRow(root) {
+	HOTKEY_ROWS.forEach((keys, row) => {
+		keys.forEach(key => {
+			root.querySelector('#' + key + 'Button').classList.toggle('disabled', row !== activeHotkeyRow);
+		});
 	});
-
-	// Show only the next set
-	skillSets[nextSetIndex].forEach(selector => {
-		const el = root.querySelector(selector);
-		if (el) {
-			el.classList.remove('disabled');
-		}
-	});
-
-	switchSkillButtons.currentSetIndex = nextSetIndex;
 }
 
 /**
@@ -938,6 +864,7 @@ function toggleTouchTargeting() {
 
 	if (!enabled) {
 		if (Session.AutoTargeting) toggleAutoTargeting();
+		setAutoAttack(false);
 		if (Session.autoFollow) toggleAutoFollow();
 	}
 }
@@ -950,7 +877,7 @@ function enableTouchTargetingForAssist() {
 }
 
 function restoreTouchTargeting() {
-	if (touchTargetingFromAssist && !Session.AutoTargeting && !Session.autoFollow) {
+	if (touchTargetingFromAssist && !Session.AutoTargeting && !Session.autoFollow && autoAttackTimer === null) {
 		Session.TouchTargeting = false;
 		touchTargetingFromAssist = false;
 	}
@@ -1007,54 +934,93 @@ function toggleAutoFollow() {
  * Attacks a targeted enemy (if present)
  */
 function attackTargeted() {
-	const main = Session.Entity;
-	let pkt;
-
-	let entityFocus = EntityManager.getFocusEntity();
-
-	if (!entityFocus || entityFocus.action === entityFocus.ACTION.DIE) {
-		autoTarget();
-		entityFocus = EntityManager.getFocusEntity();
+	const player = Session.Entity;
+	if (!player || player.action === player.ACTION.DIE) {
+		return;
 	}
 
-	if (entityFocus) {
-		const out = [];
-		const count = PathFinding.search(
-			main.position[0] | 0,
-			main.position[1] | 0,
-			entityFocus.position[0] | 0,
-			entityFocus.position[1] | 0,
-			main.attack_range + 1,
-			out
-		);
+	let target = EntityManager.getFocusEntity();
+	if (!target || target.action === target.ACTION.DIE) {
+		autoTarget();
+		target = EntityManager.getFocusEntity();
+	}
 
-		if (!count) {
-			return true;
-		}
+	if (target && target.action !== target.ACTION.DIE) {
+		attackEntity(player, target, autoAttackTimer === null ? 7 : 0);
+	}
+}
 
-		if (PACKETVER.value >= 20180307) {
-			pkt = new PACKET.CZ.REQUEST_ACT2();
-		} else {
-			pkt = new PACKET.CZ.REQUEST_ACT();
-		}
-		pkt.action = 7;
-		pkt.targetGID = entityFocus.GID;
+function attackEntity(player, target, action) {
+	const path = [];
+	const count = PathFinding.search(
+		player.position[0] | 0,
+		player.position[1] | 0,
+		target.position[0] | 0,
+		target.position[1] | 0,
+		player.attack_range + 1,
+		path
+	);
 
-		if (count < 2) {
-			Network.sendPacket(pkt);
-			return true;
-		}
+	if (!count) {
+		return null;
+	}
 
-		Session.moveAction = pkt;
+	const attack = PACKETVER.value >= 20180307 ? new PACKET.CZ.REQUEST_ACT2() : new PACKET.CZ.REQUEST_ACT();
+	attack.action = action;
+	attack.targetGID = target.GID;
 
-		if (PACKETVER.value >= 20180307) {
-			pkt = new PACKET.CZ.REQUEST_MOVE2();
-		} else {
-			pkt = new PACKET.CZ.REQUEST_MOVE();
-		}
-		pkt.dest[0] = out[(count - 1) * 2 + 0];
-		pkt.dest[1] = out[(count - 1) * 2 + 1];
-		Network.sendPacket(pkt);
+	if (count < 2) {
+		Network.sendPacket(attack);
+		return null;
+	}
+
+	Session.moveAction = attack;
+	const move = PACKETVER.value >= 20180307 ? new PACKET.CZ.REQUEST_MOVE2() : new PACKET.CZ.REQUEST_MOVE();
+	move.dest[0] = path[(count - 1) * 2];
+	move.dest[1] = path[(count - 1) * 2 + 1];
+	Network.sendPacket(move);
+	return attack;
+}
+
+function setAutoAttack(enabled) {
+	const root = MobileUI.getRoot();
+	setTargetControlState(root, '#autoAttackButton', enabled);
+
+	if (enabled) {
+		enableTouchTargetingForAssist();
+		autoAttackTimer = window.setInterval(updateAutoAttack, C_AUTOATTACK_DELAY);
+		updateAutoAttack();
+		return;
+	}
+
+	window.clearInterval(autoAttackTimer);
+	autoAttackTimer = null;
+	if (queuedAutoAttack && Session.moveAction === queuedAutoAttack) {
+		Session.moveAction = null;
+	}
+	queuedAutoAttack = null;
+	restoreTouchTargeting();
+}
+
+function updateAutoAttack() {
+	const player = Session.Entity;
+	if (!Session.Playing || !player || player.action === player.ACTION.DIE) {
+		setAutoAttack(false);
+		return;
+	}
+
+	if (joystickPointer !== null || player.action === player.ACTION.WALK || Session.moveAction) {
+		return;
+	}
+
+	const target = EntityManager.getFocusEntity();
+	if (
+		target?.objecttype === player.constructor.TYPE_MOB &&
+		target.action !== target.ACTION.DIE &&
+		target.remove_tick === 0
+	) {
+		// Request one strike at a time so turning Auto off stops further attacks.
+		queuedAutoAttack = attackEntity(player, target, 0);
 	}
 }
 
@@ -1090,6 +1056,7 @@ function autoTarget() {
  * Starting automatic targeting cycle
  */
 function startAutoTarget() {
+	stopAutoTarget();
 	autoTargetTimer = window.setTimeout(autoTarget, C_AUTOTARGET_DELAY);
 }
 
@@ -1505,7 +1472,7 @@ function positionCombatHud() {
 	const dockInset = columnExtendsBelowMap ? hudBounds.right - controlsBounds.left + 6 : 0;
 	container.style.setProperty('--utility-dock-inset', `${dockInset}px`);
 
-	// Keep both hotkey arcs below the utility row.
+	// Keep both hotkey rows below the utility row.
 	const dock = container.querySelector('.utility-dock');
 	const combat = container.querySelector('#buttonContainer');
 	const bottomInset = parseFloat(getComputedStyle(combat).bottom);
@@ -1578,6 +1545,7 @@ MobileUI.onRemove = function onRemove() {
 	_preferences.height = Renderer.height;
 	_preferences.save();
 
+	setAutoAttack(false);
 	if (Session.AutoTargeting) toggleAutoTargeting();
 	if (Session.TouchTargeting && Session.autoFollow) toggleAutoFollow();
 };
