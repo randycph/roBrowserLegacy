@@ -21,8 +21,8 @@ import PathFinding from 'Utils/PathFinding.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Events from 'Core/Events.js';
 import Client from 'Core/Client.js';
-import htmlText from './MobileUI.html?raw&v=ninehotkeys20261119';
-import cssText from './MobileUI.css?raw&v=ninehotkeys20261119';
+import htmlText from './MobileUI.html?raw&v=warpcontrols20261119';
+import cssText from './MobileUI.css?raw&v=warpcontrols20261119';
 import defaultTexts from './robrowser_mobileui.txt?raw&v=mobileprofile20261118';
 import glMatrix from 'Vendors/gl-matrix.js';
 import Camera from 'Renderer/Camera.js';
@@ -419,6 +419,7 @@ let showButtons = false;
 let autoTargetTimer;
 let autoAttackTimer = null;
 let queuedAutoAttack = null;
+const suspendedCombatAssist = new WeakMap();
 let touchTargetingFromAssist = false;
 const C_AUTOTARGET_DELAY = 500;
 const C_AUTOATTACK_DELAY = 750;
@@ -1456,15 +1457,27 @@ function onPortraitChange() {
 
 function positionCombatHud() {
 	const container = MobileUI.getRoot().querySelector('#MobileUI');
+	if (!container.clientHeight) {
+		return;
+	}
+
+	const hudBounds = container.getBoundingClientRect();
+	const zoomSlider = document.querySelector('.mobile-profile-zoom');
+	const zoomAnchor = zoomSlider?.offsetWidth ? zoomSlider : zoomSlider?.closest('.mobile-profile');
+	if (zoomAnchor) {
+		const bounds = zoomAnchor.getBoundingClientRect();
+		container.style.setProperty('--fullscreen-left', `${bounds.right - hudBounds.left + 5}px`);
+		container.style.setProperty('--fullscreen-top', `${bounds.top - hudBounds.top}px`);
+	}
+
 	const minimapRoot = MiniMap.getUI()?.getRoot();
 	const panel = minimapRoot?.querySelector('.MiniMapUI');
 	const mapBounds = panel?.getBoundingClientRect();
-	if (!mapBounds?.height || !container.clientHeight) {
+	if (!mapBounds?.height) {
 		return;
 	}
 
 	const controlsBounds = panel.querySelector('.map-controls')?.getBoundingClientRect();
-	const hudBounds = container.getBoundingClientRect();
 	container.style.setProperty('--utility-map-bottom', `${mapBounds.bottom - hudBounds.top}px`);
 
 	// Older minimap skins can have a button column that extends below the map frame.
@@ -1545,10 +1558,42 @@ MobileUI.onRemove = function onRemove() {
 	_preferences.height = Renderer.height;
 	_preferences.save();
 
-	setAutoAttack(false);
-	if (Session.AutoTargeting) toggleAutoTargeting();
+	suspendCombatAssist();
 	if (Session.TouchTargeting && Session.autoFollow) toggleAutoFollow();
 };
+
+function suspendCombatAssist() {
+	const player = Session.Entity;
+	const autoAttack = autoAttackTimer !== null;
+	const autoTarget = Boolean(Session.AutoTargeting);
+
+	// The map loader detaches the HUD even for teleports within the current map.
+	// Remember the switches for this player while stopping timers and queued attacks.
+	if (player && (autoAttack || autoTarget)) {
+		suspendedCombatAssist.set(player, { autoAttack, autoTarget });
+	}
+
+	setAutoAttack(false);
+	if (autoTarget) {
+		toggleAutoTargeting();
+	}
+}
+
+function resumeCombatAssist() {
+	const player = Session.Entity;
+	const assist = suspendedCombatAssist.get(player);
+	if (!assist || !Session.Playing) {
+		return;
+	}
+
+	suspendedCombatAssist.delete(player);
+	if (assist.autoTarget && !Session.AutoTargeting) {
+		toggleAutoTargeting();
+	}
+	if (assist.autoAttack && autoAttackTimer === null) {
+		setAutoAttack(true);
+	}
+}
 
 /**
  * Shows MobileUI
@@ -1575,9 +1620,14 @@ MobileUI.show = function show() {
 			}
 		}
 		minimapObserver.observe(this.getRoot().querySelector('#MobileUI'));
+		const zoomSlider = document.querySelector('.mobile-profile-zoom');
+		if (zoomSlider) {
+			minimapObserver.observe(zoomSlider);
+		}
 		window.addEventListener('resize', positionCombatHud);
 	}
 	positionCombatHud();
+	resumeCombatAssist();
 	return syncLandscapePrompt() || showGuideOnActivate();
 };
 

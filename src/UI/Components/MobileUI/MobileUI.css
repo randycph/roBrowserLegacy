@@ -59,9 +59,15 @@
 }
 
 #MobileUI #topBar {
-	left: 50%;
-	top: 1%;
-	transform: translate(-50%, 0);
+	left: var(--fullscreen-left, calc(max(0.8vw, env(safe-area-inset-left)) + max(174px, min(24vw, 54vmin, 430px)) + 32px));
+	top: var(--fullscreen-top, max(1vh, env(safe-area-inset-top)));
+}
+
+#MobileUI #fullscreenButton {
+	width: clamp(25px, 7.2vmin, 39px);
+	height: clamp(25px, 7.2vmin, 39px);
+	color: #eff6fb;
+	touch-action: manipulation;
 }
 
 #MobileUI #leftBar {
@@ -648,7 +654,8 @@
 	height: 100%;
 	padding: 0;
 	transform: none;
-	border-radius: 24%;
+	border: 0;
+	border-radius: 50%;
 	font-size: 0;
 }
 
