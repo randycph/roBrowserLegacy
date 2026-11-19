@@ -22,7 +22,7 @@ import Altitude from 'Renderer/Map/Altitude.js';
 import Events from 'Core/Events.js';
 import Client from 'Core/Client.js';
 import htmlText from './MobileUI.html?raw&v=combatdock20261119';
-import cssText from './MobileUI.css?raw&v=combatdock20261119';
+import cssText from './MobileUI.css?raw&v=mobilehotkeysclean20261119';
 import defaultTexts from './robrowser_mobileui.txt?raw&v=mobileprofile20261118';
 import glMatrix from 'Vendors/gl-matrix.js';
 import Camera from 'Renderer/Camera.js';
@@ -71,7 +71,6 @@ function refreshMobileShortcuts() {
 			const icon = image?.style.backgroundImage || '';
 			button.style.backgroundImage = icon === 'none' ? '' : icon;
 			button.classList.toggle('shortcut-empty', !icon || icon === 'none');
-			button.dataset.key = key.startsWith('n') ? key.slice(1) : key.toUpperCase();
 			button.dataset.shortcutIndex = String(row * 9 + index);
 			let count = button.querySelector('.shortcut-amount');
 			if (!count) {

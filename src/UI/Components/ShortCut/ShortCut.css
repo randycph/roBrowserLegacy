@@ -5,6 +5,13 @@
 	overflow: hidden;
 }
 
+@media (pointer: coarse), (max-width: 1023px) {
+	:host {
+		/* Keep the slot data and window geometry available to the mobile HUD. */
+		visibility: hidden;
+	}
+}
+
 #ShortCut {
 	position: absolute;
 	width: 280px;

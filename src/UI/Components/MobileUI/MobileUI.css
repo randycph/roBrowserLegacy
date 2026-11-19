@@ -594,24 +594,6 @@
 	text-shadow: 0 1px 2px #34496c;
 }
 
-#MobileUI .FButton::after {
-	content: attr(data-key);
-	position: absolute;
-	left: 50%;
-	bottom: -22%;
-	transform: translateX(-50%);
-	min-width: 30%;
-	padding: 1px 3px;
-	border: 1px solid #bdcfee;
-	border-radius: 999px;
-	background: #34496c;
-	color: white;
-	font: bold clamp(8px, 1.3vh, 12px)/1.1 Arial, sans-serif;
-	text-align: center;
-	box-shadow: 0 1px 3px rgba(15, 27, 52, 0.7);
-	pointer-events: none;
-}
-
 #MobileUI .FButton .shortcut-amount {
 	position: absolute;
 	right: 5%;
@@ -670,11 +652,6 @@
 #MobileUI .FButton.shortcut-empty::before {
 	color: #f7f8ff;
 	font-weight: 400;
-}
-
-#MobileUI .FButton::after {
-	background: #172944;
-	border-color: #b5c6df;
 }
 
 @media (pointer: coarse) and (orientation: portrait) {
@@ -748,14 +725,6 @@
 	background-color: #85a3b9;
 	background-image: var(--control-face);
 	box-shadow: var(--control-shadow);
-}
-
-#MobileUI .FButton::after {
-	bottom: -18%;
-	background: linear-gradient(#6284a0, #395670);
-	border-color: var(--control-rim);
-	color: #f3f8fc;
-	text-shadow: none;
 }
 
 #MobileUI #buttonContainer .FButton.shortcut-empty::before {

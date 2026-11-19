@@ -31,7 +31,7 @@ import Configs from 'Core/Configs.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import SkillWindow from 'UI/Components/SkillList/SkillList.js';
 import htmlText from './ShortCut.html?raw';
-import cssText from './ShortCut.css?raw';
+import cssText from './ShortCut.css?raw&v=mobilehotkeysclean20261119';
 
 /**
  * Create Component
