@@ -1,170 +1,134 @@
 :host {
-	width: 300px;
-	height: 400px;
-	position: absolute;
+	position: fixed !important;
+	inset: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right))
+		max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left)) !important;
+	margin: auto;
+	width: min(470px, calc(100% - 24px));
+	height: min(410px, calc(100% - 24px));
+	color: #26384b;
+	font: 13px Arial, sans-serif;
 }
+
 #ReadRodex {
-	width: 300px;
-	height: 400px;
-	position: absolute;
-}
-#ReadRodex .body {
-	width: 300px;
-	height: 400px;
-	position: absolute;
-}
-
-#ReadRodex .body .base {
-	border: none;
-	background-color: transparent;
-	background-repeat: no-repeat;
-	vertical-align: middle;
+	box-sizing: border-box;
+	display: grid;
+	grid-template-rows: auto minmax(0, 1fr) auto;
+	height: 100%;
+	overflow: hidden;
+	border: 1px solid #9eb3c8;
+	border-radius: 14px;
+	background: #f5f8fa;
+	box-shadow: 0 10px 30px #16283a50;
 }
 
-#ReadRodex .body .titlebar {
-	display: block;
-	width: 300px;
-	height: 16px;
-}
-#ReadRodex .body .titlebar .right {
-	float: right;
-	margin-right: 3px;
-}
-#ReadRodex .body .titlebar .right .close {
-	width: 11px;
-	height: 11px;
-}
-
-#ReadRodex .body .sender {
-	float: left;
-	width: 100%;
-	height: 25px;
-	position: relative;
+.titlebar, .message-footer, .attachment-row {
 	display: flex;
-	align-items: flex-end;
-}
-#ReadRodex .body .sender .name {
-	margin-left: 10px;
-	font-weight: bold;
-	color: darkblue;
+	align-items: center;
+	gap: 8px;
 }
 
-#ReadRodex .body .title {
-	float: left;
-	width: 100%;
-	height: 25px;
-	position: relative;
+.titlebar, .message-footer {
+	padding: 6px 10px;
+}
+
+.titlebar {
+	justify-content: space-between;
+	background: #dfe9f2;
+	border-bottom: 1px solid #c6d3de;
+}
+
+.message-footer {
+	justify-content: flex-end;
+	border-top: 1px solid #c6d3de;
+}
+
+.message-scroll {
+	padding: 10px 14px;
+	min-height: 0;
+	overflow: auto;
+	overscroll-behavior: contain;
+	touch-action: pan-y;
+}
+
+.title-text {
+	margin: 0 0 4px;
+	font-size: 18px;
+	overflow-wrap: anywhere;
+}
+
+.name, .sent-date {
+	margin: 4px 0;
+	color: #52677e;
+	overflow-wrap: anywhere;
+}
+
+.content-text {
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
+.attachment-row {
+	justify-content: space-between;
+	flex-wrap: wrap;
+	margin-top: 6px;
+}
+
+.attachment-row:has(> :first-child:empty):has(> button[hidden]) {
+	display: none;
+}
+
+.item-list {
 	display: flex;
-	align-items: flex-end;
-}
-#ReadRodex .body .title .title-text {
-	margin-left: 10px;
+	flex-wrap: wrap;
+	gap: 5px;
 }
 
-#ReadRodex .body .content {
-	float: left;
-	width: 100%;
-	height: 230px;
+.item {
 	position: relative;
-}
-#ReadRodex .body .content .content-text {
-	position: absolute;
-	top: 5px;
-	left: 10px;
-	width: 280px;
-	height: 220px;
-}
-
-#ReadRodex .body .items {
-	float: left;
-	width: 100%;
-	height: 45px;
-	position: relative;
-}
-#ReadRodex .body .items .item-list {
-	list-style: none;
-	margin: 0px;
-	padding: 0px;
-	display: table;
-	position: absolute;
-	top: 10px;
-	left: 22px;
-}
-#ReadRodex .body .items .item-list .item {
-	display: block;
-	width: 24px;
-	height: 24px;
-	position: relative;
-	float: left;
-	margin: 4px 5px 4px 5px;
-}
-#ReadRodex .body .items .item-list .item .icon {
-	width: 24px;
-	height: 24px;
-	border: none;
-	background-color: transparent;
-	background-repeat: no-repeat;
-}
-#ReadRodex .body .items .item-list .item .amount {
-	position: relative;
-	bottom: 9px;
-	right: 0px;
-	text-align: right;
-	text-shadow: -1px -1px white;
-}
-#ReadRodex .body .items .get-content {
-	position: absolute;
-	width: 26px;
-	height: 20px;
-	top: 10px;
-	right: 10px;
-	border: none;
-}
-
-#ReadRodex .body .zeny {
-	float: left;
-	width: 100%;
+	width: 30px;
 	height: 30px;
-	position: relative;
-}
-#ReadRodex .body .zeny .image {
-	position: absolute;
-	width: 28px;
-	height: 25px;
-	top: 1px;
-	left: 15px;
-}
-#ReadRodex .body .zeny .value {
-	position: absolute;
-	top: 10px;
-	left: 50px;
-}
-#ReadRodex .body .zeny .get-zeny {
-	position: absolute;
-	width: 26px;
-	height: 20px;
-	top: 3px;
-	right: 10px;
-	border: none;
+	border-radius: 6px;
+	background: #e7eff7;
 }
 
-#ReadRodex .body .footer {
-	float: left;
+.item .icon {
 	width: 100%;
-	height: 30px;
-	position: relative;
+	height: 100%;
+	background: center no-repeat;
 }
-#ReadRodex .body .footer .delete {
+
+.item .amount {
 	position: absolute;
-	width: 70px;
-	height: 20px;
-	top: 5px;
-	left: 10px;
+	right: 1px;
+	bottom: 0;
+	font-size: 10px;
 }
-#ReadRodex .body .footer .reply {
-	position: absolute;
-	width: 70px;
-	height: 20px;
-	top: 5px;
-	right: 10px;
+
+#ReadRodex button {
+	min-height: 32px;
+	padding: 4px 8px;
+	border: 1px solid #c6d3de;
+	border-radius: 7px;
+	background: #fff;
+	color: inherit;
+	font: inherit;
+	cursor: pointer;
+}
+
+#ReadRodex .close {
+	min-width: 32px;
+	font-size: 19px;
+	line-height: 1;
+}
+
+#ReadRodex .claim:not(:disabled) {
+	background: #f6d991;
+	border-color: #bd9441;
+	font-weight: 700;
+}
+
+#ReadRodex button:disabled {
+	background: #e4eaf0;
+	color: #617589;
+	cursor: default;
 }

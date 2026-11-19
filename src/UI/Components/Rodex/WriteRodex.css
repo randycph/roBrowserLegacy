@@ -1,17 +1,30 @@
 :host {
-	width: 300px;
-	height: 400px;
-	position: absolute;
+	position: fixed !important;
+	inset: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right))
+		max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left)) !important;
+	margin: auto;
+	width: min(330px, calc(100% - 24px));
+	height: min(440px, calc(100% - 24px));
+	box-sizing: border-box;
+	overflow: auto;
+	overscroll-behavior: contain;
+	touch-action: pan-y;
+	color: #26384b;
+	border: 1px solid #9eb3c8;
+	border-radius: 14px;
+	background: #f5f8fa;
+	box-shadow: 0 10px 30px #16283a50;
 }
+
 #WriteRodex {
-	width: 300px;
-	height: 400px;
-	position: absolute;
+	position: relative;
+	min-height: 405px;
 }
+
 #WriteRodex .body {
-	width: 300px;
-	height: 400px;
-	position: absolute;
+	display: flow-root;
+	min-height: 405px;
+	background-image: none !important;
 }
 
 #WriteRodex .body .base {
@@ -23,8 +36,10 @@
 
 #WriteRodex .body .titlebar {
 	display: block;
-	width: 300px;
-	height: 16px;
+	width: 100%;
+	height: 28px;
+	background: #dfe9f2;
+	border-bottom: 1px solid #c6d3de;
 }
 #WriteRodex .body .titlebar .right {
 	float: right;
@@ -94,10 +109,13 @@
 	position: absolute;
 	top: 5px;
 	left: 10px;
-	width: 280px;
+	width: calc(100% - 20px);
+	box-sizing: border-box;
 	height: 220px;
-	background: transparent;
-	border: none;
+	padding: 8px;
+	border: 1px solid #c6d3de;
+	border-radius: 7px;
+	background: #fff;
 	resize: none;
 }
 

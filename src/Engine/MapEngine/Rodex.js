@@ -292,6 +292,9 @@ function rodexGetListFailed(pkt) {
  */
 function rodexRead(pkt) {
 	const mail = Rodex.getMailByID(pkt.MailID);
+	if (!mail) {
+		return;
+	}
 	ReadRodex.append();
 	ReadRodex.initData(pkt, mail);
 }
@@ -302,6 +305,7 @@ function rodexRead(pkt) {
  * @param {object} pkt - PACKET.ZC.ACK_ZENY_FROM_RODEX
  */
 function rodexGetZeny(pkt) {
+	Rodex.resolveClaim(pkt.MailID, Rodex.MAIL_TYPE_ZENY, pkt.result === 0);
 	switch (pkt.result) {
 		case 1: // failure
 			ChatBox.addText(DB.getMessage(2592), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
@@ -311,7 +315,9 @@ function rodexGetZeny(pkt) {
 			break;
 		default:
 			ChatBox.addText(DB.getMessage(2591), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
-			ReadRodex.clearZeny();
+			if (pkt.result === 0 && String(ReadRodex.MailID) === String(pkt.MailID)) {
+				ReadRodex.clearZeny();
+			}
 	}
 }
 
@@ -321,6 +327,7 @@ function rodexGetZeny(pkt) {
  * @param {object} pkt - PACKET.ZC.ACK_ITEM_FROM_RODEX
  */
 function rodexGetItem(pkt) {
+	Rodex.resolveClaim(pkt.MailID, Rodex.MAIL_TYPE_ITEM, pkt.result === 0);
 	switch (pkt.result) {
 		case 1: // failure
 			ChatBox.addText(DB.getMessage(2589), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
@@ -330,7 +337,9 @@ function rodexGetItem(pkt) {
 			break;
 		default:
 			ChatBox.addText(DB.getMessage(2588), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
-			ReadRodex.clearItemList();
+			if (pkt.result === 0 && String(ReadRodex.MailID) === String(pkt.MailID)) {
+				ReadRodex.clearItemList();
+			}
 	}
 }
 
@@ -395,7 +404,9 @@ function rodexDelete(pkt) {
 	if (!pkt.result) {
 		ChatBox.addText(DB.getMessage(1038), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
 		Rodex.updateDeletedMailContent(pkt.openType, pkt.MailID);
-		ReadRodex.close();
+		if (String(ReadRodex.MailID) === String(pkt.MailID)) {
+			ReadRodex.close();
+		}
 	} else {
 		ChatBox.addText(DB.getMessage(1039), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
 	}

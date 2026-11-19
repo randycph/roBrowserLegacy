@@ -1,426 +1,324 @@
 /**
- * UI/Components/Rodex/Rodex.js
- *
- * Rodex Box
- *
- * @author Alisonrag
- *
+ * RodEx mailbox and client-side attachment status.
  */
-
 import DB from 'DB/DBManager.js';
-import Client from 'Core/Client.js';
+import Configs from 'Core/Configs.js';
 import Preferences from 'Core/Preferences.js';
-import Renderer from 'Renderer/Renderer.js';
-import KEYS from 'Controls/KeyEventHandler.js';
+import Session from 'Engine/SessionStorage.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
+import htmlText from './Rodex.html?raw&v=mailpanel20261119';
+import cssText from './Rodex.css?raw&v=mailpanel20261119';
 
-import htmlText from './Rodex.html?raw';
-import cssText from './Rodex.css?raw';
+const MAIL_TYPE_ZENY = 0x2;
+const MAIL_TYPE_ITEM = 0x4;
+const MAIL_ATTACHMENT_MASK = MAIL_TYPE_ZENY | MAIL_TYPE_ITEM;
+const SECONDS_PER_DAY = 86400;
+const pendingClaims = new Map();
+const claims = Preferences.get('RodexClaims', { confirmed: {} }, 1);
+const sentDateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' });
 
-/**
- * Create Component
- */
 const Rodex = new GUIComponent('Rodex', cssText);
-
-/**
- * Store Rodex items
- */
 Rodex.list = [];
-/**
- * Determine data page size
- */
 Rodex.pageSize = 6;
-/**
- * know which page is current
- */
 Rodex.page = 0;
-
-/**
- * know which tab is current
- */
 Rodex.openType = 0;
+Rodex.render = () => htmlText;
+Rodex.captureKeyEvents = true;
+Rodex.MAIL_TYPE_ITEM = MAIL_TYPE_ITEM;
+Rodex.MAIL_TYPE_ZENY = MAIL_TYPE_ZENY;
+let activeSearch = null;
 
-/**
- * know which tab is current
- */
-Rodex.currentTab = 0;
-
-/**
- * know what to search
- */
-Rodex.searchType = 1;
-
-Rodex.attachmentType = {
-	0: '', // none
-	2: 'basic_interface/rodexsystem/renewal/icon_zeny.bmp', // zeny
-	4: 'basic_interface/rodexsystem/renewal/icon_item.bmp', // item
-	6: 'basic_interface/rodexsystem/renewal/icon_zeny_n_item.bmp', // zeny + item
-	12: 'basic_interface/rodexsystem/renewal/icon_zeny_n_item.bmp' // gift??
-};
-
-/**
- * @var {Preferences} structure
- */
-const _preferences = Preferences.get(
-	'Rodex',
-	{
-		x: 350,
-		y: 350,
-		show: false
-	},
-	2.0
-);
-
-/**
- * Helper: query inside shadow root
- */
-function _root() {
-	return Rodex._shadow || Rodex._host;
+function claimKey(mailID) {
+	return `${Session.AID}:${mailID}`;
 }
 
-/**
- * Render HTML
- */
-Rodex.render = () => htmlText;
+function renderPage() {
+	if (Rodex.__active) {
+		Rodex.createRodexList();
+	}
+}
 
-/**
- * Bind the window controls once
- */
+function getVisibleMail() {
+	if (activeSearch) {
+		const { field, term } = activeSearch;
+		return Rodex.list.filter(mail => String(mail[field] ?? '').toLowerCase().includes(term));
+	}
+
+	return Rodex.list.filter(mail => Number(mail.openType ?? 0) === Rodex.openType);
+}
+
+function setFolder(folder) {
+	const root = Rodex.getRoot();
+	for (const tab of root.querySelectorAll('.nav-item')) {
+		tab.setAttribute('aria-pressed', String(Number(tab.dataset.tab) === folder));
+	}
+}
+
+function showWindow() {
+	Rodex._host.style.display = '';
+	Rodex.focus();
+}
+
 Rodex.init = function init() {
-	const root = _root();
-
-	this.draggable(root.querySelector('.titlebar'));
-
-	root.querySelector('.close').addEventListener('click', onClickClose);
-	root.querySelector('.refresh').addEventListener('click', onClickRefresh);
-	root.querySelector('.write').addEventListener('click', onClickWriteMail);
-	root.querySelector('.delete-all').addEventListener('click', onClickDeleteAll);
-	root.querySelector('.retrieve-all').addEventListener('click', onClickRetrieveAll);
-	root.querySelector('.previous-page').addEventListener('click', onClickPreviousPage);
-	root.querySelector('.next-page').addEventListener('click', onClickNexPage);
-	root.querySelectorAll('.nav-item').forEach(el => el.addEventListener('click', onClickTab));
-	root.querySelector('.search-title').addEventListener('click', onClickSearchTitle);
-	root.querySelector('.search-sender').addEventListener('click', onClickSearchSender);
-	root.querySelector('.search-btn').addEventListener('click', onClickSearchButton);
-};
-
-/**
- * Apply preferences once append to body
- */
-Rodex.onAppend = function OnAppend() {
-	const root = _root();
-
-	// Apply preferences
-	this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - this._host.offsetHeight)}px`;
-	this._host.style.left = `${Math.min(Math.max(0, _preferences.x), Renderer.width - this._host.offsetWidth)}px`;
-
-	root.querySelector('.search').value = '';
-
-	Rodex.openType = 0;
-	root.querySelectorAll('.nav-item.active').forEach(el => el.classList.remove('active'));
-	root.querySelector('#tab_0').classList.add('active');
-	Rodex.searchType = 1;
-	Rodex.page = 0;
-};
-
-/**
- * Remove Rodex from window (and so clean up items)
- */
-Rodex.onRemove = function OnRemove() {
-	this.list.length = 0;
-	// Save preferences
-	_preferences.show = this._host.style.display !== 'none';
-	_preferences.y = parseInt(this._host.style.top, 10);
-	_preferences.x = parseInt(this._host.style.left, 10);
-	_preferences.save();
-
-	Rodex.openType = 0;
-};
-
-/**
- * Extend Rodex window size
- *
- * @param {object} read
- */
-Rodex.initData = function initData(pkt) {
-	Rodex.list = pkt.MailList;
-	Rodex.isEnd = pkt.isEnd;
-	Rodex.openType = typeof pkt.openType !== 'undefined' ? pkt.openType : 0;
-	Rodex.createRodexList();
-	this._host.style.display = '';
-	this.focus();
-};
-
-Rodex.createRodexList = function createRodexList(tabID = 0, search = false, term = '') {
-	const root = _root();
-	const content = root.querySelector('.mail-list');
-	content.innerHTML = '';
-	let mail_list = [];
-	if (search) {
-		Rodex.page = 0;
-		if (Rodex.searchType === 1) {
-			mail_list = Rodex.getMailsByTitle(term);
-		} else {
-			mail_list = Rodex.getMailsBySender(term);
-		}
-	} else {
-		mail_list = Rodex.getMailsByTabID(tabID);
+	const root = this.getRoot();
+	root.querySelector('.close').addEventListener('click', () => this.toggle());
+	root.querySelector('.refresh').addEventListener('click', () => this.requestRefreshRodexPage(this.openType));
+	root.querySelector('.write').addEventListener('click', () => this.requestOpenWriteRodex());
+	root.querySelector('.delete-all').addEventListener('click', () => {
+		UIManager.showPromptBox(DB.getMessage(3590), 'ok', 'cancel', () => this.deleteAll());
+	});
+	root.querySelector('.retrieve-all').addEventListener('click', () => {
+		UIManager.showPromptBox(DB.getMessage(3594), 'ok', 'cancel', () => this.getAll());
+	});
+	root.querySelector('.previous-page').addEventListener('click', () => {
+		this.page--;
+		this.createRodexList(true);
+	});
+	root.querySelector('.next-page').addEventListener('click', () => {
+		this.page++;
+		this.createRodexList(true);
+	});
+	for (const tab of root.querySelectorAll('.nav-item')) {
+		tab.addEventListener('click', () => {
+			this.openType = Number(tab.dataset.tab);
+			this.page = 0;
+			activeSearch = null;
+			root.querySelector('.search').value = '';
+			setFolder(this.openType);
+			this.createRodexList(true);
+			if (this.serverFolder !== null && this.serverFolder !== this.openType) {
+				this.requestRefreshRodexPage(this.openType);
+			}
+		});
 	}
-	if (mail_list.length === 0) {
-		return;
-	}
-	const start = Rodex.pageSize * Rodex.page;
-
-	let total = 0;
-	for (let i = start; total < Rodex.pageSize && i < mail_list.length; i++) {
-		const mail = mail_list[i];
-		const mailID = mail.MailID;
-		const title = mail.title.length > 18 ? mail.title.substring(0, 18) + '...' : mail.title;
-		const sender = mail.SenderName.length > 18 ? mail.SenderName.substring(0, 18) + '...' : mail.SenderName;
-		const mail_image = mail.Isread ? 'icon_status_mail_read' : 'icon_status_mail_received';
-		const mail_content = Rodex.attachmentType[mail.type];
-		const remaining_days = parseInt(mail.expireDateTime / 60 / 60 / 24);
-		const openType = typeof mail.openType !== 'undefined' ? mail.openType : 0;
-		const mail_html = `<li class="mail-item">
-				<div class="mail-checkbox" data-background="basic_interface/rodexsystem/renewal/checkbox_off.bmp">
-				</div>
-				<div class="mail-image" data-background="basic_interface/rodexsystem/renewal/${mail_image}.bmp">
-				</div>
-				<div class="mail-text">
-					<div class="title"><div id="mail_${mailID}" openType="${openType}" class="text event_add_cursor"><span data-text="2702"></span>${title}</div></div>
-					<div class="sender"><div id="sender_${mailID}" sender="${sender}" class="text event_add_cursor"><span data-text="2701"></span>${sender}</div></div>
-				</div>
-				<div class="mail-content" data-background="${mail_content}"></div>
-				<div class="expire-days">${remaining_days} days</div>
-			</li>`;
-		content.insertAdjacentHTML('beforeend', mail_html);
-
-		const mailEl = root.querySelector(`#mail_${mailID}`);
-		if (mailEl) {
-			mailEl.addEventListener('click', onClickReadMail);
-		}
-		const senderEl = root.querySelector(`#sender_${mailID}`);
-		if (senderEl) {
-			senderEl.addEventListener('click', onClickReplyMail);
-		}
-		total++;
-	}
-
-	// Process data-* attributes on dynamically created content
-	const selector = '[data-background],[data-hover],[data-down],[data-active],[data-text],[data-preload]';
-	content.querySelectorAll(selector).forEach(node => {
-		GUIComponent.processDataAttrs(node);
+	root.querySelector('.searchbar').addEventListener('submit', event => {
+		event.preventDefault();
+		const term = root.querySelector('.search').value.trim().toLowerCase();
+		const field = root.querySelector('.search-field').value === '1' ? 'title' : 'SenderName';
+		activeSearch = term ? { field, term } : null;
+		setFolder(activeSearch ? null : this.openType);
+		this.page = 0;
+		this.createRodexList(true);
 	});
 };
 
-Rodex.getMailsByTabID = function getMailsByTabID(tabID) {
-	return Rodex.list.filter(mail => mail.openType == tabID);
+Rodex.onAppend = function onAppend() {
+	const root = this.getRoot();
+	root.querySelector('.search').value = '';
+	root.querySelector('.search-field').value = '1';
+	this.openType = 0;
+	this.serverFolder = null;
+	this.page = 0;
+	activeSearch = null;
+	setFolder(this.openType);
+	this.createRodexList(true);
 };
 
-Rodex.getMailsBySender = function getMailsBySender(term) {
-	return Rodex.list.filter(mail => mail.SenderName.indexOf(term) > -1);
+Rodex.onRemove = function onRemove() {
+	this.list = [];
+	for (const timer of pendingClaims.values()) {
+		window.clearTimeout(timer);
+	}
+	pendingClaims.clear();
 };
 
-Rodex.getMailsByTitle = function getMailsByTitle(term) {
-	return Rodex.list.filter(mail => mail.title.indexOf(term) > -1);
+Rodex.initData = function initData(packet) {
+	this.serverFolder = packet.openType ?? null;
+	this.list = packet.MailList;
+	this.createRodexList();
+	showWindow();
 };
 
-Rodex.getMailByID = function getMailByID(mailID) {
-	return Rodex.list.find(mail => mail.MailID == mailID);
-};
-
-Rodex.getAll = function getAll() {
-	for (let i = 0; i < Rodex.list.length; i++) {
-		const mail = Rodex.list[i];
-		if (mail.type > 0 && (mail.type === 4 || mail.type === 6)) {
-			Rodex.requestItemsFromRodex(mail.openType, mail.MailID);
-		}
-		if (mail.type > 0 && (mail.type === 2 || mail.type === 6)) {
-			Rodex.requestZenyFromRodex(mail.openType, mail.MailID);
-		}
+Rodex.getListFailed = function getListFailed() {
+	const root = this.getRoot();
+	if (root && !this.list.length) {
+		root.querySelector('.mail-empty').textContent = 'Mail could not be loaded. Try Refresh.';
 	}
 };
 
+Rodex.getSentDate = function getSentDate(mail, now = Date.now()) {
+	if (typeof mail.regDateTime === 'number' && mail.regDateTime >= 0) {
+		return new Date(now - mail.regDateTime * 1000);
+	}
+
+	// Modern inbox packets send the countdown to expiry. rAthena schedules
+	// regular and returned mail by adding the retention period to its timestamp.
+	const folder = Number(mail.openType ?? 0);
+	const retention = folder === 0
+		? Configs.get('RodexReturnDays', 15)
+		: folder === 2
+			? Configs.get('RodexDeleteDays', 15)
+			: 0;
+	const lifetime = Number(retention) * SECONDS_PER_DAY;
+	const remaining = mail.expireDateTime;
+	if (typeof remaining === 'number' && remaining >= 0 && remaining <= lifetime && lifetime > 0 &&
+		remaining !== 365 * SECONDS_PER_DAY) {
+		return new Date(now - (lifetime - remaining) * 1000);
+	}
+
+	return null;
+};
+
+Rodex.formatSentDate = function formatSentDate(mail) {
+	const date = this.getSentDate(mail);
+	return date ? sentDateFormat.format(date) : 'Date unavailable';
+};
+
+Rodex.getMailByID = function getMailByID(mailID) {
+	return this.list.find(mail => String(mail.MailID) === String(mailID));
+};
+
+Rodex.getClaimState = function getClaimState(mail) {
+	const remaining = mail.type & MAIL_ATTACHMENT_MASK;
+	const itemsPending = pendingClaims.has(`${mail.MailID}:${MAIL_TYPE_ITEM}`);
+	const zenyPending = pendingClaims.has(`${mail.MailID}:${MAIL_TYPE_ZENY}`);
+	const pending = (itemsPending ? MAIL_TYPE_ITEM : 0) | (zenyPending ? MAIL_TYPE_ZENY : 0);
+	return { remaining, pending, confirmed: claims.confirmed[claimKey(mail.MailID)] || 0 };
+};
+
+Rodex.createRodexList = function createRodexList(resetScroll = false) {
+	const root = this.getRoot();
+	const viewport = root.querySelector('.rodex-list');
+	const list = root.querySelector('.mail-list');
+	const template = root.querySelector('.mail-row-template');
+	const display = getVisibleMail();
+	const pages = Math.max(1, Math.ceil(display.length / this.pageSize));
+	this.page = Math.max(0, Math.min(this.page, pages - 1));
+	const start = this.page * this.pageSize;
+	const scrollPosition = resetScroll ? 0 : viewport.scrollTop;
+	const fragment = document.createDocumentFragment();
+
+	for (const mail of display.slice(start, start + this.pageSize)) {
+		const row = template.content.cloneNode(true);
+		const subject = row.querySelector('.mail-subject');
+		const sender = row.querySelector('.mail-sender');
+		const date = row.querySelector('.mail-date');
+		const icon = row.querySelector('.mail-image');
+		const button = row.querySelector('.mail-claim');
+		const state = this.getClaimState(mail);
+		const openType = mail.openType ?? 0;
+		subject.textContent = mail.title || '(No subject)';
+		subject.addEventListener('click', () => this.requestReadRodex(openType, mail.MailID));
+		sender.textContent = `From: ${mail.SenderName || 'Unknown sender'}`;
+		sender.disabled = !mail.SenderName;
+		sender.addEventListener('click', () => this.requestOpenWriteRodex(mail.SenderName));
+		date.textContent = `Sent: ${this.formatSentDate(mail)}`;
+		const image = mail.Isread ? 'icon_status_mail_read' : 'icon_status_mail_received';
+		icon.dataset.background = `basic_interface/rodexsystem/renewal/${image}.bmp`;
+		GUIComponent.processDataAttrs(icon);
+
+		button.hidden = !state.remaining && !state.confirmed;
+		button.disabled = Boolean(state.pending) || !state.remaining;
+		button.textContent = state.pending ? 'Claiming…' : state.remaining ? 'Claim' : 'Claimed';
+		button.addEventListener('click', () => this.claimMail(mail));
+		fragment.append(row);
+	}
+	list.replaceChildren(fragment);
+	viewport.scrollTop = scrollPosition;
+	const empty = root.querySelector('.mail-empty');
+	empty.hidden = display.length > 0;
+	empty.textContent = activeSearch ? 'No matching messages.' : 'No messages.';
+	root.querySelector('.page-status').textContent = `${this.page + 1} / ${pages}`;
+	root.querySelector('.previous-page').disabled = this.page === 0;
+	root.querySelector('.next-page').disabled = this.page >= pages - 1;
+	root.querySelector('.retrieve-all').disabled = !this.list.some(mail => {
+		const { remaining, pending } = this.getClaimState(mail);
+		return remaining & ~pending;
+	});
+	root.querySelector('.delete-all').disabled = !this.list.length;
+};
+
+Rodex.claimMail = function claimMail(mail, requested = MAIL_ATTACHMENT_MASK, refresh = true) {
+	const { remaining, pending } = this.getClaimState(mail);
+	const available = remaining & requested & ~pending;
+	const openType = mail.openType ?? 0;
+	for (const type of [MAIL_TYPE_ITEM, MAIL_TYPE_ZENY]) {
+		if (!(available & type)) {
+			continue;
+		}
+
+		const key = `${mail.MailID}:${type}`;
+		const timeout = window.setTimeout(() => {
+			pendingClaims.delete(key);
+			renderPage();
+			this.onClaimStateChanged?.(mail.MailID);
+		}, 12000);
+		pendingClaims.set(key, timeout);
+		if (type === MAIL_TYPE_ITEM) {
+			this.requestItemsFromRodex(openType, mail.MailID);
+		} else {
+			this.requestZenyFromRodex(openType, mail.MailID);
+		}
+	}
+	if (refresh) {
+		renderPage();
+	}
+	this.onClaimStateChanged?.(mail.MailID);
+};
+
+Rodex.resolveClaim = function resolveClaim(mailID, type, succeeded) {
+	const key = `${mailID}:${type}`;
+	window.clearTimeout(pendingClaims.get(key));
+	pendingClaims.delete(key);
+
+	if (succeeded) {
+		const mail = this.getMailByID(mailID);
+		if (mail) {
+			mail.type &= ~type;
+		}
+		const accountKey = claimKey(mailID);
+		const previous = claims.confirmed[accountKey] || 0;
+		delete claims.confirmed[accountKey];
+		claims.confirmed[accountKey] = previous | type;
+		const oldest = Object.keys(claims.confirmed);
+		if (oldest.length > 300) {
+			delete claims.confirmed[oldest[0]];
+		}
+		claims.save();
+	}
+	renderPage();
+	this.onClaimStateChanged?.(mailID);
+};
+
+Rodex.getAll = function getAll() {
+	for (const mail of this.list) {
+		this.claimMail(mail, MAIL_ATTACHMENT_MASK, false);
+	}
+	renderPage();
+};
+
 Rodex.deleteAll = function deleteAll() {
-	for (let i = 0; i < Rodex.list.length; i++) {
-		const mail = Rodex.list[i];
-		if (mail.type === 0) {
-			Rodex.requestDeleteRodex(mail.openType, mail.MailID);
+	for (const mail of this.list) {
+		if (!(mail.type & MAIL_ATTACHMENT_MASK)) {
+			this.requestDeleteRodex(mail.openType ?? 0, mail.MailID);
 		} else {
 			ChatBox.addText(DB.getMessage(2612), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
 		}
 	}
 };
 
-Rodex.updateDeletedMailContent = function updateDeletedMailContent(openType, MailID) {
-	const root = _root();
-	const mailEl = root.querySelector(`#mail_${MailID}`);
-	if (mailEl) {
-		mailEl.textContent = DB.getMessage(2907);
-		mailEl.classList.add('deleted');
-	}
-	const senderEl = root.querySelector(`#sender_${MailID}`);
-	if (senderEl) {
-		senderEl.textContent = '';
-	}
+Rodex.updateDeletedMailContent = function updateDeletedMailContent(openType, mailID) {
+	this.list = this.list.filter(mail => String(mail.MailID) !== String(mailID));
+	renderPage();
 };
 
-/**
- * Show/Hide UI
- */
 Rodex.toggle = function toggle() {
 	if (this.__active && this._host.style.display !== 'none') {
-		Rodex.closeRodexBox();
+		this.closeRodexBox();
 		this._host.style.display = 'none';
 	} else {
-		Rodex.openRodexBox();
-		Rodex.append();
-		this._host.style.display = '';
-		this.focus();
+		this.append();
+		this.openRodexBox(this.openType);
+		showWindow();
 	}
 };
 
 Rodex.onKeyDown = function onKeyDown(event) {
-	if ((event.which === KEYS.ESCAPE || event.key === 'Escape') && this._host && this._host.style.display !== 'none') {
+	if (event.key === 'Escape' && this._host.style.display !== 'none') {
 		this.toggle();
 	}
 };
 
-function onClickClose(e) {
-	e.stopImmediatePropagation();
-	Rodex.openType = 0;
-	Rodex.closeRodexBox();
-	// Save preferences
-	_preferences.y = parseInt(Rodex._host.style.top, 10);
-	_preferences.x = parseInt(Rodex._host.style.left, 10);
-	_preferences.save();
-	Rodex._host.style.display = 'none';
-}
-
-function onClickRefresh(e) {
-	e.stopImmediatePropagation();
-	Rodex.requestRefreshRodexPage();
-}
-
-function onClickWriteMail(e) {
-	e.stopImmediatePropagation();
-	Rodex.requestOpenWriteRodex();
-}
-
-function onClickDeleteAll(e) {
-	e.stopImmediatePropagation();
-	UIManager.showPromptBox(DB.getMessage(3590), 'ok', 'cancel', () => {
-		Rodex.deleteAll();
-	});
-}
-
-function onClickRetrieveAll(e) {
-	e.stopImmediatePropagation();
-	UIManager.showPromptBox(DB.getMessage(3594), 'ok', 'cancel', () => {
-		Rodex.getAll();
-	});
-}
-
-function onClickPreviousPage(e) {
-	e.stopImmediatePropagation();
-	if (Rodex.page - 1 < 0) {
-		return;
-	}
-	Rodex.page--;
-	Rodex.createRodexList(Rodex.openType);
-}
-
-function onClickNexPage(e) {
-	e.stopImmediatePropagation();
-	if ((Rodex.page + 1) * Rodex.pageSize < Rodex.getMailsByTabID(Rodex.openType).length) {
-		Rodex.page++;
-		Rodex.createRodexList(Rodex.openType);
-	}
-}
-
-function onClickTab(e) {
-	e.stopImmediatePropagation();
-	Rodex.page = 0;
-	const element = e.currentTarget;
-	const tid = element.id;
-	const id = tid.replace('tab_', '');
-	const root = _root();
-	root.querySelectorAll('.nav-item.active').forEach(el => el.classList.remove('active'));
-	element.classList.add('active');
-	if (id >= 0 && id <= 2) {
-		Rodex.openType = id;
-		Rodex.createRodexList(Rodex.openType);
-	} else {
-		root.querySelector('.mail-list').innerHTML = '';
-	}
-}
-
-function onClickSearchTitle(e) {
-	e.stopImmediatePropagation();
-	Rodex.searchType = 1;
-	const root = _root();
-	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/rodexsystem/renewal/checkbox_search_off.bmp', data => {
-		const el = root.querySelector('.search-sender');
-		if (el) {
-			el.style.backgroundImage = `url(${data})`;
-		}
-	});
-	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/rodexsystem/renewal/checkbox_search_on.bmp', data => {
-		const el = root.querySelector('.search-title');
-		if (el) {
-			el.style.backgroundImage = `url(${data})`;
-		}
-	});
-}
-
-function onClickSearchSender(e) {
-	e.stopImmediatePropagation();
-	Rodex.searchType = 2;
-	const root = _root();
-	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/rodexsystem/renewal/checkbox_search_on.bmp', data => {
-		const el = root.querySelector('.search-sender');
-		if (el) {
-			el.style.backgroundImage = `url(${data})`;
-		}
-	});
-	Client.loadFile(DB.INTERFACE_PATH + 'basic_interface/rodexsystem/renewal/checkbox_search_off.bmp', data => {
-		const el = root.querySelector('.search-title');
-		if (el) {
-			el.style.backgroundImage = `url(${data})`;
-		}
-	});
-}
-
-function onClickSearchButton(e) {
-	e.stopImmediatePropagation();
-	const root = _root();
-	const search = root.querySelector('.search').value;
-	root.querySelectorAll('.nav-item.active').forEach(el => el.classList.remove('active'));
-	root.querySelector('#tab_3').classList.add('active');
-	if (search.length > 2) {
-		Rodex.createRodexList(0, true, search);
-	}
-}
-
-function onClickReadMail(e) {
-	e.stopImmediatePropagation();
-	const element = e.currentTarget;
-	const mid = element.id;
-	const openType = element.getAttribute('openType');
-	const id = mid.replace('mail_', '');
-	Rodex.requestReadRodex(openType, id);
-}
-
-function onClickReplyMail(e) {
-	e.stopImmediatePropagation();
-	const element = e.currentTarget;
-	const sender = element.getAttribute('sender');
-	Rodex.requestOpenWriteRodex(sender);
-}
-
-/**
- * Create component and export it
- */
 export default UIManager.addComponent(Rodex);

@@ -1,317 +1,201 @@
 :host {
-	width: 309px;
-	height: 416px;
-	position: absolute;
+	--mail-ink: #26384b;
+	--mail-muted: #52677e;
+	--mail-edge: #c6d3de;
+	position: fixed !important;
+	inset: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right))
+		max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left)) !important;
+	margin: auto;
+	width: min(580px, calc(100% - 24px));
+	height: min(480px, calc(100% - 24px));
+	color: var(--mail-ink);
+	font: 13px Arial, sans-serif;
 }
+
 #Rodex {
-	width: 309px;
-	height: 416px;
-	position: absolute;
-}
-#Rodex .body {
-	width: 309px;
-	height: 416px;
-	position: absolute;
-}
-#Rodex .body .base {
-	border: none;
-	background-color: transparent;
-	background-repeat: no-repeat;
-	vertical-align: middle;
-}
-#Rodex .body .titlebar {
-	display: block;
-	width: 309px;
-	height: 16px;
-}
-#Rodex .body .titlebar .right {
-	float: right;
-	margin-right: 3px;
-}
-#Rodex .body .titlebar .right .close {
-	width: 11px;
-	height: 11px;
-}
-
-#Rodex .body .iconbar {
-	float: left;
-	width: 100%;
-	height: 40px;
-	position: relative;
-}
-#Rodex .body .iconbar .refresh {
-	position: absolute;
-	width: 24px;
-	height: 26px;
-	top: 4px;
-	right: 37px;
-}
-#Rodex .body .iconbar .refresh span {
-	position: relative;
-	display: none;
-	z-index: 1;
-	top: -20px;
-	left: 0px;
-	background-color: rgba(0, 0, 0, 0.6);
-	text-shadow: 1px 1px black;
-	color: white;
-	padding: 5px;
-	white-space: nowrap;
-	font-size: 0.6rem;
-}
-#Rodex .body .iconbar .refresh:hover span {
-	display: table;
-}
-#Rodex .body .iconbar .write {
-	position: absolute;
-	width: 24px;
-	height: 26px;
-	top: 4px;
-	right: 10px;
-}
-#Rodex .body .iconbar .write span {
-	position: relative;
-	display: none;
-	z-index: 1;
-	top: -20px;
-	left: 0px;
-	background-color: rgba(0, 0, 0, 0.6);
-	text-shadow: 1px 1px black;
-	color: white;
-	padding: 5px;
-	white-space: nowrap;
-	font-size: 0.6rem;
-}
-#Rodex .body .iconbar .write:hover span {
-	display: table;
-}
-
-#Rodex .body .searchbar {
-	float: left;
-	width: 100%;
-	height: 30px;
-	position: relative;
-}
-#Rodex .body .searchbar .search-title {
-	position: absolute;
-	width: 10px;
-	height: 10px;
-	top: 13px;
-	left: 23px;
-}
-#Rodex .body .searchbar .search-title-text {
-	position: absolute;
-	width: 10px;
-	height: 10px;
-	top: 13px;
-	left: 35px;
-}
-#Rodex .body .searchbar .search-sender {
-	position: absolute;
-	width: 10px;
-	height: 10px;
-	top: 13px;
-	left: 75px;
-}
-#Rodex .body .searchbar .search-sender-text {
-	position: absolute;
-	width: 10px;
-	height: 10px;
-	top: 13px;
-	left: 87px;
-}
-#Rodex .body .searchbar .search-text {
-	color: #212163;
-}
-#Rodex .body .searchbar .search {
-	position: absolute;
-	width: 125px;
-	height: 14px;
-	top: 10px;
-	left: 135px;
-	border: none;
-}
-#Rodex .body .searchbar .search-btn {
-	position: absolute;
-	width: 32px;
-	height: 18px;
-	top: 9px;
-	right: 13px;
-}
-
-#Rodex .body .navbar {
-	float: left;
-	width: 100%;
-	height: 27px;
-	position: relative;
-}
-#Rodex .body .navbar .nav {
+	display: grid;
+	grid-template-rows: auto auto auto minmax(0, 1fr) auto;
 	height: 100%;
+	box-sizing: border-box;
+	overflow: hidden;
+	border: 1px solid #9eb3c8;
+	border-radius: 14px;
+	background: #f5f8fa;
+	box-shadow: 0 10px 30px #16283a50;
+}
+
+#Rodex [hidden] {
+	display: none;
+}
+
+#Rodex button, #Rodex select, #Rodex input {
+	box-sizing: border-box;
+	min-height: 32px;
+	padding: 4px 8px;
+	border: 1px solid var(--mail-edge);
+	border-radius: 7px;
+	background: #fff;
+	color: inherit;
+	font: inherit;
+}
+
+#Rodex button {
+	cursor: pointer;
+}
+
+#Rodex button:disabled {
+	background: #e4eaf0;
+	color: #617589;
+	cursor: default;
+}
+
+#Rodex :is(button, input, select):focus-visible {
+	outline: 2px solid #467db0;
+	outline-offset: 1px;
+}
+
+.mail-header, .mail-tools, .mail-footer, .mail-footer > div, .nav, .searchbar, .pagination {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.mail-header, .mail-footer {
+	justify-content: space-between;
+	padding: 6px 10px;
+}
+
+.mail-header {
+	background: #dfe9f2;
+	border-bottom: 1px solid var(--mail-edge);
+}
+
+.mail-header h1 {
+	font-size: 17px;
+	margin: 0;
+}
+
+#Rodex .close, #Rodex .pagination button {
+	min-width: 32px;
+	font-size: 19px;
+	line-height: 1;
+}
+
+.mail-tools, .nav {
+	flex-wrap: wrap;
+	padding: 6px 10px 0;
+}
+
+.searchbar {
+	flex: 1 1 235px;
+	min-width: 0;
+}
+
+#Rodex .search {
+	width: 0;
+	min-width: 0;
+	flex: 1 1 auto;
+}
+
+.nav {
+	padding-bottom: 6px;
+	border-bottom: 1px solid var(--mail-edge);
+}
+
+#Rodex .nav-item[aria-pressed="true"] {
+	background: #dae8f5;
+	border-color: #90adc9;
+	font-weight: 700;
+}
+
+.rodex-list {
+	min-height: 0;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	touch-action: pan-y;
+	padding: 6px 10px;
+}
+
+.mail-list {
 	list-style: none;
-	margin: 0px;
-	padding: 0px;
-	letter-spacing: 1px;
-	color: #c6cee7;
-}
-#Rodex .body .navbar .nav .nav-item {
-	float: left;
-	width: 25%;
-	height: 90%;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-#Rodex .body .navbar .nav .nav-item.active {
-	border-bottom: 4px solid;
-	font-weight: bolder;
-	color: #506dc4;
-}
-#Rodex .body .navbar .nav .nav-item:hover {
-	border-bottom: 4px solid;
-	font-weight: bolder;
-	color: #506dc4;
+	display: grid;
+	gap: 6px;
+	margin: 0;
+	padding: 0;
 }
 
-#Rodex .body .rodex-list {
-	float: left;
-	width: 100%;
-	height: 275px;
-	position: relative;
-}
-#Rodex .body .rodex-list .mail-list {
-	list-style: none;
-	margin: 0px;
-	padding: 0px;
-}
-#Rodex .body .rodex-list .mail-list .mail-item {
-	float: left;
-	width: 100%;
-	height: 45px;
-}
-#Rodex .body .rodex-list .mail-list .mail-item .mail-checkbox {
-	float: left;
-	width: 10%;
-	height: 100%;
-	background-position: center;
-	background-repeat: no-repeat;
-}
-#Rodex .body .rodex-list .mail-list .mail-item .mail-image {
-	float: left;
-	width: 10%;
-	height: 100%;
-	background-position: center;
-	background-repeat: no-repeat;
-}
-#Rodex .body .rodex-list .mail-list .mail-item .mail-text {
-	float: left;
-	width: 51%;
-	height: 100%;
-}
-#Rodex .body .rodex-list .mail-list .mail-item .mail-text .title {
-	float: left;
-	width: 100%;
-	height: 50%;
-	display: flex;
-	align-items: flex-end;
-	color: #0c0c23;
-	position: relative;
-}
-#Rodex .body .rodex-list .mail-list .mail-item .mail-text .title .text span {
-	position: absolute;
-	display: none;
-	z-index: 1;
-	top: -20px;
-	left: 0px;
-	background-color: rgba(0, 0, 0, 0.6);
-	text-shadow: 1px 1px black;
-	color: white;
-	padding: 5px;
-	white-space: nowrap;
-	font-size: 0.6rem;
-}
-#Rodex .body .rodex-list .mail-list .mail-item .mail-text .title .text.deleted {
-	color: lightgray;
-}
-#Rodex .body .rodex-list .mail-list .mail-item .mail-text .title .text:hover span {
-	display: block;
-}
-#Rodex .body .rodex-list .mail-list .mail-item .mail-text .sender {
-	float: left;
-	width: 100%;
-	height: 50%;
-	display: flex;
+.mail-item {
+	display: grid;
+	grid-template-columns: 34px minmax(0, 1fr) auto;
 	align-items: center;
-	color: darkblue;
-	font-weight: bold;
-	position: relative;
-}
-#Rodex .body .rodex-list .mail-list .mail-item .mail-text .sender .text span {
-	position: absolute;
-	display: none;
-	z-index: 1;
-	top: -20px;
-	left: 0px;
-	background-color: rgba(0, 0, 0, 0.6);
-	text-shadow: 1px 1px black;
-	color: white;
-	padding: 5px;
-	white-space: nowrap;
-	font-size: 0.6rem;
-}
-#Rodex .body .rodex-list .mail-list .mail-item .mail-text .sender .text:hover span {
-	display: block;
-}
-#Rodex .body .rodex-list .mail-list .mail-item .mail-content {
-	float: left;
-	width: 10%;
-	height: 100%;
-	background-position: center;
-	background-repeat: no-repeat;
-}
-#Rodex .body .rodex-list .mail-list .mail-item .expire-days {
-	float: left;
-	width: 19%;
-	height: 100%;
-	color: red;
-	font-weight: bold;
-	display: flex;
-	justify-content: center;
-	align-items: center;
+	gap: 8px;
+	padding: 7px;
+	border: 1px solid #d5dfe7;
+	border-radius: 9px;
+	background: #fff;
 }
 
-#Rodex .body .footer {
-	float: left;
-	width: 100%;
-	height: 25px;
-	position: relative;
+.mail-image {
+	width: 34px;
+	height: 34px;
+	background: #e7eff7 center / auto no-repeat;
+	border-radius: 7px;
 }
-#Rodex .body .footer .delete-all {
-	position: absolute;
-	width: 80px;
-	height: 20px;
-	top: 5px;
-	left: 10px;
-	background-size: 100% 100%;
+
+.mail-text {
+	display: grid;
+	min-width: 0;
+	gap: 2px;
 }
-#Rodex .body .footer .retrieve-all {
-	position: absolute;
-	width: 80px;
-	height: 20px;
-	top: 5px;
-	left: 100px;
-	background-size: 100% 100%;
+
+#Rodex .mail-text button {
+	min-height: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	text-align: left;
+	overflow-wrap: anywhere;
 }
-#Rodex .body .footer .previous-page {
-	position: absolute;
-	width: 24px;
-	height: 24px;
-	top: 3px;
-	right: 30px;
+
+#Rodex .mail-subject {
+	font-weight: 700;
 }
-#Rodex .body .footer .next-page {
-	position: absolute;
-	width: 24px;
-	height: 24px;
-	top: 3px;
-	right: 5px;
+
+#Rodex .mail-sender, .mail-date, .page-status, .mail-empty {
+	font-size: 12px;
+	color: var(--mail-muted);
+}
+
+#Rodex .mail-sender {
+	color: #365a80;
+}
+
+#Rodex .claim:not(:disabled) {
+	background: #f6d991;
+	border-color: #bd9441;
+	font-weight: 700;
+}
+
+.mail-claim {
+	min-width: 68px;
+}
+
+.mail-footer {
+	flex-wrap: wrap;
+	border-top: 1px solid var(--mail-edge);
+}
+
+.pagination {
+	margin-left: auto;
+	white-space: nowrap;
+}
+
+@media (max-height: 380px) {
+	.mail-header, .mail-footer {
+		padding-block: 4px;
+	}
+
+	#Rodex button, #Rodex select, #Rodex input {
+		min-height: 28px;
+	}
 }
