@@ -21,14 +21,15 @@ import PathFinding from 'Utils/PathFinding.js';
 import Altitude from 'Renderer/Map/Altitude.js';
 import Events from 'Core/Events.js';
 import Client from 'Core/Client.js';
-import htmlText from './MobileUI.html?raw&v=seaglass20261119';
-import cssText from './MobileUI.css?raw&v=joystickchat20261119';
+import htmlText from './MobileUI.html?raw&v=combatdock20261119';
+import cssText from './MobileUI.css?raw&v=combatdock20261119';
 import defaultTexts from './robrowser_mobileui.txt?raw&v=mobileprofile20261118';
 import glMatrix from 'Vendors/gl-matrix.js';
 import Camera from 'Renderer/Camera.js';
 import BattleMode from 'Controls/BattleMode.js';
 import ProcessCommand from 'Controls/ProcessCommand.js';
 import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
+import MiniMap from 'UI/Components/MiniMap/MiniMap.js';
 
 const vec2 = glMatrix.vec2;
 const mat2 = glMatrix.mat2;
@@ -42,6 +43,7 @@ const targetPos = [0, 0];
 
 let movementTimer = null; // Timer for continuous joystick movement
 let shortcutObserver = null;
+let minimapObserver = null;
 
 function refreshMobileShortcuts() {
 	const root = MobileUI.getRoot();
@@ -693,6 +695,15 @@ MobileUI.init = function init() {
 	bindActionButton(root, '#pickupButton', pickUpItem);
 	bindActionButton(root, '#switchshorcutButton', switchSkillButtons);
 
+	const utilityToggle = root.querySelector('.utility-toggle');
+	const utilityActions = root.querySelector('.utility-actions');
+	utilityToggle.addEventListener('click', event => {
+		event.stopPropagation();
+		utilityActions.hidden = !utilityActions.hidden;
+		utilityToggle.setAttribute('aria-expanded', String(!utilityActions.hidden));
+		utilityToggle.setAttribute('aria-label', utilityActions.hidden ? 'Show utility actions' : 'Hide utility actions');
+	});
+
 	// Press effect for .buttons and .FButton
 	root.querySelectorAll('.buttons').forEach(btn => {
 		btn.addEventListener('mousedown', e => e.target.classList.add('pressed'));
@@ -776,6 +787,7 @@ function keyPress(k) {
  */
 function toggleButtons() {
 	const root = MobileUI.getRoot();
+	MobileUI._host.toggleAttribute('data-utility-dock', !showButtons);
 
 	if (showButtons) {
 		stopDrag();
@@ -787,7 +799,7 @@ function toggleButtons() {
 			'#buttonContainer',
 			'#attackButton',
 			'#pickupButton',
-			'#talktonpcButton',
+			'.utility-dock',
 			'#switchshorcutButton'
 		].forEach(sel => {
 			const el = root.querySelector(sel);
@@ -842,7 +854,7 @@ function toggleButtons() {
 			'#buttonContainer',
 			'#attackButton',
 			'#pickupButton',
-			'#talktonpcButton',
+			'.utility-dock',
 			'#switchshorcutButton'
 		].forEach(sel => {
 			const el = root.querySelector(sel);
@@ -1196,8 +1208,6 @@ function setupJoystick() {
 	_joystickBase = root.querySelector('#joystickBase');
 	_joystickThumb = root.querySelector('#joystickThumb');
 
-	const guides = new URL('./hotkey-guides.png', import.meta.url);
-	root.querySelector('#buttonContainer').style.setProperty('--hotkey-guides', `url(${guides.href})`);
 	root.querySelector('#attackButton img').src = new URL('./attack-gold.png', import.meta.url).href;
 	root.querySelector('#pickupButton img').src = new URL('./pickup-gold.png', import.meta.url).href;
 	root.querySelector('#toggleAutoTargetButton img').src = new URL('./auto-target.png', import.meta.url).href;
@@ -1478,6 +1488,32 @@ function onPortraitChange() {
 	if (!syncLandscapePrompt() && wasOpen) showGuideOnActivate();
 }
 
+function positionCombatHud() {
+	const container = MobileUI.getRoot().querySelector('#MobileUI');
+	const minimapRoot = MiniMap.getUI()?.getRoot();
+	const panel = minimapRoot?.querySelector('.MiniMapUI');
+	const mapBounds = panel?.getBoundingClientRect();
+	if (!mapBounds?.height || !container.clientHeight) {
+		return;
+	}
+
+	const controlsBounds = panel.querySelector('.map-controls')?.getBoundingClientRect();
+	const hudBounds = container.getBoundingClientRect();
+	container.style.setProperty('--utility-map-bottom', `${mapBounds.bottom - hudBounds.top}px`);
+
+	// Older minimap skins can have a button column that extends below the map frame.
+	const columnExtendsBelowMap = controlsBounds && controlsBounds.bottom > mapBounds.bottom + 6;
+	const dockInset = columnExtendsBelowMap ? hudBounds.right - controlsBounds.left + 6 : 0;
+	container.style.setProperty('--utility-dock-inset', `${dockInset}px`);
+
+	// The arcs rise about 83% of their width. Leave room above them for the utility row.
+	const dock = container.querySelector('.utility-dock');
+	const combat = container.querySelector('#buttonContainer');
+	const bottomInset = parseFloat(getComputedStyle(combat).bottom);
+	const availableHeight = hudBounds.bottom - dock.getBoundingClientRect().bottom - bottomInset - 6;
+	container.style.setProperty('--combat-available-width', `${Math.max(64, availableHeight / 0.83)}px`);
+}
+
 /**
  * Apply preferences once append to body
  */
@@ -1526,6 +1562,10 @@ MobileUI.onShortCut = function onShortCut(key) {
 MobileUI.onRemove = function onRemove() {
 	mobilePointer.removeEventListener('change', onMobilePointerChange);
 	portraitViewport.removeEventListener('change', onPortraitChange);
+	window.removeEventListener('resize', positionCombatHud);
+	this._host.removeAttribute('data-utility-dock');
+	minimapObserver?.disconnect();
+	minimapObserver = null;
 	const landscapePrompt = this.getRoot().querySelector('.landscape-prompt');
 	if (landscapePrompt.open) landscapePrompt.close();
 	hideGuide();
@@ -1555,7 +1595,22 @@ MobileUI.show = function show() {
 	this.getRoot().querySelector('#MobileUI').classList.remove('guideOnly');
 	this._host.style.display = 'block';
 	if (!showButtons) toggleButtons();
+	this._host.setAttribute('data-utility-dock', '');
 	if (!shortcutObserver) observeMobileShortcuts();
+	if (!minimapObserver) {
+		const minimap = MiniMap.getUI()?.getRoot()?.querySelector('.MiniMapUI');
+		minimapObserver = new ResizeObserver(positionCombatHud);
+		if (minimap) {
+			minimapObserver.observe(minimap);
+			const mapControls = minimap.querySelector('.map-controls');
+			if (mapControls) {
+				minimapObserver.observe(mapControls);
+			}
+		}
+		minimapObserver.observe(this.getRoot().querySelector('#MobileUI'));
+		window.addEventListener('resize', positionCombatHud);
+	}
+	positionCombatHud();
 	return syncLandscapePrompt() || showGuideOnActivate();
 };
 

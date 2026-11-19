@@ -242,6 +242,11 @@
 		scale: 0.72;
 		transform-origin: top right;
 	}
+
+	body:has(> #MobileUI[data-utility-dock]) > #RodexIcon {
+		top: max(92px, calc(env(safe-area-inset-top) + 84px)) !important;
+		right: calc(max(10px, env(safe-area-inset-right)) + 4 * clamp(26px, 7.6vmin, 40px) + 20px) !important;
+	}
 }
 
 @media (pointer: fine) and (max-width: 1400px) {

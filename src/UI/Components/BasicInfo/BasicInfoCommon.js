@@ -45,8 +45,8 @@ import Achievement from 'UI/Components/Achievement/Achievement.js';
 import Reputation from 'UI/Components/Reputation/Reputation.js';
 import AutoLoot from 'UI/Components/AutoLoot/AutoLoot.js';
 import AutoCombat from 'UI/Components/AutoCombat/AutoCombat.js';
-import mobileExperienceCss from './MobileExperience.css?raw&v=desktophud20261118';
-import mobileMenuCss from './MobileMenu.css?raw&v=seaglass20261119';
+import mobileExperienceCss from './MobileExperience.css?raw&v=combatdock20261119';
+import mobileMenuCss from './MobileMenu.css?raw&v=combatdock20261119';
 import mobileProfileCss from './MobileProfile.css?raw&v=desktophud20261118';
 import CashShopIcon from 'UI/Components/CashShopIcon/CashShopIcon.js';
 
@@ -439,15 +439,13 @@ export function createBasicInfo(config) {
 		mobileExperience.className = 'mobile-experience';
 		mobileExperience.innerHTML = `
 			<style>${mobileExperienceCss}</style>
-			<div class="mobile-experience-track" data-type="bexp" aria-label="Base experience">
+			<div class="mobile-experience-track" data-type="bexp" role="progressbar" aria-label="Base experience">
 				<div class="mobile-experience-fill mobile-experience-base"></div>
 				<span class="mobile-experience-level">Base Lv. <span data-level="blvl">—</span></span>
-				<span class="mobile-experience-percent">—</span>
 			</div>
-			<div class="mobile-experience-track" data-type="jexp" aria-label="Job experience">
+			<div class="mobile-experience-track" data-type="jexp" role="progressbar" aria-label="Job experience">
 				<div class="mobile-experience-fill mobile-experience-job"></div>
 				<span class="mobile-experience-level">Job Lv. <span data-level="jlvl">—</span></span>
-				<span class="mobile-experience-percent">—</span>
 			</div>`;
 		document.body.appendChild(mobileExperience);
 		mobileExperience.querySelector('[data-level="blvl"]').textContent = Session.Entity?.clevel ?? '—';
@@ -733,7 +731,12 @@ export function createBasicInfo(config) {
 					const maxed = valid && (val2 === 0 || val1 >= val2);
 					const percent = maxed ? 100 : valid ? Math.max(0, (val1 / val2) * 100) : 0;
 					const label = maxed ? 'MAX' : valid ? `Exp. ${(Math.floor(percent * 10) / 10).toFixed(1)}%` : '—';
-					mobileTrack.querySelector('.mobile-experience-percent').textContent = label;
+					if (valid) {
+						mobileTrack.setAttribute('aria-valuenow', String(percent));
+					} else {
+						mobileTrack.removeAttribute('aria-valuenow');
+					}
+					mobileTrack.setAttribute('aria-valuetext', valid ? label : 'Experience unavailable');
 					mobileTrack.querySelector('.mobile-experience-fill').style.width = `${percent}%`;
 					mobileTrack.title = valid ? label : 'Experience unavailable';
 				}

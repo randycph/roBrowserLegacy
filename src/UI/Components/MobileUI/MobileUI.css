@@ -372,19 +372,6 @@
 	transform: translate(-50%, 0);
 }
 
-/* TalkToNpc Button (slightly below attackButton) -MicromeX */
-#MobileUI #talktonpcButton {
-	bottom: -23%;
-	left: 105%;
-	transform: translate(-50%, 0);
-}
-/* TalkToNpc Button (slightly below attackButton) -MicromeX */
-#MobileUI #switchshorcutButton {
-	bottom: 43%;
-	left: 105%;
-	transform: translate(-50%, 0);
-}
-
 /* Hover Effect for Buttons -MicromeX */
 #MobileUI #f1Button:active,
 #MobileUI #f2Button:active,
@@ -538,8 +525,8 @@
 
 #MobileUI #buttonContainer {
 	bottom: max(6%, env(safe-area-inset-bottom));
-	right: max(1.8%, calc(env(safe-area-inset-right) + min(1.1vmin, 10.2px)));
-	--controls-width: min(55vmin, 510px);
+	right: calc(env(safe-area-inset-right) + clamp(4px, 1vmin, 9px));
+	--controls-width: min(56vmin, 510px, var(--combat-available-width, 510px));
 	width: var(--controls-width);
 	height: min(41vmin, 390px);
 }
@@ -549,7 +536,7 @@
 	height: auto;
 	aspect-ratio: 1;
 	bottom: 0;
-	left: 55.9%;
+	left: 81%;
 	transform: translateX(-50%);
 }
 
@@ -578,17 +565,7 @@
 	height: auto;
 	aspect-ratio: 1;
 	bottom: calc(var(--controls-width) * 0.032);
-	left: 16.8%;
-	transform: none;
-}
-
-#MobileUI #switchshorcutButton {
-	width: 16%;
-	height: auto;
-	aspect-ratio: 1;
-	left: 84%;
-	bottom: auto;
-	top: 12%;
+	left: 43.5%;
 	transform: none;
 }
 
@@ -647,9 +624,8 @@
 
 @media (pointer: coarse) and (orientation: portrait) {
 	#MobileUI #buttonContainer {
-		right: max(1.3%, calc(env(safe-area-inset-right) + min(1.16vw, 6px)));
 		bottom: max(5%, env(safe-area-inset-bottom));
-		--controls-width: min(58vw, 300px);
+		--controls-width: min(60vw, 300px, var(--combat-available-width, 300px));
 		height: min(49vw, 255px);
 	}
 
@@ -707,9 +683,6 @@
 		height: min(25vw, 130px);
 	}
 
-	#MobileUI #attackButton {
-		width: 38%;
-	}
 }
 
 /* Mobile HUD finish */
@@ -846,94 +819,126 @@
 	#MobileUI .joystick-arrow { transition: none; }
 }
 
-#MobileUI #buttonContainer::before {
-	content: '';
+#MobileUI .hotkey-guides {
 	position: absolute;
 	inset: auto 0 0;
-	aspect-ratio: 4 / 3;
-	background: var(--hotkey-guides) center / 100% 100% no-repeat;
+	width: 100%;
+	z-index: 0;
+	stroke: #bad4e078;
+	stroke-width: 0.4;
 	pointer-events: none;
 }
 
-#MobileUI #buttonContainer .FButton,
-#MobileUI #buttonContainer .hotkeyAction {
-	box-sizing: border-box;
-	width: 19%;
-	height: auto;
-	aspect-ratio: 1;
-	padding: 0;
-	transform: translateY(calc(-1 * clamp(8px, 3vmin, 22px)));
-}
-
 #MobileUI #buttonContainer .FButton {
+	box-sizing: border-box;
 	top: auto;
 	left: var(--hotkey-x);
 	bottom: calc(var(--controls-width) * var(--hotkey-y));
-	width: var(--hotkey-size, 16.5%);
+	width: 18.5%;
+	height: auto;
+	aspect-ratio: 1;
+	padding: 0;
 	transform: translate(-50%, 50%);
 }
 
 /* F1–F4 use the inner arc, F5–F8 the outer arc. Row switching reuses these slots. */
 #MobileUI #f1Button, #MobileUI #n1Button, #MobileUI #qButton, #MobileUI #aButton {
-	--hotkey-x: 10.8%;
-	--hotkey-y: 0.339;
+	--hotkey-x: 25%;
+	--hotkey-y: 0.310;
 }
 
 #MobileUI #f2Button, #MobileUI #n2Button, #MobileUI #wButton, #MobileUI #sButton {
-	--hotkey-x: 28.1%;
-	--hotkey-y: 0.413;
-	--hotkey-size: 15%;
+	--hotkey-x: 44%;
+	--hotkey-y: 0.415;
 }
 
 #MobileUI #f3Button, #MobileUI #n3Button, #MobileUI #eButton, #MobileUI #dButton {
-	--hotkey-x: 47.0%;
-	--hotkey-y: 0.441;
-	--hotkey-size: 15%;
+	--hotkey-x: 63%;
+	--hotkey-y: 0.475;
 }
 
 #MobileUI #f4Button, #MobileUI #n4Button, #MobileUI #rButton, #MobileUI #fButton {
-	--hotkey-x: 65.3%;
-	--hotkey-y: 0.427;
-	--hotkey-size: 15%;
+	--hotkey-x: 83%;
+	--hotkey-y: 0.490;
 }
 
 #MobileUI #f5Button, #MobileUI #n5Button, #MobileUI #tButton, #MobileUI #gButton {
-	--hotkey-x: 10.8%;
-	--hotkey-y: 0.539;
+	--hotkey-x: 24%;
+	--hotkey-y: 0.560;
 }
 
 #MobileUI #f6Button, #MobileUI #n6Button, #MobileUI #yButton, #MobileUI #hButton {
-	--hotkey-x: 30.5%;
-	--hotkey-y: 0.600;
+	--hotkey-x: 44%;
+	--hotkey-y: 0.665;
 }
 
 #MobileUI #f7Button, #MobileUI #n7Button, #MobileUI #uButton, #MobileUI #jButton {
-	--hotkey-x: 50.5%;
-	--hotkey-y: 0.620;
+	--hotkey-x: 65%;
+	--hotkey-y: 0.720;
 }
 
 #MobileUI #f8Button, #MobileUI #n8Button, #MobileUI #iButton, #MobileUI #kButton {
-	--hotkey-x: 70.2%;
-	--hotkey-y: 0.587;
+	--hotkey-x: 88%;
+	--hotkey-y: 0.730;
 }
 
-#MobileUI #buttonContainer .hotkeyAction {
+#MobileUI #switchshorcutButton {
 	position: absolute;
 	top: auto;
-	left: var(--action-x);
-	bottom: calc(var(--controls-width) * var(--action-y));
+	left: 22.5%;
+	bottom: 2%;
 	width: 15%;
-	transform: translate(-50%, 50%);
+	height: auto;
+	transform: none;
+}
+
+#MobileUI .utility-dock {
+	--utility-size: clamp(26px, 7.6vmin, 40px);
+	position: absolute;
+	top: calc(var(--utility-map-bottom, max(25%, 90px)) + 6px);
+	right: max(10px, env(safe-area-inset-right), var(--utility-dock-inset, 0px));
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+#MobileUI .utility-actions {
+	display: flex;
+	gap: 5px;
+}
+
+#MobileUI .utility-actions[hidden] {
+	display: none;
+}
+
+#MobileUI .hotkeyAction {
+	box-sizing: border-box;
 	display: grid;
 	place-items: center;
+	aspect-ratio: 1;
+	padding: 0;
 	border: 1.5px solid var(--control-rim);
 	border-radius: 50%;
 	background: var(--control-face);
 	box-shadow: var(--control-shadow);
 }
 
-#MobileUI #buttonContainer .hotkeyAction img,
-#MobileUI #buttonContainer .hotkeyAction svg {
+#MobileUI .utility-dock .hotkeyAction {
+	width: var(--utility-size);
+	height: var(--utility-size);
+}
+
+#MobileUI .utility-toggle {
+	color: #eff6fb;
+	touch-action: manipulation;
+}
+
+#MobileUI .utility-toggle[aria-expanded="false"] svg {
+	transform: rotate(180deg);
+}
+
+#MobileUI .hotkeyAction img,
+#MobileUI .hotkeyAction svg {
 	width: 63%;
 	aspect-ratio: 1;
 	object-fit: contain;
@@ -941,20 +946,10 @@
 	filter: drop-shadow(0 1px 1px #455f7a99);
 }
 
-#MobileUI #buttonContainer .hotkeyAction.active,
-#MobileUI #buttonContainer .hotkeyAction:active {
+#MobileUI .hotkeyAction:active {
 	animation: none;
 	border-color: #f2cc88;
 	box-shadow: inset 0 0 8px #ffdb9266, 0 2px 5px #11182bb3;
-}
-
-#MobileUI #toggleAutoTargetButton { --action-x: 89.9%; --action-y: 0.504; }
-#MobileUI #switchshorcutButton { --action-x: 92.5%; --action-y: 0.337; }
-#MobileUI #toggleAutoFollowButton { --action-x: 88.7%; --action-y: 0.172; }
-
-#MobileUI #talktonpcButton {
-	--action-x: 89.9%;
-	--action-y: 0.675;
 }
 
 #MobileUI .guideIcon img {
@@ -964,7 +959,7 @@
 }
 
 
-#MobileUI #buttonContainer .hotkeyAction[aria-pressed="true"] {
+#MobileUI .hotkeyAction[aria-pressed="true"] {
 	border-color: #ffe2a7;
 	background: radial-gradient(ellipse at 42% 8%, #92c5bf, #568f8f 60%, #426779);
 	box-shadow: inset 0 0 8px #ffe2a775, 0 0 0 1px #ffe2a760, 0 2px 5px #11182bb3;

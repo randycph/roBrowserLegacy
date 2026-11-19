@@ -35,6 +35,9 @@
 
 	<!-- Functional Buttons -MicromeX -->
 	<div id="buttonContainer" class="buttonContainer disabled">
+		<svg class="hotkey-guides" viewBox="0 0 100 82" fill="none" aria-hidden="true">
+			<path d="M15 65 Q39 36 86 38 M15 39 Q39 11 92 14" />
+		</svg>
 		<!-- Functional Buttons -->
 		<button id="f1Button" data-tip-arg="F1" class="FButton mobileKeys vertical secondary disabled">F1</button>
 		<button id="f2Button" data-tip-arg="F2" class="FButton mobileKeys vertical secondary disabled">F2</button>
@@ -77,21 +80,38 @@
 		<button id="lButton" data-tip-arg="L" class="FButton mobileKeys vertical secondary disabled">L</button>
 
 		<button id="pickupButton" aria-label="Pick up items" class="pickupButton mobileKeys vertical secondary disabled"><img alt="" /></button>
-		<!-- Pick Up Button -MicromeX -->
-		<button type="button" id="talktonpcButton" class="hotkeyAction mobileKeys secondary disabled" aria-label="Talk to nearest NPC">
-			<svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-				<circle cx="9.5" cy="15" r="4" fill="#f3d7a2" />
-				<path d="M2 28v-1.5a7.5 7.5 0 0 1 15 0V28Z" fill="#f3d7a2" />
-				<path d="M17 4.5h10a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-5.5L16 20v-4a3 3 0 0 1-2-2.5v-6a3 3 0 0 1 3-3Z" fill="#e3f1fa" stroke="#466784" />
-				<path d="M18 9h8m-8 3h5" fill="none" stroke="#466784" stroke-width="1.5" stroke-linecap="round" />
-			</svg>
+		<button type="button" id="switchshorcutButton" class="hotkeyAction mobileKeys secondary disabled" aria-label="Switch hotkey row">
+			<img alt="" />
 		</button>
-		<button type="button" id="toggleAutoTargetButton" class="hotkeyAction mobileKeys secondary" aria-label="Auto Target" aria-pressed="false"><img alt="" /></button>
-		<button type="button" id="switchshorcutButton" class="hotkeyAction mobileKeys secondary disabled" aria-label="Switch hotkey row"><img alt="" /></button>
-		<button type="button" id="toggleAutoFollowButton" class="hotkeyAction mobileKeys secondary" aria-label="Auto Follow" aria-pressed="false"><img alt="" /></button>
 
 		<!-- Attack Button -MicromeX -->
 		<button id="attackButton" aria-label="Attack" class="atkButton mobileKeys vertical secondary disabled"><img alt="" /></button>
+	</div>
+
+	<div class="utility-dock disabled">
+		<div id="mobile-utility-actions" class="utility-actions" role="group" aria-label="Utility actions">
+			<button type="button" id="toggleAutoTargetButton" class="hotkeyAction" aria-label="Auto Target" aria-pressed="false">
+				<img alt="" />
+			</button>
+			<button type="button" id="toggleAutoFollowButton" class="hotkeyAction" aria-label="Auto Follow" aria-pressed="false">
+				<img alt="" />
+			</button>
+			<button type="button" id="talktonpcButton" class="hotkeyAction" aria-label="Talk to nearest NPC">
+				<svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+					<circle cx="9.5" cy="15" r="4" fill="#f3d7a2" />
+					<path d="M2 28v-1.5a7.5 7.5 0 0 1 15 0V28Z" fill="#f3d7a2" />
+					<path d="M17 4.5h10a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-5.5L16 20v-4a3 3 0 0 1-2-2.5v-6a3 3 0 0 1 3-3Z" fill="#e3f1fa" stroke="#466784" />
+					<path d="M18 9h8m-8 3h5" fill="none" stroke="#466784" stroke-width="1.5" stroke-linecap="round" />
+				</svg>
+			</button>
+		</div>
+		<button type="button" class="hotkeyAction utility-toggle" aria-label="Hide utility actions"
+			aria-expanded="true" aria-controls="mobile-utility-actions">
+			<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+				<path d="m6 15 6-6 6 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+					stroke-linejoin="round" />
+			</svg>
+		</button>
 	</div>
 
 	<div id="leftBar" class="buttonBar disabled">
