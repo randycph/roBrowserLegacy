@@ -10,7 +10,7 @@
 
 import htmlText from './BasicInfoV5.html?raw&v=modernhud20261118';
 import cssText from './BasicInfoV5.css?raw&v=modernhud20261118';
-import { createBasicInfo } from '../BasicInfoCommon.js?v=pearlhud20261119';
+import { createBasicInfo } from '../BasicInfoCommon.js?v=seaglass20261119';
 
 export default createBasicInfo({
 	name: 'BasicInfoV5',

@@ -720,11 +720,17 @@
 }
 
 /* Mobile HUD finish */
+#MobileUI {
+	--control-rim: #a8bfd0;
+	--control-face: radial-gradient(ellipse at 42% 12%, #86a8be, #587d9b 62%, #395a78);
+	--control-shadow: inset 0 1px 3px #e4f3fa66, 0 2px 5px #233c596e;
+}
+
 #MobileUI .joystick-base {
 	box-sizing: border-box;
 	touch-action: none;
-	border: 1px solid #e1f0f7d9;
-	background: radial-gradient(ellipse at 40% 20%, #f5fbff63, #c0d9ee42 72%, #8eb0c64d);
+	border: 1px solid #9bb4c5b3;
+	background: radial-gradient(ellipse at 40% 20%, #8dadc261, #6686a34d 72%, #435d7d70);
 	box-shadow: inset 0 1px 4px #e6edff40, 0 1px 3px #25344d33;
 	opacity: 0.74;
 	transition: opacity 160ms ease-out;
@@ -737,8 +743,8 @@
 #MobileUI .joystick-thumb {
 	box-sizing: border-box;
 	pointer-events: none;
-	border: 1.5px solid #e9f7ffde;
-	background: linear-gradient(145deg, #f2fbffbd, #b9d7eab0 62%, #91b7d1aa);
+	border: 1.5px solid #aec1d2cf;
+	background: linear-gradient(145deg, #9cb9d0d9, #6587acd9 62%, #4e6d94d9);
 	box-shadow: inset 0 1px 4px #edf3ff40, 0 1px 4px #26354c45;
 	transition: transform 130ms ease-out, box-shadow 130ms ease-out;
 }
@@ -772,30 +778,30 @@
 
 #MobileUI .FButton {
 	width: 19%;
-	border: 1.5px solid #bfcae0;
-	background-color: #d8ebf7e8;
-	background-image: radial-gradient(ellipse at 41% 12%, #f9fdff, #d4e8f6 58%, #92b8d5);
-	box-shadow: inset 0 1px 4px #ffffffdc, 0 2px 5px #35577366;
+	border: 1.5px solid var(--control-rim);
+	background-color: #85a3b9;
+	background-image: var(--control-face);
+	box-shadow: var(--control-shadow);
 }
 
 #MobileUI .FButton::after {
 	bottom: -18%;
-	background: linear-gradient(#f7fbff, #bdd7e9);
-	border-color: #eef8ff;
-	color: #254360;
+	background: linear-gradient(#6284a0, #395670);
+	border-color: var(--control-rim);
+	color: #f3f8fc;
 	text-shadow: none;
 }
 
 #MobileUI #buttonContainer .FButton.shortcut-empty::before {
-	color: #456b8e;
-	text-shadow: 0 1px 1px #ffffffdc;
+	color: #edf6ff;
+	text-shadow: 0 1px 2px #253f5b;
 }
 
 #MobileUI #buttonContainer .FButton .shortcut-amount {
 	padding: 0 3px;
 	border-radius: 999px;
-	background: #edf7ffed;
-	color: #254360;
+	background: #2c4861ed;
+	color: #f3f8fc;
 	text-shadow: none;
 }
 
@@ -803,12 +809,19 @@
 #MobileUI #pickupButton {
 	display: grid;
 	place-items: center;
-	background-image: radial-gradient(ellipse at 43% 12%, #fffef7f7, #e5edf1ed 56%, #b3cddfdc);
-	box-shadow: inset 0 1px 4px #dce7ff85, 0 3px 7px #10182cbd;
+	background-image: var(--control-face);
+	box-shadow: var(--control-shadow);
 }
 
-#MobileUI #attackButton { border: clamp(2px, 0.9vmin, 5px) solid #f5e5bd; }
-#MobileUI #pickupButton { border-color: #becde4; }
+#MobileUI #attackButton {
+	border: clamp(2px, 0.9vmin, 5px) solid #cfb784;
+	background-image: radial-gradient(ellipse at 42% 12%, #91bcb5, #5f958e 60%, #3b686c);
+}
+
+#MobileUI #pickupButton {
+	border-color: var(--control-rim);
+}
+
 #MobileUI #attackButton img,
 #MobileUI #pickupButton img {
 	position: absolute;
@@ -920,13 +933,14 @@
 	transform: translate(-50%, 50%);
 	display: grid;
 	place-items: center;
-	border: 1.5px solid #adbedc;
+	border: 1.5px solid var(--control-rim);
 	border-radius: 50%;
-	background: radial-gradient(ellipse at 40% 8%, #f9fdff, #d9edf6 56%, #accce1);
-	box-shadow: inset 0 1px 3px #d6e5ff80, 0 2px 5px #11182bb3;
+	background: var(--control-face);
+	box-shadow: var(--control-shadow);
 }
 
-#MobileUI #buttonContainer .hotkeyAction img {
+#MobileUI #buttonContainer .hotkeyAction img,
+#MobileUI #buttonContainer .hotkeyAction svg {
 	width: 63%;
 	aspect-ratio: 1;
 	object-fit: contain;
@@ -950,44 +964,6 @@
 	--action-y: 0.675;
 }
 
-#MobileUI .npc-microphone-icon {
-	position: relative;
-	width: 62%;
-	aspect-ratio: 1;
-	color: #426889;
-	background:
-		linear-gradient(currentColor, currentColor) center 91% / 36% 7% no-repeat,
-		linear-gradient(currentColor, currentColor) center 83% / 8% 21% no-repeat;
-	pointer-events: none;
-	filter: drop-shadow(0 1px 1px #455f7a99);
-}
-
-#MobileUI .npc-microphone-icon::before,
-#MobileUI .npc-microphone-icon::after {
-	content: '';
-	position: absolute;
-	left: 50%;
-	transform: translateX(-50%);
-	box-sizing: border-box;
-}
-
-#MobileUI .npc-microphone-icon::before {
-	top: 4%;
-	width: 30%;
-	height: 53%;
-	border-radius: 999px;
-	background: linear-gradient(135deg, #7ba3c0, #426889);
-}
-
-#MobileUI .npc-microphone-icon::after {
-	top: 34%;
-	width: 58%;
-	height: 38%;
-	border: max(1px, 0.35vmin) solid currentColor;
-	border-top: 0;
-	border-radius: 0 0 999px 999px;
-}
-
 #MobileUI .guideIcon img {
 	width: 1.2em;
 	height: 1.2em;
@@ -997,7 +973,7 @@
 
 #MobileUI #buttonContainer .hotkeyAction[aria-pressed="true"] {
 	border-color: #ffe2a7;
-	background: radial-gradient(ellipse at 42% 8%, #fcfff5, #d3f0f2 60%, #9bcbd6);
+	background: radial-gradient(ellipse at 42% 8%, #92c5bf, #568f8f 60%, #426779);
 	box-shadow: inset 0 0 8px #ffe2a775, 0 0 0 1px #ffe2a760, 0 2px 5px #11182bb3;
 }
 

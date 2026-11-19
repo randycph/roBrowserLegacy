@@ -46,7 +46,7 @@ import Reputation from 'UI/Components/Reputation/Reputation.js';
 import AutoLoot from 'UI/Components/AutoLoot/AutoLoot.js';
 import AutoCombat from 'UI/Components/AutoCombat/AutoCombat.js';
 import mobileExperienceCss from './MobileExperience.css?raw&v=desktophud20261118';
-import mobileMenuCss from './MobileMenu.css?raw&v=pearlhud20261119';
+import mobileMenuCss from './MobileMenu.css?raw&v=seaglass20261119';
 import mobileProfileCss from './MobileProfile.css?raw&v=desktophud20261118';
 import CashShopIcon from 'UI/Components/CashShopIcon/CashShopIcon.js';
 

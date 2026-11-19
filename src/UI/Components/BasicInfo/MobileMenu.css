@@ -25,6 +25,9 @@
 
 @media all {
 	.mobile-menu {
+		--menu-rim: #a1b6ca;
+		--menu-disc: radial-gradient(ellipse at 43% 12%, #bbced7, #89a9bd 67%, #67859f);
+		--menu-shadow: inset 0 1px 2px #e7f4ff66, 0 2px 5px #243b565e;
 		position: fixed;
 		top: max(1%, env(safe-area-inset-top));
 		right: max(18%, env(safe-area-inset-right));
@@ -51,10 +54,10 @@
 		gap: min(1vh, 0.6vw) 0;
 		margin-top: 0.8vh;
 		padding: 0.6vh 0.5vw 0.8vh;
-		border: 2px solid #d9e8ff;
+		border: 1px solid var(--menu-rim);
 		border-radius: clamp(12px, 2vh, 24px);
-		background: linear-gradient(145deg, #fcfcf3ee, #c7deebed);
-		box-shadow: inset 0 1px 4px rgba(255, 255, 255, 0.45), 0 3px 7px #35577356;
+		background: linear-gradient(145deg, #7c99adef, #4a6580f5);
+		box-shadow: var(--menu-shadow);
 	}
 
 	.mobile-menu-panel[hidden] {
@@ -66,10 +69,10 @@
 		padding: 0;
 		border: 0;
 		background: transparent;
-		color: #284560;
+		color: #f3f7fc;
 		font: 700 clamp(9px, 1.7vh, 17px) Arial, sans-serif;
 		line-height: 1.05;
-		text-shadow: 0 1px 2px #fffffff2, 0 0 3px #f2f8ff;
+		text-shadow: 0 1px 2px #20374f, 0 0 4px #20374fcc;
 		text-align: center;
 		touch-action: manipulation;
 		cursor: pointer;
@@ -100,10 +103,10 @@
 		right: -2.5vh;
 		width: 4.5vh;
 		height: 5.5vh;
-		border: 2px solid #d9e8ff;
+		border: 1px solid var(--menu-rim);
 		border-radius: 50%;
-		background: linear-gradient(#f8fcff, #bdd9ed);
-		color: #284560;
+		background: linear-gradient(#8ba8bc, #56758f);
+		color: #f3f7fc;
 		font: 700 clamp(18px, 4vh, 34px) Arial, sans-serif;
 		line-height: 1;
 		box-shadow: 0 2px 5px rgba(18, 32, 53, 0.6);
@@ -137,10 +140,10 @@
 	.mobile-menu-top .mobile-menu-button img {
 		box-sizing: border-box;
 		padding: 4px;
-		border: 1px solid #e8f5fc;
+		border: 1px solid var(--menu-rim);
 		border-radius: 50%;
-		background: radial-gradient(ellipse at 42% 14%, #fffdf1, #e5f3f6 66%, #a5c6dd);
-		box-shadow: 0 2px 4px #365a754d;
+		background: var(--menu-disc);
+		box-shadow: var(--menu-shadow);
 	}
 
 	.mobile-menu-button span {
@@ -200,10 +203,10 @@
 		aspect-ratio: 1;
 		box-sizing: border-box;
 		transform: translateX(-50%);
-		border: 1.5px solid #b4c4df;
+		border: 1.5px solid var(--menu-rim);
 		border-radius: 50%;
-		background: radial-gradient(ellipse at 42% 14%, #fffdf1, #e5f3f6 66%, #a5c6dd);
-		box-shadow: inset 0 1px 3px #dce8fc82, 0 2px 4px #365a754d;
+		background: var(--menu-disc);
+		box-shadow: var(--menu-shadow);
 		z-index: -1;
 	}
 
@@ -216,7 +219,6 @@
 
 	.mobile-menu-top .mobile-menu-button span {
 		padding: 0 2px;
-		text-shadow: 0 1px 2px #ffffff, 0 0 4px #f7fbff;
 		letter-spacing: -0.02em;
 	}
 
@@ -231,7 +233,6 @@
 		width: 21px;
 		height: 25px;
 		border-width: 1px;
-		background: linear-gradient(#f8fcff, #bdd9ed);
 		font-size: 20px;
 	}
 
