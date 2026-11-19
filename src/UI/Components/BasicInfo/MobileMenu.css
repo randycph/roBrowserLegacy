@@ -45,6 +45,7 @@
 	}
 
 	.mobile-menu-top {
+		grid-template-columns: repeat(6, minmax(0, 1fr));
 		gap: min(0.7vw, 1vh);
 	}
 
@@ -53,6 +54,10 @@
 		gap: min(1vh, 0.6vw) 0;
 		margin-top: 0.8vh;
 		padding: 0.6vh 0.5vw 0.8vh;
+		max-height: 45vh;
+		max-height: 45dvh;
+		overflow-y: auto;
+		overscroll-behavior: contain;
 		border: 1px solid var(--menu-rim);
 		border-radius: clamp(12px, 2vh, 24px);
 		background: linear-gradient(145deg, #7c99adef, #4a6580f5);
@@ -78,7 +83,8 @@
 	}
 
 	.mobile-menu-button img,
-	.mobile-menu-button svg {
+	.mobile-menu-button svg,
+	.mobile-menu-more-icon {
 		display: block;
 		width: min(7vw, 9vh);
 		height: min(7vw, 9vh);
@@ -92,24 +98,27 @@
 		white-space: nowrap;
 	}
 
+	.mobile-menu-panel .mobile-menu-button span {
+		white-space: normal;
+		overflow-wrap: anywhere;
+	}
+
 	.mobile-menu-button:disabled {
 		opacity: 0.45;
 	}
 
-	.mobile-menu-toggle {
-		position: absolute;
-		top: 1vh;
-		right: -2.5vh;
-		width: 4.5vh;
-		height: 5.5vh;
-		border: 1px solid var(--menu-rim);
-		border-radius: 50%;
-		background: linear-gradient(#8ba8bc, #56758f);
-		color: #f3f7fc;
-		font: 700 clamp(18px, 4vh, 34px) Arial, sans-serif;
-		line-height: 1;
-		box-shadow: 0 2px 5px rgba(18, 32, 53, 0.6);
-		touch-action: manipulation;
+	.mobile-menu-more-icon {
+		--more-dot: radial-gradient(circle, #fff1cd 0 2px, transparent 2.6px);
+		background-image: var(--more-dot), var(--more-dot), var(--more-dot);
+		background-position: 31% center, center, 69% center;
+		background-size: 30% 100%;
+		background-repeat: no-repeat;
+	}
+
+	.mobile-menu-button:focus-visible {
+		outline: 2px solid #fff1cd;
+		outline-offset: 2px;
+		border-radius: 6px;
 	}
 }
 
@@ -118,7 +127,7 @@
 		top: max(115px, calc(env(safe-area-inset-top) + 115px));
 		left: max(2vw, env(safe-area-inset-left));
 		right: auto;
-		width: 58vw;
+		width: 68vw;
 		min-width: 0;
 	}
 
@@ -131,18 +140,24 @@
 	}
 
 	.mobile-menu-button img,
-	.mobile-menu-button svg {
+	.mobile-menu-button svg,
+	.mobile-menu-more-icon {
 		width: clamp(34px, 9vw, 44px);
 		height: clamp(34px, 9vw, 44px);
 	}
 
-	.mobile-menu-top .mobile-menu-button img {
+	.mobile-menu-top .mobile-menu-button img,
+	.mobile-menu-top .mobile-menu-more-icon {
 		box-sizing: border-box;
 		padding: 4px;
 		border: 1px solid var(--menu-rim);
 		border-radius: 50%;
-		background: var(--menu-disc);
+		background-color: #89a9bd;
 		box-shadow: var(--menu-shadow);
+	}
+
+	.mobile-menu-top .mobile-menu-button img {
+		background: var(--menu-disc);
 	}
 
 	.mobile-menu-button span {
@@ -150,12 +165,8 @@
 		text-overflow: ellipsis;
 	}
 
-	.mobile-menu-toggle {
-		top: 1px;
-		right: -9vw;
-		width: clamp(30px, 8vw, 38px);
-		height: clamp(30px, 8vw, 38px);
-		font-size: 25px;
+	.mobile-menu-toggle[aria-expanded='true'] .mobile-menu-more-icon {
+		border-color: #f6d28e;
 	}
 
 	.mobile-menu-panel {
@@ -175,7 +186,7 @@
 		--top-menu-disc: clamp(35px, min(11.2vmin, 6.3vw), 57px);
 		--mobile-map-panel: calc(clamp(84px, 23.5vmin, 116px) + clamp(16px, 4.3vmin, 21px) + 5px);
 		right: max(18vw, calc(max(10px, env(safe-area-inset-right)) + var(--mobile-map-panel) + 27px));
-		width: calc(5 * var(--top-menu-cell));
+		width: calc(5 * var(--top-menu-cell) + 22px);
 		min-width: 0;
 	}
 
@@ -198,7 +209,7 @@
 		position: absolute;
 		top: 0;
 		left: 50%;
-		width: var(--top-menu-disc);
+		width: min(var(--top-menu-disc), 100%);
 		aspect-ratio: 1;
 		box-sizing: border-box;
 		transform: translateX(-50%);
@@ -209,7 +220,8 @@
 		z-index: -1;
 	}
 
-	.mobile-menu-top .mobile-menu-button img {
+	.mobile-menu-top .mobile-menu-button img,
+	.mobile-menu-top .mobile-menu-more-icon {
 		width: calc(var(--top-menu-disc) * 0.62);
 		height: calc(var(--top-menu-disc) * 0.62);
 		margin: 0;
@@ -221,18 +233,10 @@
 		letter-spacing: -0.02em;
 	}
 
-	.mobile-menu-top .mobile-menu-button:active::before {
+	.mobile-menu-top .mobile-menu-button:active::before,
+	.mobile-menu-top .mobile-menu-toggle[aria-expanded='true']::before {
 		border-color: #f6d28e;
 		box-shadow: inset 0 0 6px #ffda8e80, 0 2px 4px #365a754d;
-	}
-
-	.mobile-menu-toggle {
-		top: 3px;
-		right: -22px;
-		width: 21px;
-		height: 25px;
-		border-width: 1px;
-		font-size: 20px;
 	}
 
 	body > #RodexIcon {
@@ -256,7 +260,7 @@
 
 @media (pointer: fine) {
 	.mobile-menu {
-		/* Match the desktop minimap width and leave room for the More toggle. */
+		/* Match the desktop minimap width. */
 		--mobile-map-panel: calc(clamp(112px, 15vh, 146px) + clamp(16px, 4.3vmin, 21px) + 5px);
 		right: calc(max(10px, env(safe-area-inset-right)) + var(--mobile-map-panel) + 30px);
 	}

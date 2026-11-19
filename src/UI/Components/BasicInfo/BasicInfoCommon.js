@@ -53,6 +53,7 @@ import CashShopIcon from 'UI/Components/CashShopIcon/CashShopIcon.js';
 export function createBasicInfo(config) {
 	let mobileExperience = null;
 	let mobileMenu = null;
+	let closeMobileMenu = null;
 	let mobileProfile = null;
 	let lastPortraitDraw = 0;
 
@@ -436,9 +437,35 @@ export function createBasicInfo(config) {
 		}
 		mobileMenu.innerHTML = `
 			<style>${mobileMenuCss}</style>
-			<div class="mobile-menu-top">${menuEntries.slice(0, 5).map(entry => renderMenuButton(entry, true)).join('')}</div>
-			<div class="mobile-menu-panel" id="mobile-menu-panel" hidden>${menuEntries.slice(5).map(entry => renderMenuButton(entry)).join('')}</div>
-			<button type="button" class="mobile-menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-menu-panel">‹</button>`;
+			<div class="mobile-menu-top">
+				${menuEntries.slice(0, 5).map(entry => renderMenuButton(entry, true)).join('')}
+				<button type="button" class="mobile-menu-button mobile-menu-toggle" aria-expanded="false" aria-controls="mobile-menu-panel">
+					<span class="mobile-menu-more-icon" aria-hidden="true"></span>
+					<span>More</span>
+				</button>
+			</div>
+			<div class="mobile-menu-panel" id="mobile-menu-panel" role="group" aria-label="More game menus" hidden>
+				${menuEntries.slice(5).map(entry => renderMenuButton(entry)).join('')}
+			</div>`;
+		const menu = mobileMenu;
+		const panel = menu.querySelector('.mobile-menu-panel');
+		const toggle = menu.querySelector('.mobile-menu-toggle');
+		const dismissOnOutsidePress = event => {
+			if (!event.composedPath().includes(menu)) {
+				setMoreOpen(false);
+			}
+		};
+
+		function setMoreOpen(open) {
+			panel.hidden = !open;
+			toggle.setAttribute('aria-expanded', String(open));
+			if (open) {
+				document.addEventListener('pointerdown', dismissOnOutsidePress, true);
+			} else {
+				document.removeEventListener('pointerdown', dismissOnOutsidePress, true);
+			}
+		}
+
 		mobileMenu.querySelectorAll('[data-action]').forEach(button => {
 			if (!button.querySelector('img')) {
 				const originalIcon = root.querySelector(`#${button.dataset.action} svg`);
@@ -448,15 +475,26 @@ export function createBasicInfo(config) {
 			}
 			button.addEventListener('click', event => {
 				event.stopPropagation();
+				if (panel.contains(button) && document.activeElement === button) {
+					toggle.focus();
+				}
+				setMoreOpen(false);
 				dispatchButton(button.dataset.action);
 			});
 		});
-		mobileMenu.querySelector('.mobile-menu-toggle').addEventListener('click', event => {
-			const panel = mobileMenu.querySelector('.mobile-menu-panel');
-			panel.hidden = !panel.hidden;
-			event.currentTarget.setAttribute('aria-expanded', String(!panel.hidden));
-			event.currentTarget.textContent = panel.hidden ? '‹' : '›';
+		toggle.addEventListener('click', event => {
+			event.stopPropagation();
+			setMoreOpen(panel.hidden);
 		});
+		menu.addEventListener('keydown', event => {
+			if (event.key === 'Escape' && !panel.hidden) {
+				event.preventDefault();
+				event.stopPropagation();
+				setMoreOpen(false);
+				toggle.focus();
+			}
+		});
+		closeMobileMenu = () => setMoreOpen(false);
 		document.body.appendChild(mobileMenu);
 		mobileExperience = document.createElement('div');
 		mobileExperience.className = 'mobile-experience';
@@ -527,6 +565,8 @@ export function createBasicInfo(config) {
 		Renderer.stop(drawMobilePortrait);
 		mobileProfile?.remove();
 		mobileProfile = null;
+		closeMobileMenu?.();
+		closeMobileMenu = null;
 		mobileMenu?.remove();
 		mobileMenu = null;
 		mobileExperience?.remove();
