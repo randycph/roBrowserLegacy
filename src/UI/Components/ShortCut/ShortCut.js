@@ -815,9 +815,7 @@ function onDrop(event, target) {
 			break;
 
 		case 'Inventory':
-			ShortCut.removeElement(false, element.ITID, row);
-			ShortCut.addElement(index, false, element.ITID, 0);
-			ShortCut.onChange(index, false, element.ITID, 0);
+			ShortCut.assignInventoryItem(index, element);
 			break;
 
 		case 'ShortCut':
@@ -827,6 +825,16 @@ function onDrop(event, target) {
 			break;
 	}
 }
+
+ShortCut.assignInventoryItem = function assignInventoryItem(index, item) {
+	if (!item || !ShortCut.getRoot()?.querySelector(`.container[data-index="${index}"]`)) {
+		return false;
+	}
+	ShortCut.removeElement(false, item.ITID, Math.floor(index / 9));
+	ShortCut.addElement(index, false, item.ITID, 0);
+	ShortCut.onChange(index, false, item.ITID, 0);
+	return true;
+};
 
 /**
  * Stop the drag and drop

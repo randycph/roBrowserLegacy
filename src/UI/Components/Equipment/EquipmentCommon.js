@@ -37,6 +37,8 @@ import WinStats from 'UI/Components/WinStats/WinStats.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import Entity from 'Renderer/Entity/Entity.js';
+import { setupEquipmentPanel } from './EquipmentPanel.js';
+import { centerPanel, keepPanelInViewport } from '../RpgPanel.js';
 
 function escapeHTML(str) {
 	const div = document.createElement('div');
@@ -87,6 +89,7 @@ export function createEquipment({
 	name,
 	htmlText,
 	cssText,
+	modernPanel = false,
 	entityRender = true,
 	enchantGrade = false,
 	switchEquip = false,
@@ -117,6 +120,7 @@ export function createEquipment({
 	let _hideCostume = false;
 	let _currentTitleId = 0;
 	let _btnLevelUp;
+	let equipmentPanel;
 
 	const tabLinks = {};
 	const contentDivs = {};
@@ -127,6 +131,12 @@ export function createEquipment({
 
 	Component.init = function init() {
 		const root = Component.getRoot();
+		if (modernPanel) {
+			equipmentPanel = setupEquipmentPanel(this);
+			this._setupScrollbars = function setupScrollbars() {};
+			keepPanelInViewport(this._host);
+			root.querySelector('.panel').addEventListener('wheel', event => event.stopPropagation());
+		}
 		const canvases = root.querySelectorAll('canvas');
 		if (canvases[0]) _ctx.push(canvases[0].getContext('2d'));
 		if (canvases[1]) _ctx.push(canvases[1].getContext('2d'));
@@ -149,9 +159,11 @@ export function createEquipment({
 		let idx = 0;
 		for (const id in tabLinks) {
 			tabLinks[id].onclick = showTab;
-			tabLinks[id].onfocus = function () {
-				this.blur();
-			};
+			if (!modernPanel) {
+				tabLinks[id].onfocus = function () {
+					this.blur();
+				};
+			}
 			if (idx === 0) tabLinks[id].className = 'tab selected';
 			idx++;
 		}
@@ -175,6 +187,9 @@ export function createEquipment({
 					Component._host.style.display = '';
 					Component._host.parentNode.appendChild(Component._host);
 					if (Component._host.style.display !== 'none') {
+						if (modernPanel) {
+							centerEquipment();
+						}
 						Renderer.render(renderCharacter);
 					}
 				});
@@ -324,6 +339,7 @@ export function createEquipment({
 		}
 
 		currentTabId = selectedId;
+		equipmentPanel?.setTab(selectedId);
 
 		if (switchEquip) {
 			if (SwitchEquip.ui) {
@@ -408,13 +424,15 @@ export function createEquipment({
 			this._host.style.display = 'none';
 		}
 
-		if (_preferences.reduce) {
+		if (_preferences.reduce && !modernPanel) {
 			const root = Component.getRoot();
 			const panel = root.querySelector('.panel');
 			if (panel) panel.style.display = 'none';
 		}
 
-		if (UIVersionManager.getEquipmentVersion() > 0) {
+		if (modernPanel && _preferences.show) {
+			centerEquipment();
+		} else if (!modernPanel && UIVersionManager.getEquipmentVersion() > 0) {
 			if (_preferences.stats && _preferences.show) {
 				const winStats = WinStats;
 				winStats.embed(Component._host);
@@ -469,10 +487,13 @@ export function createEquipment({
 	Component.toggle = function toggle() {
 		if (this._host.style.display === 'none') {
 			this._host.style.display = '';
+			if (modernPanel) {
+				centerEquipment();
+			}
 			Renderer.render(renderCharacter);
 			if (UIVersionManager.getEquipmentVersion() > 0) {
 				if (_btnLevelUp && _btnLevelUp.parentNode) _btnLevelUp.remove();
-				if (_preferences.stats) {
+				if (!modernPanel && _preferences.stats) {
 					WinStats.embed(Component._host);
 				}
 			}
@@ -483,6 +504,11 @@ export function createEquipment({
 			hideStatus();
 		}
 	};
+
+	function centerEquipment() {
+		centerPanel(Component._host);
+		equipmentPanel?.update();
+	}
 
 	Component.onShortCut = function onShurtCut(key) {
 		switch (key.cmd) {
@@ -643,6 +669,10 @@ export function createEquipment({
 	}
 
 	function toggleStatus() {
+		if (modernPanel) {
+			WinStats.toggle();
+			return;
+		}
 		const root = Component.getRoot();
 		const self = root.querySelector('.view_status');
 		const winStats = WinStats;
@@ -687,6 +717,7 @@ export function createEquipment({
 	const renderCharacter = (function renderCharacterClosure() {
 		let _lastState = 0;
 		let _hasCart = 0;
+		let lastPanelUpdate = 0;
 
 		const _cleanColor = new Float32Array([1.0, 1.0, 1.0, 1.0]);
 		const _savedColor = new Float32Array(4);
@@ -790,7 +821,7 @@ export function createEquipment({
 
 			updateAttachmentButtons();
 
-			if (currentTabId === 'general') {
+			if (currentTabId === 'general' || (modernPanel && currentTabId !== 'costume')) {
 				equip_character.accessory = Component.checkEquipLoc(EquipLocation.HEAD_BOTTOM);
 				equip_character.accessory2 = Component.checkEquipLoc(EquipLocation.HEAD_TOP);
 				equip_character.accessory3 = Component.checkEquipLoc(EquipLocation.HEAD_MID);
@@ -813,13 +844,31 @@ export function createEquipment({
 
 			for (let i = 0; i < _ctx.length; i++) {
 				const ctx = _ctx[i];
-				SpriteRenderer.bind2DContext(ctx, 30, 130);
+				SpriteRenderer.bind2DContext(ctx, modernPanel ? 48 : 30, modernPanel ? 126 : 130);
 				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 				equip_character.renderEntity(ctx);
 			}
 		}
 
 		return function renderChar() {
+			if (modernPanel) {
+				if (!Session.Entity) {
+					return;
+				}
+				if (Date.now() - lastPanelUpdate >= 500) {
+					lastPanelUpdate = Date.now();
+					equipmentPanel.update();
+				}
+				const direction = Camera.direction;
+				const spriteRender = SpriteRenderer.render;
+				try {
+					renderEntity();
+				} finally {
+					Camera.direction = direction;
+					SpriteRenderer.render = spriteRender;
+				}
+				return;
+			}
 			if (entityRender) {
 				renderEntity();
 			} else {

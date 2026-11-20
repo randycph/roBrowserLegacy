@@ -1053,6 +1053,14 @@ function transferSellItemStack(index) {
 }
 
 NpcStore.inventoryTransferPriority = InventoryItemTransferPriority.NPC_STORE;
+NpcStore.isSellingInventory = function isSellingInventory() {
+	return Boolean(NpcStore._host?.isConnected && NpcStore._host.style.display !== 'none' && _type === NpcStore.Type.SELL);
+};
+
+NpcStore.canQueueInventorySale = function canQueueInventorySale(item) {
+	return Boolean(item && NpcStore.isSellingInventory() && _input[item.index] && !(Inventory.npcsalelock && item.PlaceETCTab));
+};
+
 NpcStore.receiveInventoryItemStack = function receiveInventoryItemStack(item) {
 	return item ? transferSellItemStack(item.index) : false;
 };

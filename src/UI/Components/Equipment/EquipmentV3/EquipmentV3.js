@@ -11,11 +11,14 @@
 import { createEquipment } from '../EquipmentCommon.js';
 import htmlText from './EquipmentV3.html?raw';
 import cssText from './EquipmentV3.css?raw';
+import shellCss from '../../RpgPanel.css?raw';
+import panelCss from '../EquipmentPanel.css?raw';
 
 export default createEquipment({
 	name: 'EquipmentV3',
 	htmlText,
-	cssText,
+	cssText: cssText + shellCss + panelCss,
+	modernPanel: true,
 	enchantGrade: true,
 	switchEquip: true,
 	titles: true

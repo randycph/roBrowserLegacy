@@ -154,16 +154,40 @@ export function createWinStats({ name, hasTraits }) {
 			if (!el) {
 				continue;
 			}
-			const base = values[stat];
-			const shown = stat === 'aspd' ? Math.floor(200 - base / 10) : base;
-			const modifier = formatBonus(values[bonus], bonus === 'matak2' && !Session.isRenewal);
-			el.textContent = Number.isFinite(base) ? `${shown} ${modifier}`.trim() : '—';
+			el.textContent = battleValue(stat, bonus);
 		}
 
 		const guild = root.querySelector('.guild');
 		guild.hidden = !values.guildname;
 		guild.textContent = values.guildname || '';
 	}
+
+	function battleValue(stat, bonus) {
+		const base = values[stat];
+		if (!Number.isFinite(base)) {
+			return '—';
+		}
+		const shown = stat === 'aspd' ? Math.floor(200 - base / 10) : base;
+		const modifier = formatBonus(values[bonus], bonus === 'matak2' && !Session.isRenewal);
+		return `${shown} ${modifier}`.trim();
+	}
+
+	component.getEquipmentStats = function getEquipmentStats() {
+		const current = player === Session.Entity;
+		return {
+			base: baseStats.map(stat => {
+				const bonus = formatBonus(values[stat + '2']);
+				const cost = values[stat + '3'];
+				const parts = [values[stat], bonus];
+				if (cost > 0) {
+					parts.push('▸ ' + cost);
+				}
+				return [stat.toUpperCase(), current && Number.isFinite(values[stat]) ? parts.filter(Boolean).join(' ') : '—'];
+			}),
+			battle: baseBattle.map(([label, stat, bonus]) => [label, current ? battleValue(stat, bonus) : '—']),
+			points: current ? values.statuspoint ?? '—' : '—'
+		};
+	};
 
 	function renderExperience(type, label, level, current, required) {
 		const row = root.querySelector(`[data-exp="${type}"]`);

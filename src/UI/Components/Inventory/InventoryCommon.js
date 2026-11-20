@@ -47,6 +47,8 @@ import Mail from 'UI/Components/Mail/Mail.js';
 import WriteRodex from 'UI/Components/Rodex/WriteRodex.js';
 import { attachTouchDrag } from 'UI/TouchDrag.js';
 import { transferInventoryItemStack } from './InventoryItemTransfer.js';
+import { setupInventoryPanel } from './InventoryPanel.js';
+import { centerPanel, keepPanelInViewport } from '../RpgPanel.js';
 
 function _sanitizeHtml(str) {
 	const whitelist = ['font', 'i', 'b'];
@@ -84,6 +86,7 @@ export function createInventory(config) {
 		name,
 		htmlText,
 		cssText,
+		modernPanel = false,
 		defaultHeight,
 		resizableHeight = false,
 		tabSprite = false,
@@ -117,6 +120,8 @@ export function createInventory(config) {
 	let _reduced = false;
 	let _height = 0;
 	let lockOverlayTimeout;
+	let inventoryPanel;
+	Component.captureKeyEvents = modernPanel;
 
 	const prefDefaults = {
 		x: 0,
@@ -168,6 +173,15 @@ export function createInventory(config) {
 	 */
 	Component.init = function Init() {
 		const root = Component.getRoot();
+		if (modernPanel) {
+			inventoryPanel = setupInventoryPanel(this, {
+				inspect: (node, event) => onItemInfo.call(node, event),
+				setFavorite: (event, favorite) => onTabDrop(event, favorite),
+				toggleSaleLock: onNPCLock
+			});
+			this._setupScrollbars = function setupScrollbars() {};
+			keepPanelInViewport(this._host);
+		}
 
 		const baseBtn = root.querySelector('.titlebar .base');
 		if (baseBtn) {
@@ -252,15 +266,32 @@ export function createInventory(config) {
 			content.addEventListener('dblclick', e => {
 				const item = e.target.closest('.item');
 				if (item) {
-					onItemUsed.call(item, e);
+					if (!inventoryPanel?.selectingSale) {
+						onItemUsed.call(item, e);
+					}
 				}
 			});
 			content.addEventListener('click', e => {
 				const item = e.target.closest('.item');
 				if (item) {
+					if (inventoryPanel && !e.shiftKey) {
+						inventoryPanel.choose(item);
+					}
 					onItemClick.call(item, e);
 				}
 			});
+			if (modernPanel) {
+				content.addEventListener('keydown', event => {
+					if (event.key === 'Enter' || event.key === ' ') {
+						const item = event.target.closest('.item');
+						if (item) {
+							event.preventDefault();
+							event.stopPropagation();
+							inventoryPanel.choose(item);
+						}
+					}
+				});
+			}
 			attachTouchDrag(content, {
 				itemSelector: '.item',
 				getPayload: itemEl => {
@@ -392,6 +423,10 @@ export function createInventory(config) {
 		}
 
 		this.resize(_preferences.width, _preferences.height);
+		if (modernPanel) {
+			centerInventory();
+			return;
+		}
 
 		const hostRect = this._host.getBoundingClientRect();
 		this._host.style.top = `${Math.min(Math.max(0, _preferences.y), Renderer.height - hostRect.height)}px`;
@@ -417,6 +452,7 @@ export function createInventory(config) {
 			content.innerHTML = '';
 		}
 		this.list.length = 0;
+		inventoryPanel?.reset();
 		if (equipSwitch) {
 			this.equipswitchlist.length = 0;
 		}
@@ -446,10 +482,16 @@ export function createInventory(config) {
 	 * @param {object} key
 	 */
 	Component.onShortCut = function onShurtCut(key) {
+		if (modernPanel && this.isEditableFocused()) {
+			return;
+		}
 		switch (key.cmd) {
 			case 'TOGGLE':
 				if (this._host.style.display === 'none') {
 					this._host.style.display = '';
+					if (modernPanel) {
+						centerInventory();
+					}
 					this.focus();
 				} else {
 					this._host.dispatchEvent(new Event('mouseleave'));
@@ -478,6 +520,9 @@ export function createInventory(config) {
 	Component.toggle = function toggle() {
 		if (this._host.style.display === 'none') {
 			this._host.style.display = '';
+			if (modernPanel) {
+				centerInventory();
+			}
 			this.focus();
 		} else {
 			this._host.dispatchEvent(new Event('mouseleave'));
@@ -498,6 +543,11 @@ export function createInventory(config) {
 		}
 	};
 
+	function centerInventory() {
+		centerPanel(Component._host);
+		inventoryPanel?.refresh();
+	}
+
 	/**
 	 * Clear newItems array
 	 */
@@ -512,6 +562,9 @@ export function createInventory(config) {
 	 * @param {number} height
 	 */
 	Component.resize = function Resize(width, height) {
+		if (modernPanel) {
+			return;
+		}
 		width = Math.min(Math.max(width, 6), 8);
 
 		const root = Component.getRoot();
@@ -535,6 +588,10 @@ export function createInventory(config) {
 	 * Force scroll clamping
 	 */
 	Component.updateScroll = function updateScroll() {
+		if (modernPanel) {
+			inventoryPanel?.refresh();
+			return;
+		}
 		const root = Component.getRoot();
 		const hostEl = root.querySelector('.scroll-host');
 		if (!hostEl) {
@@ -772,7 +829,7 @@ export function createInventory(config) {
 			SwitchEquip.equip(item, item.location, true);
 		}
 
-		if (tab === _preferences.tab) {
+		if (modernPanel || tab === _preferences.tab) {
 			const it = DB.getItemInfo(item.ITID);
 			const root = Component.getRoot();
 			const content = root.querySelector('.container .content');
@@ -782,7 +839,7 @@ export function createInventory(config) {
 
 			content.insertAdjacentHTML(
 				'beforeend',
-				`<div class="item" data-index="${item.index}" draggable="true">` +
+				`<div class="item" data-index="${item.index}" draggable="true"${modernPanel ? ' tabindex="0" role="option"' : ''}>` +
 					'<div class="new_item"></div>' +
 					'<div class="icon"></div>' +
 					(equipSwitch ? '<div class="switch1"></div>' + '<div class="switch2"></div>' : '') +
@@ -1106,6 +1163,10 @@ export function createInventory(config) {
 	 * Update tab, reset inventory content
 	 */
 	function requestFilter() {
+		if (modernPanel) {
+			inventoryPanel?.refresh();
+			return;
+		}
 		const root = Component.getRoot();
 		const host = root.querySelector('.scroll-host');
 		if (host) {
@@ -1412,7 +1473,7 @@ export function createInventory(config) {
 	/**
 	 * Handle drop event on tabs
 	 */
-	function onTabDrop(event) {
+	function onTabDrop(event, favorite) {
 		let item, data;
 		event.stopImmediatePropagation();
 
@@ -1431,7 +1492,10 @@ export function createInventory(config) {
 		}
 
 		const targetTab = event.target.getAttribute('data-tab');
-		const itemfav = targetTab === 'fav' ? 0 : 1;
+		if (modernPanel && (data.from !== 'Inventory' || !Component.getItemByIndex(item.index))) {
+			return;
+		}
+		const itemfav = (favorite ?? (targetTab === 'fav')) ? 0 : 1;
 
 		const pkt = new PACKET.CZ.INVENTORY_TAB();
 		pkt.item_index = item.index;
