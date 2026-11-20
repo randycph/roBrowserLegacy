@@ -39,6 +39,7 @@ class GUIComponent {
 
 		this.mouseMode = MouseMode.STOP;
 		this.needFocus = true;
+		this.stackLayer = 0;
 		this.manager = null; // Set by UIManager.addComponent()
 
 		this.__loaded = false;
@@ -94,7 +95,7 @@ class GUIComponent {
 		// Create host element
 		this._host = document.createElement('div');
 		this._host.id = this.name;
-		this._host.style.zIndex = '50';
+		this._setZIndex(this, 50);
 		this._host.style.position = 'absolute';
 
 		// Attach Shadow DOM (open for devtools inspection)
@@ -277,6 +278,14 @@ class GUIComponent {
 
 	// ─── Focus / zIndex management ─────────────────────────
 
+	setStackLayer(layer) {
+		const order = Number(this._getZIndex(this));
+		this.stackLayer = layer;
+		if (this._host) {
+			this._setZIndex(this, order);
+		}
+	}
+
 	/**
 	 * Focus the UI (bring to top of other components).
 	 * Equivalent to UIComponent.prototype.focus().
@@ -356,6 +365,7 @@ class GUIComponent {
 		// Always inherit behavioral properties
 		cloned.mouseMode = this.mouseMode;
 		cloned.needFocus = this.needFocus;
+		cloned.stackLayer = this.stackLayer;
 
 		if (full) {
 			for (const key of Object.keys(this)) {
@@ -444,11 +454,12 @@ class GUIComponent {
 	 */
 	_getZIndex(comp) {
 		if (comp._host) {
-			// GUIComponent
-			return comp._host.style.zIndex || '50';
+			// Focus ordering uses the window's position within its layer.
+			const index = comp._host.style.zIndex;
+			return index ? String(Number(index) - (comp.stackLayer ?? 0)) : '50';
 		}
 		// Legacy UIComponent (jQuery)
-		return comp.ui.css('zIndex') || '50';
+		return comp.ui?.css('zIndex') || '50';
 	}
 
 	/**
@@ -458,7 +469,7 @@ class GUIComponent {
 	 */
 	_setZIndex(comp, value) {
 		if (comp._host) {
-			comp._host.style.zIndex = value;
+			comp._host.style.zIndex = value + (comp.stackLayer ?? 0);
 		} else {
 			comp.ui.css('zIndex', value);
 		}

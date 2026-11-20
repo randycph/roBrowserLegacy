@@ -8,11 +8,11 @@
  * @author Vincent Thibault
  */
 
-import { createEquipment } from '../EquipmentCommon.js';
+import { createEquipment } from '../EquipmentCommon.js?v=item-foreground';
 import htmlText from './EquipmentV4.html?raw';
 import cssText from './EquipmentV4.css?raw';
 import shellCss from '../../RpgPanel.css?raw';
-import panelCss from '../EquipmentPanel.css?raw';
+import panelCss from '../EquipmentPanel.css?raw&v=item-foreground';
 
 export default createEquipment({
 	name: 'EquipmentV4',

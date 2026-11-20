@@ -8,7 +8,7 @@
  * @author Vincent Thibault
  */
 
-import { createEquipment } from '../EquipmentCommon.js';
+import { createEquipment } from '../EquipmentCommon.js?v=item-foreground';
 import htmlText from './EquipmentV1.html?raw';
 import cssText from './EquipmentV1.css?raw';
 

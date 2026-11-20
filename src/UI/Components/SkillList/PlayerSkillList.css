@@ -125,6 +125,25 @@
 	background: linear-gradient(#fffcf3, #ffeabb);
 }
 
+.skills-row.skills-unlearned:not(.selected) {
+	background: linear-gradient(#eff3f9, #e4eaf3);
+}
+
+.skills-unlearned .skills-row-name,
+.skills-unlearned h3 {
+	color: #596782;
+}
+
+.skills-unlearned .skills-icon {
+	filter: grayscale(.85);
+	opacity: .65;
+}
+
+.skills-unlearned .skills-badge {
+	background: #e3e9f3;
+	color: #53637e;
+}
+
 .skills-row.selected .skills-row-select::after {
 	flex: none;
 	width: 6px;
@@ -259,6 +278,10 @@
 .skills-requirements {
 	margin: 8px 0;
 	padding-left: 19px;
+}
+
+.skills-requirement-unmet {
+	color: #ab263c;
 }
 
 .skills-max {

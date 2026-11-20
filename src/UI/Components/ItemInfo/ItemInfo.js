@@ -641,6 +641,7 @@ function toggleItemPreview(item) {
 		return;
 	}
 
+	ItemPreview.setStackLayer?.(ItemInfo.stackLayer);
 	ItemPreview.append();
 	ItemPreview.uid = item.ITID;
 	ItemPreview.setItem(item);

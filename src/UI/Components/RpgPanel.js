@@ -1,3 +1,5 @@
+export const RPG_WINDOW_LAYER = 1450;
+
 export function centerPanel(host) {
 	const { width, height } = host.getBoundingClientRect();
 	host.style.left = `${Math.max(8, (window.innerWidth - width) / 2)}px`;

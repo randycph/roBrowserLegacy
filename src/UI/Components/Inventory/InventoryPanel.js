@@ -2,6 +2,7 @@ import DB from 'DB/DBManager.js';
 import ItemType from 'DB/Items/ItemType.js';
 import NpcStore from 'UI/Components/NpcStore/NpcStore.js';
 import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
+import { RPG_WINDOW_LAYER } from '../RpgPanel.js?v=item-foreground';
 
 const categories = [
 	['all', 'All', 'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z'],
@@ -192,17 +193,15 @@ export function setupInventoryPanel(component, { favoriteTab, inspect, setFavori
 		refresh();
 	}
 
-	function createFilters(container, order, icons) {
+	function createFilters(container, order) {
 		for (const key of order) {
 			const [, label, path] = categories.find(([id]) => id === key);
 			const btn = document.createElement('button');
 			btn.type = 'button';
 			btn.className = 'pill';
 			btn.dataset.category = key;
-			if (icons) {
-				btn.innerHTML = `<svg class="category-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="${path}" /></svg>`;
-			}
-			btn.append(icons && key === 'consumable' ? 'Use' : label);
+			btn.innerHTML = `<svg class="category-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="${path}" /></svg>`;
+			btn.append(key === 'consumable' ? 'Use' : label);
 			btn.addEventListener('click', () => filter(key));
 			if (favoriteTab && (key === 'favorite' || key === 'all')) {
 				btn.addEventListener('dragover', event => event.preventDefault());
@@ -257,6 +256,7 @@ export function setupInventoryPanel(component, { favoriteTab, inspect, setFavori
 			return;
 		}
 		if (!selectingSale) {
+			NpcStore.setStackLayer?.(RPG_WINDOW_LAYER);
 			selectingSale = true;
 			saleButton.textContent = 'Review Sale';
 			saleButton.disabled = true;
@@ -347,8 +347,7 @@ export function setupInventoryPanel(component, { favoriteTab, inspect, setFavori
 	});
 	scroll.addEventListener('wheel', event => event.stopPropagation());
 	const available = keys => keys.filter(key => favoriteTab || key !== 'favorite');
-	createFilters(find('.inventory-sidebar'), available(sidebarOrder), true);
-	createFilters(find('.inventory-filters'), available(categories.map(([key]) => key)), false);
+	createFilters(find('.inventory-sidebar'), available(sidebarOrder));
 	filter('all');
 
 	const observer = new MutationObserver(scheduleRefresh);

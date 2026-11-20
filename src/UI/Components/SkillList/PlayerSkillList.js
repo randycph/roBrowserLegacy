@@ -12,7 +12,7 @@ import { attachTouchDrag } from '../../TouchDrag.js?v=skills-panel';
 import { createSkillUpgradeOrder, resolveSkillRequirements, stageSkillPlan } from './SkillRequirements.js';
 import panelCss from '../RpgPanel.css?raw';
 import htmlText from './PlayerSkillList.html?raw&v=skills-panel';
-import cssText from './PlayerSkillList.css?raw&v=skills-panel';
+import cssText from './PlayerSkillList.css?raw&v=skill-states';
 import 'UI/Elements/Elements.js';
 
 const jobLabels = ['Other', '1st Job', '2nd Job', '3rd Job', '4th Job'];
@@ -279,7 +279,8 @@ export function createPlayerSkillList(name) {
 		const labels = node('div', '');
 		labels.append(node('h3', '', info.SkillName));
 
-		const type = learned ? (learned.type ? 'Active' : 'Passive') : 'Locked';
+		const type = level ? (learned.type ? 'Active' : 'Passive') : 'Locked';
+		heading.classList.toggle('skills-unlearned', level === 0);
 		labels.append(node('span', 'skills-badge', type));
 		heading.append(icon(id), labels);
 		detail.append(heading);
@@ -305,13 +306,18 @@ export function createPlayerSkillList(name) {
 			detail.append(node('div', 'skills-description', description));
 		}
 
-		const requirements = resolveSkillRequirements(info, jobId, SkillTreeView)
-			.filter(([required, needed]) => currentLevel(required) < needed);
+		const requirements = resolveSkillRequirements(info, jobId, SkillTreeView);
 		if (requirements.length) {
 			const list = node('ul', 'skills-requirements');
 			for (const [required, needed] of requirements) {
 				const name = SkillInfo[required]?.SkillName || DB.getSkillName(required);
-				list.append(node('li', '', `${name} Lv. ${needed}`));
+				const actual = currentLevel(required);
+				const met = actual >= needed;
+				const requirement = node('li', met ? '' : 'skills-requirement-unmet', `${name} Lv. ${needed}`);
+				if (!met) {
+					requirement.append(` (current Lv. ${actual})`);
+				}
+				list.append(requirement);
 			}
 			detail.append(node('strong', '', 'Requirements'), list);
 		}
@@ -394,6 +400,7 @@ export function createPlayerSkillList(name) {
 			const learned = skills.get(id);
 			const selected = id === selection;
 			const row = node('div', `skills-row${selected ? ' selected' : ''}`);
+			row.classList.toggle('skills-unlearned', currentLevel(id) === 0);
 			const open = button('skills-row-select', '', () => {
 				if (selection !== id) {
 					detail.scrollTop = 0;

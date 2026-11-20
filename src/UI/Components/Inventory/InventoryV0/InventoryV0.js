@@ -10,10 +10,10 @@
  *
  */
 
-import htmlText from '../InventoryV3/InventoryV3.html?raw&v=inventory-full';
-import cssText from '../InventoryV3/InventoryV3.css?raw&v=inventory-full';
+import htmlText from '../InventoryV3/InventoryV3.html?raw&v=item-foreground';
+import cssText from '../InventoryV3/InventoryV3.css?raw&v=item-foreground';
 import panelCss from '../../RpgPanel.css?raw';
-import { createInventory } from '../InventoryCommon.js';
+import { createInventory } from '../InventoryCommon.js?v=item-foreground';
 
 export default createInventory({
 	name: 'InventoryV0',

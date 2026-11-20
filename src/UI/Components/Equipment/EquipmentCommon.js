@@ -38,7 +38,8 @@ import GraphicsSettings from 'Preferences/Graphics.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import { setupEquipmentPanel } from './EquipmentPanel.js';
-import { centerPanel, keepPanelInViewport } from '../RpgPanel.js';
+import { centerPanel, keepPanelInViewport, RPG_WINDOW_LAYER } from '../RpgPanel.js?v=item-foreground';
+import slotCss from './EquipmentSlots.css?raw&v=item-foreground';
 
 function escapeHTML(str) {
 	const div = document.createElement('div');
@@ -98,7 +99,8 @@ export function createEquipment({
 	damageSkin = false,
 	statsDefault = true
 }) {
-	const Component = new GUIComponent(name, cssText);
+	const Component = new GUIComponent(name, cssText + slotCss);
+	Component.setStackLayer?.(RPG_WINDOW_LAYER);
 
 	Component.render = () => htmlText;
 
@@ -186,6 +188,7 @@ export function createEquipment({
 					if (_btnLevelUp.parentNode) _btnLevelUp.remove();
 					Component._host.style.display = '';
 					Component._host.parentNode.appendChild(Component._host);
+					Component.focus();
 					if (Component._host.style.display !== 'none') {
 						if (modernPanel) {
 							centerEquipment();
@@ -407,6 +410,10 @@ export function createEquipment({
 		if (Session.Entity.hasCart === false) return;
 		if (CartItems._host) {
 			CartItems._host.style.display = CartItems._host.style.display === 'none' ? '' : 'none';
+			if (CartItems._host.style.display !== 'none') {
+				CartItems.setStackLayer?.(RPG_WINDOW_LAYER);
+				CartItems.focus();
+			}
 		}
 	}
 
@@ -952,6 +959,7 @@ export function createEquipment({
 			if (ItemInfo.uid === item.ITID) {
 				ItemInfo.remove();
 			} else {
+				ItemInfo.setStackLayer?.(RPG_WINDOW_LAYER);
 				ItemInfo.append();
 				ItemInfo.uid = item.ITID;
 				ItemInfo.setItem(item);

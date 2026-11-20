@@ -47,8 +47,8 @@ import Mail from 'UI/Components/Mail/Mail.js';
 import WriteRodex from 'UI/Components/Rodex/WriteRodex.js';
 import { attachTouchDrag } from 'UI/TouchDrag.js';
 import { transferInventoryItemStack } from './InventoryItemTransfer.js';
-import { setupInventoryPanel } from './InventoryPanel.js';
-import { centerPanel, keepPanelInViewport } from '../RpgPanel.js';
+import { setupInventoryPanel } from './InventoryPanel.js?v=item-foreground';
+import { centerPanel, keepPanelInViewport, RPG_WINDOW_LAYER } from '../RpgPanel.js?v=item-foreground';
 
 function _sanitizeHtml(str) {
 	const whitelist = ['font', 'i', 'b'];
@@ -102,6 +102,9 @@ export function createInventory(config) {
 
 	const Component = new GUIComponent(name, cssText);
 	Component.render = () => htmlText;
+	if (modernPanel) {
+		Component.setStackLayer?.(RPG_WINDOW_LAYER);
+	}
 
 	Component.TAB = {
 		USABLE: 0,
@@ -297,6 +300,7 @@ export function createInventory(config) {
 			}
 			attachTouchDrag(content, {
 				itemSelector: '.item',
+				onDragChange: setInventoryDragLayer,
 				getPayload: itemEl => {
 					const item = Component.getItemByIndex(parseInt(itemEl.getAttribute('data-index'), 10));
 					return item
@@ -449,6 +453,7 @@ export function createInventory(config) {
 	 * Remove Inventory from window (and so clean up items)
 	 */
 	Component.onRemove = function OnRemove() {
+		setInventoryDragLayer(false);
 		const root = Component.getRoot();
 		const content = root.querySelector('.container .content');
 		if (content) {
@@ -1213,6 +1218,7 @@ export function createInventory(config) {
 		}
 
 		if (item.count > 1) {
+			InputBox.setStackLayer?.(modernPanel ? RPG_WINDOW_LAYER : 0);
 			InputBox.append();
 			InputBox.setType('number', false, item.count);
 
@@ -1335,6 +1341,12 @@ export function createInventory(config) {
 			)
 		);
 
+		const drag = window._OBJ_DRAG_;
+		requestAnimationFrame(() => {
+			if (window._OBJ_DRAG_ === drag) {
+				setInventoryDragLayer(true);
+			}
+		});
 		onItemOut();
 	}
 
@@ -1343,6 +1355,14 @@ export function createInventory(config) {
 	 */
 	function onItemDragEnd() {
 		delete window._OBJ_DRAG_;
+		setInventoryDragLayer(false);
+	}
+
+	function setInventoryDragLayer(dragging) {
+		if (modernPanel) {
+			// Drag destinations in the HUD and older trade windows need to receive the drop.
+			Component.setStackLayer?.(dragging ? 0 : RPG_WINDOW_LAYER);
+		}
 	}
 
 	/**
@@ -1376,6 +1396,7 @@ export function createInventory(config) {
 			ItemCompare.remove();
 		}
 
+		ItemInfo.setStackLayer?.(modernPanel ? RPG_WINDOW_LAYER : 0);
 		ItemInfo.append();
 		ItemInfo.uid = item.ITID;
 		ItemInfo.setItem(item);
@@ -1384,6 +1405,7 @@ export function createInventory(config) {
 			const compareItem = Equipment.isInEquipList(item.location);
 
 			if (compareItem && Component.itemcomp) {
+				ItemCompare.setStackLayer?.(modernPanel ? RPG_WINDOW_LAYER : 0);
 				ItemCompare.prepare();
 				ItemCompare.append();
 				ItemCompare.uid = compareItem.ITID;
