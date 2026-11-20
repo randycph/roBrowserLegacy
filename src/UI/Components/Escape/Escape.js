@@ -38,13 +38,10 @@ Escape.init = function init() {
 	this._host.style.left = (Renderer.width - rect.width) * 0.5 + 'px';
 	this.draggable();
 
-	const nodeBtn = root.querySelector('.node');
-	if (nodeBtn) {
-		nodeBtn.addEventListener('mousedown', function (event) {
-			event.stopImmediatePropagation();
-			return false;
-		});
-	}
+	const closeBtn = root.querySelector('.close');
+	closeBtn.addEventListener('click', () => {
+		Escape._host.style.display = 'none';
+	});
 
 	// Only used in specific case
 	root.querySelectorAll('button').forEach(function (el) {
