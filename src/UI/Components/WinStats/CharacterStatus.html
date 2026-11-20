@@ -1,0 +1,66 @@
+<div class="character-status" role="dialog" aria-labelledby="character-status-title">
+	<header class="titlebar">
+		<img class="title-icon" src="/src/UI/Components/BasicInfo/mobile-icons/stats.png" alt="" />
+		<h2 id="character-status-title">Character Status</h2>
+		<button class="close" type="button" aria-label="Close Character Status">×</button>
+	</header>
+	<div class="status-scroll">
+		<div class="profile">
+			<canvas class="portrait" width="96" height="96" aria-label="Character portrait"></canvas>
+			<div class="identity">
+				<strong class="character-name"></strong>
+				<span class="character-job"></span>
+			</div>
+			<span class="level-badge"></span>
+			<div class="points"><span aria-hidden="true">✦</span> Status Points <strong data-points="base">—</strong></div>
+		</div>
+		<div class="experience" aria-label="Character experience">
+			<div class="experience-row" data-exp="base">
+				<strong data-level></strong>
+				<span class="exp-label">EXP</span>
+				<div class="exp-track" role="progressbar" aria-label="Base experience" aria-valuemin="0" aria-valuemax="100">
+					<div class="exp-fill"></div>
+					<span class="exp-value"></span>
+				</div>
+			</div>
+			<div class="experience-row" data-exp="job">
+				<strong data-level></strong>
+				<span class="exp-label">EXP</span>
+				<div class="exp-track" role="progressbar" aria-label="Job experience" aria-valuemin="0" aria-valuemax="100">
+					<div class="exp-fill"></div>
+					<span class="exp-value"></span>
+				</div>
+			</div>
+		</div>
+		<div class="stat-columns">
+			<section class="stat-card">
+				<h3>Base Stats</h3>
+				<div class="allocation-rows" data-attributes="base"></div>
+			</section>
+			<section class="stat-card">
+				<h3>Battle Stats</h3>
+				<dl class="battle-rows" data-battle="base"></dl>
+			</section>
+		</div>
+		<details class="trait-details" hidden>
+			<summary>Trait Stats <span>Trait Points <strong data-points="trait">—</strong></span></summary>
+			<div class="stat-columns">
+				<section class="stat-card" aria-label="Trait attributes">
+					<div class="allocation-rows" data-attributes="trait"></div>
+				</section>
+				<section class="stat-card" aria-label="Advanced battle stats">
+					<dl class="battle-rows" data-battle="trait"></dl>
+				</section>
+			</div>
+		</details>
+		<div class="guild" hidden></div>
+	</div>
+	<footer class="status-footer">
+		<span class="hint-icon" aria-hidden="true">i</span>
+		<p class="allocation-message" role="status">Tap + to allocate points.</p>
+		<div class="footer-actions">
+			<button type="button" class="reset" disabled>Reset</button>
+			<button type="button" class="confirm" disabled>Confirm</button>
+		</div>
+	</footer>
+</div>

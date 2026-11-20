@@ -148,6 +148,7 @@ function onStatusParameterChange(pkt) {
 function onStatusParameterUpdateAnswer(pkt) {
 	// Fail
 	if (!pkt.result) {
+		WinStats.onUpdateAnswer(pkt.statusID, false);
 		return;
 	}
 
@@ -200,6 +201,7 @@ function onStatusParameterUpdateAnswer(pkt) {
 			WinStats.update('crt', pkt.value);
 			break;
 	}
+	WinStats.onUpdateAnswer(pkt.statusID, true);
 }
 
 /**

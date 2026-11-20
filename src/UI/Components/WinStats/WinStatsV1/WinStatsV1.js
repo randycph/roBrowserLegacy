@@ -8,13 +8,9 @@
  * @author Vincent Thibault
  */
 
-import htmlText from './WinStatsV1.html?raw';
-import cssText from './WinStatsV1.css?raw';
 import { createWinStats } from '../WinStatsCommon.js';
 
 export default createWinStats({
 	name: 'WinStatsV1',
-	htmlText,
-	cssText,
 	hasTraits: false
 });
