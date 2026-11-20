@@ -175,12 +175,15 @@ export function createInventory(config) {
 		const root = Component.getRoot();
 		if (modernPanel) {
 			inventoryPanel = setupInventoryPanel(this, {
+				favoriteTab,
 				inspect: (node, event) => onItemInfo.call(node, event),
 				setFavorite: (event, favorite) => onTabDrop(event, favorite),
 				toggleSaleLock: onNPCLock
 			});
 			this._setupScrollbars = function setupScrollbars() {};
 			keepPanelInViewport(this._host);
+			root.querySelector('.item_expansion').hidden = !inventoryExpansion;
+			root.querySelector('.inventory-tools').hidden = !favoriteTab;
 		}
 
 		const baseBtn = root.querySelector('.titlebar .base');
@@ -328,7 +331,7 @@ export function createInventory(config) {
 
 		const ncnt = root.querySelector('.ncnt');
 		if (ncnt) {
-			ncnt.textContent = favoriteTab ? '0 / ' : '0';
+			ncnt.textContent = favoriteTab || modernPanel ? '0 / ' : '0';
 		}
 		const mcnt = root.querySelector('.mcnt');
 		if (mcnt) {
@@ -713,7 +716,7 @@ export function createInventory(config) {
 	};
 
 	function countLabel() {
-		return Component.list.length + Equipment.getNumber() + (favoriteTab ? ' / ' : '');
+		return Component.list.length + Equipment.getNumber() + (favoriteTab || modernPanel ? ' / ' : '');
 	}
 
 	/**

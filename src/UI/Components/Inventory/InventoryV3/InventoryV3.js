@@ -10,8 +10,8 @@
  *
  */
 
-import htmlText from './InventoryV3.html?raw';
-import cssText from './InventoryV3.css?raw';
+import htmlText from './InventoryV3.html?raw&v=inventory-full';
+import cssText from './InventoryV3.css?raw&v=inventory-full';
 import panelCss from '../../RpgPanel.css?raw';
 import { createInventory } from '../InventoryCommon.js';
 

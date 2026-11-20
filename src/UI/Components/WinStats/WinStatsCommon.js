@@ -7,8 +7,9 @@ import MonsterTable from 'DB/Monsters/MonsterTable.js';
 import Preferences from 'Core/Preferences.js';
 import Session from 'Engine/SessionStorage.js';
 import UIManager from 'UI/UIManager.js';
-import htmlText from './CharacterStatus.html?raw';
-import cssText from './CharacterStatus.css?raw';
+import { keepPanelInViewport } from '../RpgPanel.js';
+import htmlText from './CharacterStatus.html?raw&v=foreground';
+import cssText from './CharacterStatus.css?raw&v=foreground';
 
 const baseStats = ['str', 'agi', 'vit', 'int', 'dex', 'luk'];
 const traitStats = ['pow', 'sta', 'wis', 'spl', 'con', 'crt'];
@@ -324,6 +325,7 @@ export function createWinStats({ name, hasTraits }) {
 	function setVisible(visible) {
 		clearInterval(profileTimer);
 		component._host.style.display = visible ? '' : 'none';
+		root.querySelector('.character-status').setAttribute('aria-modal', String(!embedAnchor));
 		if (visible) {
 			refreshProfile();
 			profileTimer = setInterval(refreshProfile, 1000);
@@ -383,7 +385,14 @@ export function createWinStats({ name, hasTraits }) {
 		close.addEventListener('mousedown', event => event.stopImmediatePropagation());
 		close.addEventListener('click', () => setVisible(false));
 		root.querySelector('.status-scroll').addEventListener('wheel', event => event.stopPropagation());
+
+		// Match the attendance backdrop so taps outside the dialog stay out of the game.
+		const backdrop = root.querySelector('.status-backdrop');
+		for (const type of ['touchstart', 'touchmove', 'touchend', 'touchcancel', 'mousedown', 'mouseup', 'click', 'wheel']) {
+			backdrop.addEventListener(type, event => event.stopPropagation(), { passive: true });
+		}
 		this.draggable('.titlebar');
+		keepPanelInViewport(this._host, () => !embedAnchor);
 	};
 
 	// Keep native touch scrolling in the panel on short screens.

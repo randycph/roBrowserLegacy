@@ -4,8 +4,11 @@ export function centerPanel(host) {
 	host.style.top = `${Math.max(8, (window.innerHeight - height) / 2)}px`;
 }
 
-export function keepPanelInViewport(host) {
+export function keepPanelInViewport(host, shouldClamp = () => true) {
 	const observer = new ResizeObserver(() => {
+		if (!shouldClamp()) {
+			return;
+		}
 		const box = host.getBoundingClientRect();
 		if (!box.width || !box.height) {
 			return;

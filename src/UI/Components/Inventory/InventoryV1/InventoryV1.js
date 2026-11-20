@@ -10,14 +10,16 @@
  *
  */
 
-import htmlText from './InventoryV1.html?raw';
-import cssText from './InventoryV1.css?raw';
+import htmlText from '../InventoryV3/InventoryV3.html?raw&v=inventory-full';
+import cssText from '../InventoryV3/InventoryV3.css?raw&v=inventory-full';
+import panelCss from '../../RpgPanel.css?raw';
 import { createInventory } from '../InventoryCommon.js';
 
 export default createInventory({
 	name: 'InventoryV1',
 	htmlText,
-	cssText,
+	cssText: panelCss + cssText,
+	modernPanel: true,
 	defaultHeight: 193,
 	favoriteTab: true
 });

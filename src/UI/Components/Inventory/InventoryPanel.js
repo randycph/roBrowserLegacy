@@ -56,7 +56,7 @@ function canUse(item) {
 	return category === 'consumable' || category === 'card';
 }
 
-export function setupInventoryPanel(component, { inspect, setFavorite, toggleSaleLock }) {
+export function setupInventoryPanel(component, { favoriteTab, inspect, setFavorite, toggleSaleLock }) {
 	const root = component.getRoot();
 	const find = selector => root.querySelector(selector);
 	const content = find('.content');
@@ -204,7 +204,7 @@ export function setupInventoryPanel(component, { inspect, setFavorite, toggleSal
 			}
 			btn.append(icons && key === 'consumable' ? 'Use' : label);
 			btn.addEventListener('click', () => filter(key));
-			if (key === 'favorite' || key === 'all') {
+			if (favoriteTab && (key === 'favorite' || key === 'all')) {
 				btn.addEventListener('dragover', event => event.preventDefault());
 				btn.addEventListener('drop', event => setFavorite(event, key === 'favorite'));
 			}
@@ -346,8 +346,9 @@ export function setupInventoryPanel(component, { inspect, setFavorite, toggleSal
 		refresh();
 	});
 	scroll.addEventListener('wheel', event => event.stopPropagation());
-	createFilters(find('.inventory-sidebar'), sidebarOrder, true);
-	createFilters(find('.inventory-filters'), categories.map(([key]) => key), false);
+	const available = keys => keys.filter(key => favoriteTab || key !== 'favorite');
+	createFilters(find('.inventory-sidebar'), available(sidebarOrder), true);
+	createFilters(find('.inventory-filters'), available(categories.map(([key]) => key)), false);
 	filter('all');
 
 	const observer = new MutationObserver(scheduleRefresh);
