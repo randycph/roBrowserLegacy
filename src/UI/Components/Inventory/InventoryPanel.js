@@ -18,7 +18,11 @@ const sidebarOrder = ['all', 'consumable', 'equipment', 'card', 'pet', 'material
 function itemDescription(item, info) {
 	const description = item.IsIdentified ? info.identifiedDescriptionName : info.unidentifiedDescriptionName;
 	const lines = Array.isArray(description) ? description.join('\n') : String(description ?? '');
-	return lines.replace(/\^[a-f0-9]{6}/gi, '').trim();
+	return lines.replace(/\^[a-f0-9]{6}/gi, '')
+		.split(/\r?\n/)
+		.filter(line => !/^\s*[_=-]{3,}\s*$/.test(line))
+		.join('\n')
+		.trim();
 }
 
 function itemCategory(item, info, description) {
@@ -74,7 +78,6 @@ export function setupInventoryPanel(component, { favoriteTab, inspect, setFavori
 	function renderSelection(entry) {
 		const selectionInfo = find('.selection-info');
 		selectionInfo.hidden = !entry;
-		find('.detail-placeholder').hidden = Boolean(entry);
 		if (!entry) {
 			shortcuts.hidden = true;
 			return;
@@ -84,7 +87,12 @@ export function setupInventoryPanel(component, { favoriteTab, inspect, setFavori
 		find('.detail-name').textContent = entry.name;
 		find('.detail-category').textContent = categories.find(([key]) => key === entry.category)?.[1] ?? 'Misc';
 		find('.detail-quantity').textContent = `Qty: ${entry.item.count || 1}`;
-		find('.detail-description').textContent = entry.description;
+		const description = find('.detail-description');
+		if (description.textContent !== entry.description) {
+			description.textContent = entry.description;
+			description.scrollTop = 0;
+		}
+		description.hidden = !entry.description;
 		const use = find('.use-selection');
 		use.disabled = !canUse(entry.item);
 		use.textContent = entry.category === 'equipment' || entry.item.type === ItemType.AMMO ? 'Equip' : 'Use';
@@ -144,9 +152,6 @@ export function setupInventoryPanel(component, { favoriteTab, inspect, setFavori
 			content.append(slot);
 		}
 
-		const empty = find('.inventory-empty');
-		empty.hidden = visible > 0;
-		empty.textContent = 'No items in this category.';
 		renderSelection(focus);
 	}
 
@@ -247,6 +252,7 @@ export function setupInventoryPanel(component, { favoriteTab, inspect, setFavori
 	});
 	scroll.addEventListener('wheel', event => event.stopPropagation());
 	find('.inventory-sidebar').addEventListener('wheel', event => event.stopPropagation());
+	find('.inventory-detail').addEventListener('wheel', event => event.stopPropagation());
 	const available = keys => keys.filter(key => favoriteTab || key !== 'favorite');
 	createFilters(find('.inventory-sidebar'), available(sidebarOrder));
 	filter('all');

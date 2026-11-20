@@ -9,10 +9,10 @@
  *
  */
 
-import InventoryV0 from './InventoryV0/InventoryV0.js?v=panel-cleanup';
-import InventoryV1 from './InventoryV1/InventoryV1.js?v=panel-cleanup';
-import InventoryV2 from './InventoryV2/InventoryV2.js?v=panel-cleanup';
-import InventoryV3 from './InventoryV3/InventoryV3.js?v=panel-cleanup';
+import InventoryV0 from './InventoryV0/InventoryV0.js?v=inventory-detail';
+import InventoryV1 from './InventoryV1/InventoryV1.js?v=inventory-detail';
+import InventoryV2 from './InventoryV2/InventoryV2.js?v=inventory-detail';
+import InventoryV3 from './InventoryV3/InventoryV3.js?v=inventory-detail';
 
 import UIVersionManager from 'UI/UIVersionManager.js';
 import DB from 'DB/DBManager.js';

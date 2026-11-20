@@ -13,7 +13,6 @@
 					<div class="scroll-host" aria-label="Inventory items">
 						<div class="content" role="listbox" aria-label="Inventory items"></div>
 					</div>
-					<p class="inventory-empty" hidden></p>
 				</div>
 				<aside class="inventory-detail" aria-label="Item details">
 					<div class="selection-info" hidden>
@@ -29,7 +28,7 @@
 								<span class="detail-quantity"></span>
 							</div>
 						</div>
-						<p class="detail-description"></p>
+						<p class="detail-description" tabindex="0" aria-label="Item description"></p>
 						<div class="detail-actions">
 							<button class="pill primary use-selection" type="button">Use</button>
 							<button class="pill gold shortcut-selection" type="button">Shortcut</button>
@@ -37,7 +36,6 @@
 						<div class="shortcut-choices" hidden aria-label="Hotkey slots"></div>
 						<p class="inventory-message" role="status" hidden></p>
 					</div>
-					<p class="detail-placeholder">Select an item to view its details.</p>
 				</aside>
 			</div>
 		</div>

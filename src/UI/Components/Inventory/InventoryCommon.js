@@ -47,7 +47,7 @@ import Mail from 'UI/Components/Mail/Mail.js';
 import WriteRodex from 'UI/Components/Rodex/WriteRodex.js';
 import { attachTouchDrag } from 'UI/TouchDrag.js';
 import { transferInventoryItemStack } from './InventoryItemTransfer.js';
-import { setupInventoryPanel } from './InventoryPanel.js?v=panel-cleanup';
+import { setupInventoryPanel } from './InventoryPanel.js?v=inventory-detail';
 import { centerPanel, keepPanelInViewport, RPG_WINDOW_LAYER } from '../RpgPanel.js?v=item-foreground';
 
 function _sanitizeHtml(str) {
