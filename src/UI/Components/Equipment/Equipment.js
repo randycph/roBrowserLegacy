@@ -9,11 +9,11 @@
  *
  */
 
-import EquipmentV0 from './EquipmentV0/EquipmentV0.js?v=item-foreground';
-import EquipmentV1 from './EquipmentV1/EquipmentV1.js?v=item-foreground';
-import EquipmentV2 from './EquipmentV2/EquipmentV2.js?v=item-foreground';
-import EquipmentV3 from './EquipmentV3/EquipmentV3.js?v=item-foreground';
-import EquipmentV4 from './EquipmentV4/EquipmentV4.js?v=item-foreground';
+import EquipmentV0 from './EquipmentV0/EquipmentV0.js?v=panel-cleanup';
+import EquipmentV1 from './EquipmentV1/EquipmentV1.js?v=panel-cleanup';
+import EquipmentV2 from './EquipmentV2/EquipmentV2.js?v=panel-cleanup';
+import EquipmentV3 from './EquipmentV3/EquipmentV3.js?v=panel-cleanup';
+import EquipmentV4 from './EquipmentV4/EquipmentV4.js?v=panel-cleanup';
 
 import UIVersionManager from 'UI/UIVersionManager.js';
 import DB from 'DB/DBManager.js';

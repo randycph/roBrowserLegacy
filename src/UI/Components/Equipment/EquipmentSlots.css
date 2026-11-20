@@ -1,4 +1,4 @@
-.panel :is(td.col1, td.col3, .ammo):empty::before {
+.panel :is(td.col1, td.col3):empty::before {
 	display: block;
 	color: #574780;
 	font: 700 clamp(14px, 2vw, 28px) / 1 Arial, sans-serif;
@@ -6,8 +6,4 @@
 	text-shadow: 0 1px #fff8;
 	pointer-events: none;
 	content: '+';
-}
-
-.panel .ammo:empty::before {
-	font-size: clamp(12px, 1.5vw, 20px);
 }

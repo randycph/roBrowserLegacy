@@ -6,7 +6,7 @@
 	</header>
 	<div class="overlay"></div>
 	<div class="panel">
-		<nav class="inventory-sidebar" aria-label="Inventory sections"></nav>
+		<nav class="inventory-sidebar" aria-label="Inventory sections" tabindex="0"></nav>
 		<div class="inventory-main">
 			<div class="inventory-workspace">
 				<div class="container">
@@ -18,7 +18,11 @@
 				<aside class="inventory-detail" aria-label="Item details">
 					<div class="selection-info" hidden>
 						<div class="detail-summary">
-							<div class="detail-icon" aria-hidden="true"></div>
+							<div class="detail-icon">
+								<button class="inspect-selection" type="button" aria-label="Item Info" title="Item Info">
+									<span class="inspect-eye" aria-hidden="true"></span>
+								</button>
+							</div>
 							<div>
 								<strong class="detail-name"></strong>
 								<span class="detail-category"></span>
@@ -29,33 +33,13 @@
 						<div class="detail-actions">
 							<button class="pill primary use-selection" type="button">Use</button>
 							<button class="pill gold shortcut-selection" type="button">Shortcut</button>
-							<button class="pill inspect-selection" type="button">Item Info</button>
 						</div>
 						<div class="shortcut-choices" hidden aria-label="Hotkey slots"></div>
+						<p class="inventory-message" role="status" hidden></p>
 					</div>
 					<p class="detail-placeholder">Select an item to view its details.</p>
 				</aside>
 			</div>
-			<footer class="inventory-footer">
-				<div class="inventory-capacity">
-					<span class="capacity-icon" aria-hidden="true"></span>
-					<span><span class="ncnt"></span><span class="mcnt"></span></span>
-					<button class="pill item_expansion" type="button" aria-label="Expand inventory">+</button>
-				</div>
-				<input class="inventory-search" type="search" placeholder="Search item…" aria-label="Search items" />
-				<button class="pill inventory-sort" type="button">Sort</button>
-				<button class="pill inventory-sell" type="button">Bulk Sell</button>
-				<button class="pill inventory-sell-cancel" type="button" hidden>Cancel</button>
-				<details class="inventory-tools">
-					<summary aria-label="Inventory options">Options</summary>
-					<div>
-						<button class="pill item_drop_lock" type="button">Drop Lock</button>
-						<button class="pill item_compare" type="button">Compare Items</button>
-						<button class="pill inventory-deal-lock" type="button">Favorite Sale Lock</button>
-					</div>
-				</details>
-			</footer>
-			<p class="inventory-message" role="status" hidden></p>
 		</div>
 	</div>
 </div>

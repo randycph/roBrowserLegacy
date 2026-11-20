@@ -47,7 +47,7 @@ import Mail from 'UI/Components/Mail/Mail.js';
 import WriteRodex from 'UI/Components/Rodex/WriteRodex.js';
 import { attachTouchDrag } from 'UI/TouchDrag.js';
 import { transferInventoryItemStack } from './InventoryItemTransfer.js';
-import { setupInventoryPanel } from './InventoryPanel.js?v=item-foreground';
+import { setupInventoryPanel } from './InventoryPanel.js?v=panel-cleanup';
 import { centerPanel, keepPanelInViewport, RPG_WINDOW_LAYER } from '../RpgPanel.js?v=item-foreground';
 
 function _sanitizeHtml(str) {
@@ -180,13 +180,10 @@ export function createInventory(config) {
 			inventoryPanel = setupInventoryPanel(this, {
 				favoriteTab,
 				inspect: (node, event) => onItemInfo.call(node, event),
-				setFavorite: (event, favorite) => onTabDrop(event, favorite),
-				toggleSaleLock: onNPCLock
+				setFavorite: (event, favorite) => onTabDrop(event, favorite)
 			});
 			this._setupScrollbars = function setupScrollbars() {};
 			keepPanelInViewport(this._host);
-			root.querySelector('.item_expansion').hidden = !inventoryExpansion;
-			root.querySelector('.inventory-tools').hidden = !favoriteTab;
 		}
 
 		const baseBtn = root.querySelector('.titlebar .base');
@@ -272,9 +269,7 @@ export function createInventory(config) {
 			content.addEventListener('dblclick', e => {
 				const item = e.target.closest('.item');
 				if (item) {
-					if (!inventoryPanel?.selectingSale) {
-						onItemUsed.call(item, e);
-					}
+					onItemUsed.call(item, e);
 				}
 			});
 			content.addEventListener('click', e => {

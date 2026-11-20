@@ -1,8 +1,6 @@
 import DB from 'DB/DBManager.js';
 import ItemType from 'DB/Items/ItemType.js';
-import NpcStore from 'UI/Components/NpcStore/NpcStore.js';
 import ShortCut from 'UI/Components/ShortCut/ShortCut.js';
-import { RPG_WINDOW_LAYER } from '../RpgPanel.js?v=item-foreground';
 
 const categories = [
 	['all', 'All', 'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z'],
@@ -57,21 +55,14 @@ function canUse(item) {
 	return category === 'consumable' || category === 'card';
 }
 
-export function setupInventoryPanel(component, { favoriteTab, inspect, setFavorite, toggleSaleLock }) {
+export function setupInventoryPanel(component, { favoriteTab, inspect, setFavorite }) {
 	const root = component.getRoot();
 	const find = selector => root.querySelector(selector);
 	const content = find('.content');
 	const scroll = find('.scroll-host');
 	const shortcuts = find('.shortcut-choices');
-	const search = find('.inventory-search');
-	const saleButton = find('.inventory-sell');
-	const saleCancel = find('.inventory-sell-cancel');
-	const chosen = new Set();
-	const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 	let category = 'all';
 	let selection = null;
-	let sortDirection = 0;
-	let selectingSale = false;
 	let scheduled = false;
 
 	function message(text = '') {
@@ -82,12 +73,9 @@ export function setupInventoryPanel(component, { favoriteTab, inspect, setFavori
 
 	function renderSelection(entry) {
 		const selectionInfo = find('.selection-info');
-		selectionInfo.hidden = !entry || selectingSale;
-		find('.detail-placeholder').hidden = Boolean(entry) && !selectingSale;
-		find('.detail-placeholder').textContent = selectingSale
-			? 'Select the stacks you want to add to the merchant’s sale list.'
-			: 'Select an item to view its details.';
-		if (!entry || selectingSale) {
+		selectionInfo.hidden = !entry;
+		find('.detail-placeholder').hidden = Boolean(entry);
+		if (!entry) {
 			shortcuts.hidden = true;
 			return;
 		}
@@ -104,7 +92,6 @@ export function setupInventoryPanel(component, { favoriteTab, inspect, setFavori
 
 	function refresh() {
 		const current = new Map(component.list.map(item => [item.index, item]));
-		const query = search.value.trim().toLocaleLowerCase();
 		const entries = [...content.querySelectorAll('.item')].flatMap(node => {
 			const item = current.get(Number(node.dataset.index));
 			if (!item) {
@@ -115,9 +102,6 @@ export function setupInventoryPanel(component, { favoriteTab, inspect, setFavori
 			const description = itemDescription(item, info);
 			return [{ node, item, name, description, category: itemCategory(item, info, description) }];
 		});
-		if (sortDirection) {
-			entries.sort((a, b) => sortDirection * collator.compare(a.name, b.name) || a.item.index - b.item.index);
-		}
 		let visible = 0;
 		let selected = null;
 		let first = null;
@@ -125,7 +109,7 @@ export function setupInventoryPanel(component, { favoriteTab, inspect, setFavori
 			const id = entry.item.index;
 			const inCategory = category === 'all' || category === entry.category ||
 				(category === 'favorite' && Boolean(entry.item.PlaceETCTab));
-			entry.node.hidden = !inCategory || !entry.name.toLocaleLowerCase().includes(query);
+			entry.node.hidden = !inCategory;
 			if (entry.node !== content.children[index]) {
 				content.insertBefore(entry.node, content.children[index] ?? null);
 			}
@@ -137,7 +121,6 @@ export function setupInventoryPanel(component, { favoriteTab, inspect, setFavori
 					selected = entry;
 				}
 			}
-			entry.node.toggleAttribute('data-sale-selected', chosen.has(id));
 		}
 
 		const focus = selected || first;
@@ -146,7 +129,7 @@ export function setupInventoryPanel(component, { favoriteTab, inspect, setFavori
 		}
 		selection = focus?.item.index ?? null;
 		for (const entry of entries) {
-			entry.node.setAttribute('aria-selected', String(!selectingSale && entry.item.index === selection));
+			entry.node.setAttribute('aria-selected', String(entry.item.index === selection));
 		}
 		const columns = Number(getComputedStyle(content).getPropertyValue('--inventory-columns').trim()) || 7;
 		const emptySlots = Math.max(0, columns * 4 - visible);
@@ -163,12 +146,8 @@ export function setupInventoryPanel(component, { favoriteTab, inspect, setFavori
 
 		const empty = find('.inventory-empty');
 		empty.hidden = visible > 0;
-		empty.textContent = query ? 'No matching items.' : 'No items in this category.';
+		empty.textContent = 'No items in this category.';
 		renderSelection(focus);
-
-		find('.item_drop_lock').setAttribute('aria-pressed', String(Boolean(component.itemlock)));
-		find('.item_compare').setAttribute('aria-pressed', String(Boolean(component.itemcomp)));
-		find('.inventory-deal-lock').setAttribute('aria-pressed', String(Boolean(component.npcsalelock)));
 	}
 
 	function scheduleRefresh() {
@@ -221,70 +200,10 @@ export function setupInventoryPanel(component, { favoriteTab, inspect, setFavori
 			return;
 		}
 		shortcuts.hidden = true;
-		if (selectingSale) {
-			if (!NpcStore.canQueueInventorySale(item)) {
-				message('The merchant cannot buy this item.');
-				return;
-			}
-			if (chosen.has(item.index)) {
-				chosen.delete(item.index);
-			} else {
-				chosen.add(item.index);
-			}
-			saleButton.textContent = chosen.size ? `Review Sale (${chosen.size})` : 'Review Sale';
-			saleButton.disabled = chosen.size === 0;
-		} else {
-			selection = item.index;
-			message();
-		}
-		refresh();
-	}
-
-	function finishSaleSelection() {
-		selectingSale = false;
-		chosen.clear();
-		saleButton.disabled = false;
-		saleButton.textContent = 'Bulk Sell';
-		saleCancel.hidden = true;
-		refresh();
-	}
-
-	saleButton.addEventListener('click', () => {
-		if (!NpcStore.isSellingInventory()) {
-			finishSaleSelection();
-			message('Open a merchant’s Sell window to use Bulk Sell.');
-			return;
-		}
-		if (!selectingSale) {
-			NpcStore.setStackLayer?.(RPG_WINDOW_LAYER);
-			selectingSale = true;
-			saleButton.textContent = 'Review Sale';
-			saleButton.disabled = true;
-			saleCancel.hidden = false;
-			message();
-			refresh();
-			return;
-		}
-
-		let queued = 0;
-		for (const index of chosen) {
-			const item = component.getItemByIndex(index);
-			if (NpcStore.canQueueInventorySale(item) && NpcStore.receiveInventoryItemStack(item)) {
-				queued++;
-			}
-		}
-		finishSaleSelection();
-		if (queued) {
-			NpcStore.focus();
-			message(`Added ${queued} to the sale list. Confirm the sale with the merchant.`);
-		} else {
-			message('No selected items could be added to the sale list.');
-		}
-	});
-	saleCancel.addEventListener('click', () => {
-		finishSaleSelection();
+		selection = item.index;
 		message();
-	});
+		refresh();
+	}
 
 	find('.use-selection').addEventListener('click', () => {
 		const item = selectedItem();
@@ -326,26 +245,8 @@ export function setupInventoryPanel(component, { favoriteTab, inspect, setFavori
 		}
 		shortcuts.hidden = false;
 	});
-	find('.inventory-sort').addEventListener('click', event => {
-		sortDirection = sortDirection === 1 ? -1 : 1;
-		event.currentTarget.title = sortDirection === 1 ? 'Name, A to Z' : 'Name, Z to A';
-		event.currentTarget.textContent = sortDirection === 1 ? 'Sort ↑' : 'Sort ↓';
-		refresh();
-	});
-	find('.inventory-deal-lock').addEventListener('click', () => {
-		toggleSaleLock();
-		refresh();
-	});
-	for (const selector of ['.item_drop_lock', '.item_compare']) {
-		find(selector).addEventListener('click', scheduleRefresh);
-	}
-	search.addEventListener('input', () => {
-		selection = null;
-		shortcuts.hidden = true;
-		scroll.scrollTop = 0;
-		refresh();
-	});
 	scroll.addEventListener('wheel', event => event.stopPropagation());
+	find('.inventory-sidebar').addEventListener('wheel', event => event.stopPropagation());
 	const available = keys => keys.filter(key => favoriteTab || key !== 'favorite');
 	createFilters(find('.inventory-sidebar'), available(sidebarOrder));
 	filter('all');
@@ -356,13 +257,7 @@ export function setupInventoryPanel(component, { favoriteTab, inspect, setFavori
 	return {
 		choose,
 		refresh: scheduleRefresh,
-		get selectingSale() {
-			return selectingSale;
-		},
 		reset() {
-			search.value = '';
-			selection = null;
-			finishSaleSelection();
 			filter('all');
 			message();
 		}

@@ -12,9 +12,7 @@
 }
 
 .skills-window .titlebar {
-	justify-content: center;
 	min-height: clamp(45px, 5vw, 70px);
-	padding: 2px 58px;
 	background: radial-gradient(ellipse at 5% 145%, #c5e7ffa0 54%, transparent 55%),
 		radial-gradient(ellipse at 96% 144%, #c5e7ffa0 54%, transparent 55%),
 		linear-gradient(#457bd9, #6fb4f7);
@@ -30,15 +28,6 @@
 .skills-window .header-icon {
 	width: clamp(36px, 5.8vw, 81px);
 	height: clamp(36px, 5vw, 70px);
-}
-
-.skills-window .titlebar .close {
-	position: absolute;
-	right: 12px;
-	border-color: #d5edff;
-	background: linear-gradient(#90c8ff, #417cdd);
-	color: #fff;
-	text-shadow: 0 1px 2px #284b91;
 }
 
 .skills-body {

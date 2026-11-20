@@ -12,7 +12,7 @@ import PACKET from 'Network/PacketStructure.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Session from 'Engine/SessionStorage.js';
 import { bindQuestPanel } from './QuestPanel.js?v=quest-journal';
-import panelCss from '../RpgPanel.css?raw';
+import panelCss from '../RpgPanel.css?raw&v=panel-cleanup';
 import htmlText from './QuestPanel.html?raw&v=quest-journal';
 import cssText from './QuestPanel.css?raw&v=quest-journal';
 

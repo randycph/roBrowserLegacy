@@ -10,12 +10,12 @@ import { _formatROText } from 'UI/Components/SkillDescription/SkillDescription.j
 import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection.js';
 import { attachTouchDrag } from '../../TouchDrag.js?v=skills-panel';
 import { createSkillUpgradeOrder, resolveSkillRequirements, stageSkillPlan } from './SkillRequirements.js';
-import panelCss from '../RpgPanel.css?raw';
+import panelCss from '../RpgPanel.css?raw&v=panel-cleanup';
 import htmlText from './PlayerSkillList.html?raw&v=skills-panel';
-import cssText from './PlayerSkillList.css?raw&v=skill-states';
+import cssText from './PlayerSkillList.css?raw&v=panel-cleanup';
 import 'UI/Elements/Elements.js';
 
-const jobLabels = ['Other', '1st Job', '2nd Job', '3rd Job', '4th Job'];
+const jobLabels = ['Etc', '1st Job', '2nd Job', '3rd Job', '4th Job'];
 const bookIcon = new URL('../BasicInfo/mobile-icons/top/skills.png', import.meta.url).href;
 
 function node(tag, className, text) {
@@ -360,7 +360,7 @@ export function createPlayerSkillList(name) {
 		const listScroll = list.scrollTop;
 		const detailScroll = detail.scrollTop;
 		const focusedControl = root.activeElement?.dataset.skillControl;
-		const entries = new Map();
+		const entries = new Map([[0, []]]);
 
 		for (const id of new Set([...groups.keys(), ...skills.keys()])) {
 			const group = groups.get(id) ?? 0;
@@ -432,7 +432,7 @@ export function createPlayerSkillList(name) {
 
 		detail.replaceChildren();
 		if (selection == null) {
-			detail.append(node('p', '', 'No skills available.'));
+			detail.append(node('p', '', currentGroup === 0 ? 'No additional skills.' : 'No skills available.'));
 		} else {
 			renderDetails(detail, selection);
 		}

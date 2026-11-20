@@ -39,7 +39,7 @@ import Inventory from 'UI/Components/Inventory/Inventory.js';
 import Entity from 'Renderer/Entity/Entity.js';
 import { setupEquipmentPanel } from './EquipmentPanel.js';
 import { centerPanel, keepPanelInViewport, RPG_WINDOW_LAYER } from '../RpgPanel.js?v=item-foreground';
-import slotCss from './EquipmentSlots.css?raw&v=item-foreground';
+import slotCss from './EquipmentSlots.css?raw&v=panel-cleanup';
 
 function escapeHTML(str) {
 	const div = document.createElement('div');
