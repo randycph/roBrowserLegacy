@@ -28,6 +28,7 @@ import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTarget
 import Guild from 'UI/Components/Guild/Guild.js';
 import SkillListMH from 'UI/Components/SkillListMH/SkillListMH.js';
 import ItemSelection from 'UI/Components/ItemSelection/ItemSelection.js';
+import ItemIdentifySelection from 'UI/Components/ItemIdentifySelection/ItemIdentifySelection.js';
 import MakeArrowSelection from 'UI/Components/MakeArrowSelection/MakeArrowSelection.js';
 import RefineWeaponSelection from 'UI/Components/RefineWeaponSelection/RefineWeaponSelection.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
@@ -371,16 +372,13 @@ function onIdentifyList(pkt) {
 		return;
 	}
 
-	ItemSelection.append();
-	ItemSelection.setList(pkt.ITIDList);
-	ItemSelection.setTitle(DB.getMessage(521));
-	ItemSelection.onIndexSelected = function (index) {
+	ItemIdentifySelection.open(pkt.ITIDList, function (index) {
 		if (index >= -1) {
 			const _pkt = new PACKET.CZ.REQ_ITEMIDENTIFY();
 			_pkt.index = index;
 			Network.sendPacket(_pkt);
 		}
-	};
+	});
 }
 
 /**
