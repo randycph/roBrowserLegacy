@@ -330,7 +330,8 @@
 }
 
 @media (max-width: 495px) {
-	.inventory-window .panel { grid-template-columns: 79px minmax(0, 1fr); }
+	.inventory-window .panel { grid-template-columns: 86px minmax(0, 1fr); }
+	.inventory-sidebar .pill { font-size: 11px; }
 	.inventory-sidebar .category-glyph { flex-basis: 1em; width: 1em; height: 1em; }
 	.inventory-workspace { grid-template-columns: minmax(0, 1fr); }
 	.inventory-window .content { --inventory-columns: 5; }
