@@ -7,8 +7,8 @@
  *
  */
 
-import SkillList from './SkillList/SkillList.js';
-import SkillListV2 from './SkillListV2/SkillListV2.js';
+import SkillList from './SkillList/SkillList.js?v=skills-panel';
+import SkillListV2 from './SkillListV2/SkillListV2.js?v=skills-panel';
 import UIVersionManager from 'UI/UIVersionManager.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 

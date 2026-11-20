@@ -1,0 +1,28 @@
+<section class="rpg-window skills-window" aria-labelledby="skills-heading">
+	<header class="titlebar">
+		<div class="skills-heading">
+			<img class="header-icon" alt="">
+			<h2 id="skills-heading">Skills</h2>
+		</div>
+		<button class="close" type="button" aria-label="Close Skills">&times;</button>
+	</header>
+	<div class="skills-body">
+		<div class="skills-toolbar">
+			<nav class="skills-jobs" aria-label="Skill groups"></nav>
+			<div class="skills-points">Skill Points: <strong>0</strong></div>
+		</div>
+		<div class="skills-columns">
+			<div class="skills-list" role="group" aria-label="Skills in this job"></div>
+			<section class="skills-detail" aria-label="Selected skill">
+				<div class="skills-detail-content"></div>
+				<p class="skills-feedback" role="status" hidden></p>
+				<footer class="skills-actions">
+					<button class="pill primary skills-confirm" type="button" disabled>Confirm</button>
+					<button class="pill skills-reset" type="button" disabled>Reset</button>
+				</footer>
+			</section>
+		</div>
+	</div>
+	<ui-button id="lvlup_job" bg="basic_interface/lv_up_off.bmp" down="basic_interface/lv_up_on.bmp"
+		aria-label="Open Skills" title="Open Skills"></ui-button>
+</section>

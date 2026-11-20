@@ -33,7 +33,7 @@ export function deepElementFromPoint(x, y) {
 
 export function attachTouchDrag(
 	container,
-	{ itemSelector, getPayload, createGhost = null, holdDelay = 300, moveThreshold = 10 }
+	{ itemSelector, getPayload, createGhost = null, holdDelay = 300, moveThreshold = 10, onDragChange = null }
 ) {
 	const state = {
 		active: false,
@@ -64,6 +64,9 @@ export function attachTouchDrag(
 		}
 		removeGhost();
 		delete window._OBJ_DRAG_;
+		if (state.dragging) {
+			onDragChange?.(false);
+		}
 		resetState(state);
 	};
 
@@ -83,6 +86,7 @@ export function attachTouchDrag(
 		state.ghost.style.top = `${state.startClientY - 12}px`;
 		document.body.appendChild(state.ghost);
 		window._OBJ_DRAG_ = state.payload;
+		onDragChange?.(true);
 	};
 
 	const onTouchStart = event => {
@@ -190,6 +194,7 @@ export function attachTouchDrag(
 			}
 
 			delete window._OBJ_DRAG_;
+			onDragChange?.(false);
 		}
 
 		resetState(state);
