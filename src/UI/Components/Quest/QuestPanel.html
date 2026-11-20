@@ -1,0 +1,33 @@
+<section class="rpg-window quest-panel" aria-labelledby="quest-heading">
+	<header class="titlebar">
+		<span class="quest-scroll-icon" aria-hidden="true"></span>
+		<h2 id="quest-heading">Quest</h2>
+		<button class="close" type="button" aria-label="Close quest window">&times;</button>
+	</header>
+	<div class="quest-layout">
+		<nav class="quest-categories" aria-label="Quest category">
+			<button class="pill selected" type="button" data-category="All" aria-pressed="true">All</button>
+			<button class="pill" type="button" data-category="Main" aria-pressed="false">Main</button>
+			<button class="pill" type="button" data-category="Sub" aria-pressed="false">Sub</button>
+			<button class="pill" type="button" data-category="Daily" aria-pressed="false">Daily</button>
+			<button class="pill" type="button" data-category="Event" aria-pressed="false">Event</button>
+		</nav>
+		<section class="quest-browser" aria-label="Quest list">
+			<div class="quest-list-toolbar">
+				<select class="pill quest-status" aria-label="Quest status">
+					<option value="all">All</option>
+					<option value="active">Active</option>
+					<option value="inactive">Inactive</option>
+					<option value="cooldown">Cooldown</option>
+				</select>
+				<label class="quest-tracker" hidden><input type="checkbox"> Show tracker</label>
+			</div>
+			<ul class="quest-list"></ul>
+			<p class="quest-empty" hidden>No quests match these filters.</p>
+		</section>
+		<section class="quest-detail" aria-label="Quest details">
+			<div class="quest-detail-content"></div>
+			<button class="pill gold quest-go" type="button" hidden>Go</button>
+		</section>
+	</div>
+</section>

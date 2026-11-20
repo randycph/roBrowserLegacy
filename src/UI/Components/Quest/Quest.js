@@ -7,8 +7,8 @@
  *
  */
 
-import Quest from './Quest/Quest.js';
-import QuestV1 from './QuestV1/QuestV1.js';
+import Quest from './Quest/Quest.js?v=quest-journal';
+import QuestV1 from './QuestV1/QuestV1.js?v=quest-journal';
 import UIVersionManager from 'UI/UIVersionManager.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 

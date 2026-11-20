@@ -1,0 +1,394 @@
+:host {
+	position: fixed !important;
+	z-index: 1800 !important;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.quest-panel [hidden] {
+	display: none !important;
+}
+
+.quest-panel .titlebar h2 {
+	padding: 2px 20px 5px 9px;
+	border: 1px solid #b8d5ff;
+	border-radius: 40px;
+	background: linear-gradient(#86acf5, #4e68dc);
+	box-shadow: inset 0 1px 2px #e8f4ff, 0 2px 3px #3452a58c;
+}
+
+.quest-scroll-icon {
+	position: relative;
+	flex: none;
+	width: clamp(23px, 4vw, 48px);
+	height: clamp(28px, 4.6vw, 56px);
+	margin-right: 4px;
+	border: 2px solid #a76334;
+	border-radius: 7px;
+	background: repeating-linear-gradient(transparent 0 4px, #bf7a3e55 4px 5px) center / 48% 52% no-repeat,
+		linear-gradient(120deg, #fffae1, #ffc477);
+	box-shadow: 0 0 0 2px #fff6de, 0 3px 4px #344f93;
+	transform: rotate(10deg);
+}
+
+.quest-scroll-icon::before,
+.quest-scroll-icon::after {
+	position: absolute;
+	right: -5px;
+	left: -5px;
+	height: 7px;
+	border: 1px solid #9d5d33;
+	border-radius: 8px;
+	background: linear-gradient(#ffe7a3, #d58b48);
+	content: '';
+}
+
+.quest-scroll-icon::before {
+	top: -3px;
+}
+
+.quest-scroll-icon::after {
+	bottom: -3px;
+}
+
+.quest-layout {
+	display: grid;
+	grid-template-columns: minmax(100px, .42fr) minmax(0, 1.1fr) minmax(0, 1.18fr);
+	gap: 10px;
+	min-height: 0;
+	padding: 10px;
+	overflow: auto;
+}
+
+.quest-categories {
+	display: flex;
+	flex-direction: column;
+	gap: 7px;
+	padding: 3px 1px;
+}
+
+.quest-categories .pill {
+	min-height: clamp(35px, 4.25vw, 52px);
+	border-radius: 19px;
+	text-align: left;
+	padding-inline: 14px;
+}
+
+.quest-categories .selected {
+	background: radial-gradient(ellipse at 75% 120%, #16dcff 5%, transparent 66%), linear-gradient(#779eff, #405ee4);
+}
+
+.quest-browser,
+.quest-detail {
+	box-sizing: border-box;
+	min-width: 0;
+	height: clamp(210px, 60dvh, 464px);
+	padding: 10px;
+	border: 1px solid #bacdf4;
+	border-radius: clamp(12px, 2vw, 26px);
+	background: linear-gradient(135deg, #f2f6ff, #e5edff);
+	box-shadow: inset 0 1px 2px #fff;
+}
+
+.quest-browser {
+	display: flex;
+	flex-direction: column;
+}
+
+.quest-list-toolbar {
+	display: flex;
+	flex: none;
+	align-items: center;
+	justify-content: space-between;
+	gap: 5px;
+	margin-bottom: 8px;
+	padding: 4px 7px;
+	border-radius: 18px;
+	background: #d5e1fa;
+}
+
+.quest-list-toolbar .quest-status {
+	width: min(53%, 170px);
+	text-align: left;
+}
+
+.quest-tracker,
+.quest-option {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: .81em;
+}
+
+.quest-panel input {
+	accent-color: #4b77d9;
+}
+
+.quest-list,
+.quest-objectives {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.quest-list {
+	overflow: auto;
+	overscroll-behavior: contain;
+	padding: 2px 2px 4px;
+}
+
+.quest-list > li + li {
+	margin-top: 7px;
+}
+
+.quest-row {
+	display: grid;
+	grid-template-columns: 28px minmax(0, 1fr) 9px;
+	align-items: center;
+	gap: 9px;
+	width: 100%;
+	min-height: clamp(49px, 6vw, 74px);
+	padding: 6px 10px;
+	border: 1px solid #becdf1;
+	border-radius: 16px;
+	background: linear-gradient(#f7faff, #e3eafb);
+	box-shadow: inset 0 1px white, 0 1px 2px #879cc65c;
+	color: inherit;
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.quest-row[aria-pressed="true"] {
+	outline: 2px solid #ffc94b;
+	outline-offset: -1px;
+	background: linear-gradient(#fff9e9, #f7e9cb);
+}
+
+.quest-row::after {
+	width: 7px;
+	height: 7px;
+	border-top: 2px solid #5267a5;
+	border-right: 2px solid #5267a5;
+	transform: rotate(45deg);
+	content: '';
+}
+
+.quest-row-icon {
+	width: 28px;
+	height: 28px;
+	object-fit: contain;
+	image-rendering: pixelated;
+}
+
+.quest-row-text,
+.quest-detail-title {
+	display: flex;
+	align-items: baseline;
+	flex-wrap: wrap;
+	gap: 3px 7px;
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.quest-row-secondary {
+	flex-basis: 100%;
+	color: #546a9b;
+	font-size: .86em;
+}
+
+.quest-badge {
+	flex: none;
+	padding: 2px 8px;
+	border-radius: 30px;
+	background: #466bc7;
+	color: white;
+	font-size: .81em;
+}
+
+.quest-badge[data-kind="Sub"] {
+	background: #7353c2;
+}
+
+.quest-badge[data-kind="Daily"] {
+	background: #387e4f;
+}
+
+.quest-badge[data-kind="Event"] {
+	background: #a54684;
+}
+
+.quest-detail {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.quest-detail-content {
+	min-height: 0;
+	overflow: auto;
+	overscroll-behavior: contain;
+	padding: 2px 4px;
+}
+
+.quest-detail h3 {
+	margin: 0;
+	font-size: clamp(16px, 1.65vw, 25px);
+}
+
+.quest-location,
+.quest-deadline,
+.quest-empty {
+	color: #52689f;
+}
+
+.quest-detail p {
+	margin: 8px 0;
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
+
+.quest-section-title {
+	margin: 15px 0 7px;
+	border-radius: 20px;
+	background: #dce6fc;
+	font-size: inherit;
+}
+
+.quest-section-title span {
+	display: inline-block;
+	padding: 3px 12px;
+	border-radius: inherit;
+	background: linear-gradient(#82a4ed, #4c73d0);
+	color: white;
+}
+
+.quest-objectives li {
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
+	margin: 5px 0;
+	overflow-wrap: anywhere;
+}
+
+.quest-objectives li > span:first-child {
+	flex: auto;
+}
+
+.quest-objectives .progress {
+	color: #aa3451;
+	font-variant-numeric: tabular-nums;
+}
+
+.quest-objectives .complete {
+	color: #27734d;
+}
+
+.quest-rewards,
+.quest-options {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 7px;
+}
+
+.quest-options {
+	margin-top: 12px;
+}
+
+.quest-reward {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 2px;
+	min-width: 55px;
+	min-height: 51px;
+	padding: 4px 6px;
+	border: 1px solid #aec3ed;
+	border-radius: 10px;
+	background: linear-gradient(#e1ebff, #eff4ff);
+	color: #213967;
+	font: inherit;
+	font-size: .83em;
+}
+
+button.quest-reward,
+.quest-link {
+	cursor: pointer;
+}
+
+.quest-reward img {
+	width: 26px;
+	height: 26px;
+	object-fit: contain;
+	image-rendering: pixelated;
+}
+
+.quest-link {
+	border: 0;
+	padding: 0;
+	background: transparent;
+	color: #254896;
+	font: inherit;
+	text-decoration: underline;
+}
+
+.quest-detail .quest-go {
+	flex: none;
+	align-self: center;
+	width: min(70%, 215px);
+	min-height: clamp(32px, 4.2vw, 51px);
+	margin-top: auto;
+	font-size: 1.12em;
+}
+
+@media (max-width: 600px) and (orientation: portrait) {
+	.quest-layout {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 7px;
+	}
+
+	.quest-categories {
+		display: grid;
+		grid-template-columns: repeat(5, minmax(0, 1fr));
+		gap: 4px;
+	}
+
+	.quest-categories .pill {
+		padding-inline: 3px;
+		text-align: center;
+	}
+
+	.quest-browser {
+		height: clamp(130px, 29dvh, 245px);
+	}
+
+	.quest-detail {
+		height: auto;
+	}
+
+	.quest-detail-content {
+		overflow: visible;
+	}
+}
+
+@media (max-height: 420px) and (orientation: landscape) {
+	.quest-layout {
+		grid-template-columns: 76px minmax(0, 1fr) minmax(0, 1.12fr);
+		gap: 6px;
+		padding: 6px;
+	}
+
+	.quest-browser,
+	.quest-detail {
+		height: min(63dvh, 235px);
+		padding: 5px;
+	}
+
+	.quest-categories .pill {
+		min-height: 27px;
+		padding-inline: 9px;
+	}
+}
