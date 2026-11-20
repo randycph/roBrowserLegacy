@@ -37,7 +37,7 @@ import WinStats from 'UI/Components/WinStats/WinStats.js';
 import GraphicsSettings from 'Preferences/Graphics.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
 import Entity from 'Renderer/Entity/Entity.js';
-import { setupEquipmentPanel } from './EquipmentPanel.js';
+import { setupEquipmentPanel } from './EquipmentPanel.js?v=popup-headings';
 import { centerPanel, keepPanelInViewport, RPG_WINDOW_LAYER } from '../RpgPanel.js?v=item-foreground';
 import slotCss from './EquipmentSlots.css?raw&v=panel-cleanup';
 

@@ -10,6 +10,7 @@
  */
 
 import CommonCSS from 'UI/Common.css?raw';
+import popupHeadingCss from './PopupHeading.css?raw&v=popup-headings';
 import Mouse from 'Controls/MouseEventHandler.js';
 import Session from 'Engine/SessionStorage.js';
 import ClampToViewport from 'UI/ClampToViewport.js';
@@ -103,7 +104,7 @@ class GUIComponent {
 
 		// Inject Common CSS (shared, immutable)
 		const commonStyle = document.createElement('style');
-		commonStyle.textContent = CommonCSS;
+		commonStyle.textContent = CommonCSS + popupHeadingCss;
 		this._shadow.appendChild(commonStyle);
 
 		// Hide native cursor where style queries are missing

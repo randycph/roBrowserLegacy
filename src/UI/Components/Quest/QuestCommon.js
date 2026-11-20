@@ -12,9 +12,9 @@ import PACKET from 'Network/PacketStructure.js';
 import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import Session from 'Engine/SessionStorage.js';
 import { bindQuestPanel } from './QuestPanel.js?v=quest-journal';
-import panelCss from '../RpgPanel.css?raw&v=panel-cleanup';
-import htmlText from './QuestPanel.html?raw&v=quest-journal';
-import cssText from './QuestPanel.css?raw&v=quest-journal';
+import panelCss from '../RpgPanel.css?raw&v=popup-headings';
+import htmlText from './QuestPanel.html?raw&v=popup-headings';
+import cssText from './QuestPanel.css?raw&v=popup-headings';
 
 export function createQuest({ name, questWindow = null }) {
 	const Quest = new GUIComponent(name, panelCss + cssText);

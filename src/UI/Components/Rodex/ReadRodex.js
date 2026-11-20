@@ -12,8 +12,8 @@ import Preferences from 'Core/Preferences.js';
 import Client from 'Core/Client.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
-import htmlText from './ReadRodex.html?raw&v=mailpanel20261119';
-import cssText from './ReadRodex.css?raw&v=mailpanel20261119';
+import htmlText from './ReadRodex.html?raw&v=popup-headings';
+import cssText from './ReadRodex.css?raw&v=popup-headings';
 import Rodex from 'UI/Components/Rodex/Rodex.js';
 
 /**
@@ -56,7 +56,6 @@ ReadRodex.init = function init() {
 	root.querySelector('.get-content').addEventListener('click', onClickGetItems);
 	root.querySelector('.get-zeny').addEventListener('click', onClickGetZeny);
 	root.querySelector('.delete').addEventListener('click', onClickDelete);
-	root.querySelector('.reply').addEventListener('click', onClickReply);
 };
 
 /**
@@ -72,7 +71,6 @@ ReadRodex.initData = function initData(data, mail) {
 
 	ReadRodex.MailID = mail.MailID;
 	ReadRodex.openType = mail.openType;
-	ReadRodex.SenderName = mail.SenderName;
 
 	const nameEl = root.querySelector('.name');
 	if (nameEl) {
@@ -114,7 +112,6 @@ ReadRodex.initData = function initData(data, mail) {
 	}
 
 	Rodex.onClaimStateChanged?.(mail.MailID);
-	root.querySelector('.reply').disabled = !mail.SenderName;
 	root.querySelector('.message-scroll').scrollTop = 0;
 
 	this._host.style.display = '';
@@ -125,7 +122,6 @@ function onClickClose(e) {
 	e.stopImmediatePropagation();
 	ReadRodex.MailID = 0;
 	ReadRodex.openType = 0;
-	ReadRodex.SenderName = '';
 	ReadRodex._host.style.display = 'none';
 }
 
@@ -147,14 +143,10 @@ function onClickGetZeny(e) {
 
 function onClickDelete(e) {
 	e.stopImmediatePropagation();
+	const { openType, MailID } = ReadRodex;
 	UIManager.showPromptBox(DB.getMessage(356), 'ok', 'cancel', () => {
-		Rodex.requestDeleteRodex(ReadRodex.openType, ReadRodex.MailID);
+		Rodex.requestDeleteRodex(openType, MailID);
 	});
-}
-
-function onClickReply(e) {
-	e.stopImmediatePropagation();
-	Rodex.requestOpenWriteRodex(ReadRodex.SenderName);
 }
 
 Rodex.onClaimStateChanged = function onClaimStateChanged(mailID) {
@@ -200,7 +192,6 @@ ReadRodex.clearZeny = function clearZeny() {
 ReadRodex.close = function close() {
 	ReadRodex.MailID = 0;
 	ReadRodex.openType = 0;
-	ReadRodex.SenderName = '';
 	if (ReadRodex._host) {
 		ReadRodex._host.style.display = 'none';
 	}

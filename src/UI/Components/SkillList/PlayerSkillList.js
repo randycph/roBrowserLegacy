@@ -10,13 +10,12 @@ import { _formatROText } from 'UI/Components/SkillDescription/SkillDescription.j
 import SkillTargetSelection from 'UI/Components/SkillTargetSelection/SkillTargetSelection.js';
 import { attachTouchDrag } from '../../TouchDrag.js?v=skills-panel';
 import { createSkillUpgradeOrder, resolveSkillRequirements, stageSkillPlan } from './SkillRequirements.js';
-import panelCss from '../RpgPanel.css?raw&v=panel-cleanup';
-import htmlText from './PlayerSkillList.html?raw&v=skills-panel';
-import cssText from './PlayerSkillList.css?raw&v=panel-cleanup';
+import panelCss from '../RpgPanel.css?raw&v=popup-headings';
+import htmlText from './PlayerSkillList.html?raw&v=popup-headings';
+import cssText from './PlayerSkillList.css?raw&v=popup-headings';
 import 'UI/Elements/Elements.js';
 
 const jobLabels = ['Etc', '1st Job', '2nd Job', '3rd Job', '4th Job'];
-const bookIcon = new URL('../BasicInfo/mobile-icons/top/skills.png', import.meta.url).href;
 
 function node(tag, className, text) {
 	const element = document.createElement(tag);
@@ -475,7 +474,6 @@ export function createPlayerSkillList(name) {
 
 	component.init = function init() {
 		const root = this.getRoot();
-		root.querySelector('.header-icon').src = bookIcon;
 		root.querySelector('.close').addEventListener('click', hide);
 		root.querySelector('.skills-confirm').addEventListener('click', confirm);
 		root.querySelector('.skills-reset').addEventListener('click', () => {

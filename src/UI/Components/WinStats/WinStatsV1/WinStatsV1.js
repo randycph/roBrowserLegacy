@@ -8,7 +8,7 @@
  * @author Vincent Thibault
  */
 
-import { createWinStats } from '../WinStatsCommon.js';
+import { createWinStats } from '../WinStatsCommon.js?v=popup-headings';
 
 export default createWinStats({
 	name: 'WinStatsV1',

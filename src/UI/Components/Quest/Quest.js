@@ -7,8 +7,8 @@
  *
  */
 
-import Quest from './Quest/Quest.js?v=panel-cleanup';
-import QuestV1 from './QuestV1/QuestV1.js?v=panel-cleanup';
+import Quest from './Quest/Quest.js?v=popup-headings';
+import QuestV1 from './QuestV1/QuestV1.js?v=popup-headings';
 import UIVersionManager from 'UI/UIVersionManager.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 

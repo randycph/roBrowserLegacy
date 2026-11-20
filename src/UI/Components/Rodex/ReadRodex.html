@@ -1,7 +1,11 @@
 <div id="ReadRodex" role="dialog" aria-label="Mail message">
-	<header class="titlebar">
-		<strong>Mail message</strong>
-		<button type="button" class="close" aria-label="Close message">×</button>
+	<header class="titlebar popup-heading">
+		<img class="header-icon" src="/src/UI/Components/popup-icons/mail.png" alt="" />
+		<h2 class="popup-title">Mail message</h2>
+		<div class="popup-heading-actions">
+			<button type="button" class="delete">Delete</button>
+			<button type="button" class="close" aria-label="Close message">×</button>
+		</div>
 	</header>
 	<div class="message-scroll" tabindex="0" aria-label="Message content">
 		<h2 class="title-text"></h2>
@@ -17,8 +21,4 @@
 			<button type="button" class="get-zeny claim">Claim zeny</button>
 		</div>
 	</div>
-	<footer class="message-footer">
-		<button type="button" class="delete">Delete</button>
-		<button type="button" class="reply">Reply</button>
-	</footer>
 </div>

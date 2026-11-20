@@ -30,47 +30,6 @@
 	touch-action: none;
 }
 
-.character-status .titlebar {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	flex: none;
-	min-height: 50px;
-	padding: 4px 8px 4px 16px;
-	border-bottom: 2px solid #bfd6ff;
-	background: radial-gradient(ellipse at 73% 130%, #a0ceff99, transparent 58%),
-		linear-gradient(155deg, #5082e4, #6a99f0 56%, #8cb9fa);
-	box-shadow: inset 0 2px 2px #ddedff99;
-}
-
-.titlebar h2 {
-	margin: 0;
-	color: #fff;
-	font-size: clamp(22px, 2.45vw, 34px);
-	letter-spacing: -0.045em;
-	text-shadow: 0 2px 1px #24479b, -1px 0 #3954af, 1px 0 #3954af, 0 -1px #3954af;
-}
-
-.title-icon {
-	width: 42px;
-	height: 42px;
-	object-fit: contain;
-	filter: drop-shadow(0 2px 2px #2b488b80);
-}
-
-.titlebar .close {
-	width: 36px;
-	height: 36px;
-	flex: none;
-	margin-left: auto;
-	border: 1px solid #fff;
-	border-radius: 50%;
-	background: linear-gradient(#fff, #dfebff);
-	box-shadow: 0 2px 3px #2d589780;
-	color: #355dc0;
-	font: 700 28px/1 Arial, sans-serif;
-}
-
 .status-scroll {
 	min-height: 0;
 	padding: 5px clamp(9px, 2vw, 25px) 0;
@@ -393,28 +352,4 @@
 }
 
 @media (max-height: 450px) and (min-width: 481px) {
-	.character-status .titlebar { min-height: 36px; padding-block: 2px; }
-	.title-icon { width: 30px; height: 30px; }
-	.portrait { width: 44px; }
-	.experience { padding-block: 5px; }
-	.allocation-rows { gap: 3px; }
-	.stat-row,
-	.stat-row button { min-height: 23px; }
-	.battle-row { padding-block: 1px; }
-	.status-footer { margin-bottom: 4px; }
-}
-
-:host(.stats-embedded) {
-	width: min(420px, calc(100vw - 16px));
-	font-size: 13px;
-}
-
-:host(.stats-embedded) .character-status { max-height: var(--stats-embed-height, 40vh); }
-:host(.stats-embedded) .status-backdrop,
-:host(.stats-embedded) .titlebar,
-:host(.stats-embedded) .identity,
-:host(.stats-embedded) .portrait,
-:host(.stats-embedded) .level-badge,
-:host(.stats-embedded) .experience { display: none; }
-:host(.stats-embedded) .profile { display: flex; justify-content: flex-end; padding: 2px; }
-:host(.stats-embedded) .status-scroll { padding-inline: 7px; }
+	.status-scroll { padding-inline: 7px; }

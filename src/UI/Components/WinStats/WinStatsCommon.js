@@ -8,8 +8,8 @@ import Preferences from 'Core/Preferences.js';
 import Session from 'Engine/SessionStorage.js';
 import UIManager from 'UI/UIManager.js';
 import { keepPanelInViewport } from '../RpgPanel.js';
-import htmlText from './CharacterStatus.html?raw&v=foreground';
-import cssText from './CharacterStatus.css?raw&v=foreground';
+import htmlText from './CharacterStatus.html?raw&v=popup-headings';
+import cssText from './CharacterStatus.css?raw&v=popup-headings';
 
 const baseStats = ['str', 'agi', 'vit', 'int', 'dex', 'luk'];
 const traitStats = ['pow', 'sta', 'wis', 'spl', 'con', 'crt'];

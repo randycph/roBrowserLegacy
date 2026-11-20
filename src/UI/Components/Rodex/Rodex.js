@@ -1,15 +1,13 @@
 /**
  * RodEx mailbox and client-side attachment status.
  */
-import DB from 'DB/DBManager.js';
 import Configs from 'Core/Configs.js';
 import Preferences from 'Core/Preferences.js';
 import Session from 'Engine/SessionStorage.js';
-import ChatBox from 'UI/Components/ChatBox/ChatBox.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
-import htmlText from './Rodex.html?raw&v=mailpanel20261119';
-import cssText from './Rodex.css?raw&v=mailpanel20261119';
+import htmlText from './Rodex.html?raw&v=popup-headings';
+import cssText from './Rodex.css?raw&v=popup-headings';
 
 const MAIL_TYPE_ZENY = 0x2;
 const MAIL_TYPE_ITEM = 0x4;
@@ -18,105 +16,92 @@ const SECONDS_PER_DAY = 86400;
 const pendingClaims = new Map();
 const claims = Preferences.get('RodexClaims', { confirmed: {} }, 1);
 const sentDateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+const relativeDateFormat = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
 
 const Rodex = new GUIComponent('Rodex', cssText);
 Rodex.list = [];
-Rodex.pageSize = 6;
-Rodex.page = 0;
-Rodex.openType = 0;
 Rodex.render = () => htmlText;
 Rodex.captureKeyEvents = true;
 Rodex.MAIL_TYPE_ITEM = MAIL_TYPE_ITEM;
 Rodex.MAIL_TYPE_ZENY = MAIL_TYPE_ZENY;
-let activeSearch = null;
 
 function claimKey(mailID) {
 	return `${Session.AID}:${mailID}`;
 }
 
-function renderPage() {
+function renderInbox() {
 	if (Rodex.__active) {
 		Rodex.createRodexList();
 	}
 }
 
-function getVisibleMail() {
-	if (activeSearch) {
-		const { field, term } = activeSearch;
-		return Rodex.list.filter(mail => String(mail[field] ?? '').toLowerCase().includes(term));
-	}
-
-	return Rodex.list.filter(mail => Number(mail.openType ?? 0) === Rodex.openType);
+function calendarDay(date) {
+	return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / (SECONDS_PER_DAY * 1000);
 }
 
-function setFolder(folder) {
-	const root = Rodex.getRoot();
-	for (const tab of root.querySelectorAll('.nav-item')) {
-		tab.setAttribute('aria-pressed', String(Number(tab.dataset.tab) === folder));
-	}
+function syncMailViewport() {
+	const viewport = window.visualViewport;
+	if (!viewport) return;
+	const style = Rodex._host.style;
+	style.setProperty('--mail-viewport-height', `${viewport.height}px`);
+	style.setProperty('--mail-viewport-top', `${viewport.offsetTop}px`);
+	style.setProperty('--mail-viewport-bottom', `${Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop)}px`);
 }
 
 function showWindow() {
 	Rodex._host.style.display = '';
+	syncMailViewport();
 	Rodex.focus();
 }
 
 Rodex.init = function init() {
 	const root = this.getRoot();
-	root.querySelector('.close').addEventListener('click', () => this.toggle());
-	root.querySelector('.refresh').addEventListener('click', () => this.requestRefreshRodexPage(this.openType));
-	root.querySelector('.write').addEventListener('click', () => this.requestOpenWriteRodex());
-	root.querySelector('.delete-all').addEventListener('click', () => {
-		UIManager.showPromptBox(DB.getMessage(3590), 'ok', 'cancel', () => this.deleteAll());
-	});
-	root.querySelector('.retrieve-all').addEventListener('click', () => {
-		UIManager.showPromptBox(DB.getMessage(3594), 'ok', 'cancel', () => this.getAll());
-	});
-	root.querySelector('.previous-page').addEventListener('click', () => {
-		this.page--;
-		this.createRodexList(true);
-	});
-	root.querySelector('.next-page').addEventListener('click', () => {
-		this.page++;
-		this.createRodexList(true);
-	});
-	for (const tab of root.querySelectorAll('.nav-item')) {
-		tab.addEventListener('click', () => {
-			this.openType = Number(tab.dataset.tab);
-			this.page = 0;
-			activeSearch = null;
-			root.querySelector('.search').value = '';
-			setFolder(this.openType);
-			this.createRodexList(true);
-			if (this.serverFolder !== null && this.serverFolder !== this.openType) {
-				this.requestRefreshRodexPage(this.openType);
-			}
-		});
+	const panel = root.querySelector('#Rodex');
+	panel.style.setProperty('--mail-collect-art', `url("${new URL('./mail-collect.webp', import.meta.url).href}")`);
+	panel.style.setProperty('--mail-claimed-art', `url("${new URL('./mail-claimed.webp', import.meta.url).href}")`);
+	panel.style.setProperty('--mail-gold-art', `url("${new URL('./mail-envelope-gold.webp', import.meta.url).href}")`);
+	panel.style.setProperty('--mail-silver-art', `url("${new URL('./mail-envelope-silver.webp', import.meta.url).href}")`);
+
+	// Mail readers, composers and confirmations must stay above the inbox backdrop.
+	if (!document.querySelector('#mail-foreground-layers')) {
+		const layers = document.createElement('style');
+		layers.id = 'mail-foreground-layers';
+		layers.textContent = `
+			body > #ReadRodex { z-index: 2010 !important; }
+			body > #WriteRodex { z-index: 2020 !important; }
+
+			body:has(> :is(#Rodex, #ReadRodex, #WriteRodex):not([style*="display: none"]))
+				> .win_popup_overlay { z-index: 2030 !important; }
+
+			body:has(> :is(#Rodex, #ReadRodex, #WriteRodex):not([style*="display: none"]))
+				> :is(#WinPrompt, #WinMSG, #WinError) { z-index: 2040 !important; }
+		`;
+		document.head.appendChild(layers);
 	}
-	root.querySelector('.searchbar').addEventListener('submit', event => {
-		event.preventDefault();
-		const term = root.querySelector('.search').value.trim().toLowerCase();
-		const field = root.querySelector('.search-field').value === '1' ? 'title' : 'SenderName';
-		activeSearch = term ? { field, term } : null;
-		setFolder(activeSearch ? null : this.openType);
-		this.page = 0;
-		this.createRodexList(true);
-	});
+
+	root.querySelector('.close').addEventListener('click', () => this.toggle());
+	// Keep inbox swipes away from the map's window-level touch handler.
+	const inbox = root.querySelector('.rodex-list');
+	for (const type of ['touchstart', 'touchmove', 'touchend', 'touchcancel']) {
+		inbox.addEventListener(type, event => event.stopPropagation(), { passive: true });
+	}
+
+	const backdrop = root.querySelector('.mail-backdrop');
+	for (const type of ['mousedown', 'mouseup', 'touchstart', 'touchmove', 'touchend', 'click']) {
+		backdrop.addEventListener(type, event => event.stopPropagation());
+	}
 };
 
 Rodex.onAppend = function onAppend() {
-	const root = this.getRoot();
-	root.querySelector('.search').value = '';
-	root.querySelector('.search-field').value = '1';
-	this.openType = 0;
-	this.serverFolder = null;
-	this.page = 0;
-	activeSearch = null;
-	setFolder(this.openType);
+	window.visualViewport?.addEventListener('resize', syncMailViewport);
+	window.visualViewport?.addEventListener('scroll', syncMailViewport);
+	syncMailViewport();
 	this.createRodexList(true);
 };
 
 Rodex.onRemove = function onRemove() {
+	window.visualViewport?.removeEventListener('resize', syncMailViewport);
+	window.visualViewport?.removeEventListener('scroll', syncMailViewport);
 	this.list = [];
 	for (const timer of pendingClaims.values()) {
 		window.clearTimeout(timer);
@@ -125,16 +110,14 @@ Rodex.onRemove = function onRemove() {
 };
 
 Rodex.initData = function initData(packet) {
-	this.serverFolder = packet.openType ?? null;
 	this.list = packet.MailList;
-	this.createRodexList();
-	showWindow();
+	renderInbox();
 };
 
 Rodex.getListFailed = function getListFailed() {
 	const root = this.getRoot();
 	if (root && !this.list.length) {
-		root.querySelector('.mail-empty').textContent = 'Mail could not be loaded. Try Refresh.';
+		root.querySelector('.mail-empty').textContent = 'Mail could not be loaded. Close and reopen Mail to try again.';
 	}
 };
 
@@ -183,54 +166,50 @@ Rodex.createRodexList = function createRodexList(resetScroll = false) {
 	const viewport = root.querySelector('.rodex-list');
 	const list = root.querySelector('.mail-list');
 	const template = root.querySelector('.mail-row-template');
-	const display = getVisibleMail();
-	const pages = Math.max(1, Math.ceil(display.length / this.pageSize));
-	this.page = Math.max(0, Math.min(this.page, pages - 1));
-	const start = this.page * this.pageSize;
+	const now = new Date();
 	const scrollPosition = resetScroll ? 0 : viewport.scrollTop;
 	const fragment = document.createDocumentFragment();
 
-	for (const mail of display.slice(start, start + this.pageSize)) {
+	for (const mail of this.list) {
 		const row = template.content.cloneNode(true);
 		const subject = row.querySelector('.mail-subject');
 		const sender = row.querySelector('.mail-sender');
 		const date = row.querySelector('.mail-date');
-		const icon = row.querySelector('.mail-image');
+		const card = row.querySelector('.mail-item');
 		const button = row.querySelector('.mail-claim');
 		const state = this.getClaimState(mail);
 		const openType = mail.openType ?? 0;
 		subject.textContent = mail.title || '(No subject)';
 		subject.addEventListener('click', () => this.requestReadRodex(openType, mail.MailID));
 		sender.textContent = `From: ${mail.SenderName || 'Unknown sender'}`;
-		sender.disabled = !mail.SenderName;
-		sender.addEventListener('click', () => this.requestOpenWriteRodex(mail.SenderName));
-		date.textContent = `Sent: ${this.formatSentDate(mail)}`;
-		const image = mail.Isread ? 'icon_status_mail_read' : 'icon_status_mail_received';
-		icon.dataset.background = `basic_interface/rodexsystem/renewal/${image}.bmp`;
-		GUIComponent.processDataAttrs(icon);
+		const sentDate = this.getSentDate(mail, now.getTime());
+		if (sentDate) {
+			date.title = sentDateFormat.format(sentDate);
+			const daysAgo = calendarDay(now) - calendarDay(sentDate);
+			const relativeDate = relativeDateFormat.format(-daysAgo, 'day');
+			date.textContent = relativeDate.charAt(0).toLocaleUpperCase() + relativeDate.slice(1);
+		} else {
+			date.hidden = true;
+		}
+		card.dataset.claimState = state.pending ? 'pending'
+			: state.remaining ? 'available'
+			: state.confirmed ? 'claimed'
+			: 'none';
 
 		button.hidden = !state.remaining && !state.confirmed;
 		button.disabled = Boolean(state.pending) || !state.remaining;
-		button.textContent = state.pending ? 'Claiming…' : state.remaining ? 'Claim' : 'Claimed';
+		button.textContent = state.pending ? 'Collecting…' : state.remaining ? 'Collect' : 'Claimed';
 		button.addEventListener('click', () => this.claimMail(mail));
 		fragment.append(row);
 	}
 	list.replaceChildren(fragment);
 	viewport.scrollTop = scrollPosition;
 	const empty = root.querySelector('.mail-empty');
-	empty.hidden = display.length > 0;
-	empty.textContent = activeSearch ? 'No matching messages.' : 'No messages.';
-	root.querySelector('.page-status').textContent = `${this.page + 1} / ${pages}`;
-	root.querySelector('.previous-page').disabled = this.page === 0;
-	root.querySelector('.next-page').disabled = this.page >= pages - 1;
-	root.querySelector('.retrieve-all').disabled = !this.list.some(mail => {
-		const { remaining, pending } = this.getClaimState(mail);
-		return remaining & ~pending;
-	});
-	root.querySelector('.delete-all').disabled = !this.list.length;
+	empty.hidden = this.list.length > 0;
+	empty.textContent = 'No messages.';
 };
 
-Rodex.claimMail = function claimMail(mail, requested = MAIL_ATTACHMENT_MASK, refresh = true) {
+Rodex.claimMail = function claimMail(mail, requested = MAIL_ATTACHMENT_MASK) {
 	const { remaining, pending } = this.getClaimState(mail);
 	const available = remaining & requested & ~pending;
 	const openType = mail.openType ?? 0;
@@ -242,7 +221,7 @@ Rodex.claimMail = function claimMail(mail, requested = MAIL_ATTACHMENT_MASK, ref
 		const key = `${mail.MailID}:${type}`;
 		const timeout = window.setTimeout(() => {
 			pendingClaims.delete(key);
-			renderPage();
+			renderInbox();
 			this.onClaimStateChanged?.(mail.MailID);
 		}, 12000);
 		pendingClaims.set(key, timeout);
@@ -252,9 +231,7 @@ Rodex.claimMail = function claimMail(mail, requested = MAIL_ATTACHMENT_MASK, ref
 			this.requestZenyFromRodex(openType, mail.MailID);
 		}
 	}
-	if (refresh) {
-		renderPage();
-	}
+	renderInbox();
 	this.onClaimStateChanged?.(mail.MailID);
 };
 
@@ -278,30 +255,13 @@ Rodex.resolveClaim = function resolveClaim(mailID, type, succeeded) {
 		}
 		claims.save();
 	}
-	renderPage();
+	renderInbox();
 	this.onClaimStateChanged?.(mailID);
-};
-
-Rodex.getAll = function getAll() {
-	for (const mail of this.list) {
-		this.claimMail(mail, MAIL_ATTACHMENT_MASK, false);
-	}
-	renderPage();
-};
-
-Rodex.deleteAll = function deleteAll() {
-	for (const mail of this.list) {
-		if (!(mail.type & MAIL_ATTACHMENT_MASK)) {
-			this.requestDeleteRodex(mail.openType ?? 0, mail.MailID);
-		} else {
-			ChatBox.addText(DB.getMessage(2612), ChatBox.TYPE.INFO_MAIL, ChatBox.FILTER.PUBLIC_LOG);
-		}
-	}
 };
 
 Rodex.updateDeletedMailContent = function updateDeletedMailContent(openType, mailID) {
 	this.list = this.list.filter(mail => String(mail.MailID) !== String(mailID));
-	renderPage();
+	renderInbox();
 };
 
 Rodex.toggle = function toggle() {
@@ -310,7 +270,7 @@ Rodex.toggle = function toggle() {
 		this._host.style.display = 'none';
 	} else {
 		this.append();
-		this.openRodexBox(this.openType);
+		this.openRodexBox();
 		showWindow();
 	}
 };

@@ -8,9 +8,6 @@
 	width: 100%;
 	height: auto;
 	border-radius: 0;
-	background-image: radial-gradient(ellipse at 22% 150%, #a9caff8a 52%, transparent 53%),
-		radial-gradient(ellipse at 75% 145%, #b8d7ff70 54%, transparent 55%),
-		linear-gradient(165deg, #547de1, #80aff7) !important;
 }
 
 :is(#EquipmentV3, #EquipmentV4).equipment-window .panel {

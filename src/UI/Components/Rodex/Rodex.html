@@ -1,49 +1,25 @@
+<div class="mail-backdrop" aria-hidden="true"></div>
 <div id="Rodex" role="dialog" aria-label="Mail">
-	<header class="mail-header">
-		<h1>Mail</h1>
+	<header class="popup-heading">
+		<img class="header-icon" src="/src/UI/Components/popup-icons/mail.png" alt="" />
+		<h1 class="popup-title">Mail</h1>
 		<button type="button" class="close" aria-label="Close mail">×</button>
 	</header>
-	<div class="mail-tools">
-		<button type="button" class="refresh">Refresh</button>
-		<button type="button" class="write">Compose</button>
-		<form class="searchbar" role="search">
-			<select class="search-field" aria-label="Search by">
-				<option value="1">Subject</option>
-				<option value="2">Sender</option>
-			</select>
-			<input class="search" type="search" aria-label="Search mail" placeholder="Find mail" />
-			<button type="submit">Search</button>
-		</form>
-	</div>
-	<nav class="nav" aria-label="Mail folders">
-		<button type="button" class="nav-item" data-tab="1" aria-pressed="false">Notice</button>
-		<button type="button" class="nav-item" data-tab="0" aria-pressed="true">General</button>
-		<button type="button" class="nav-item" data-tab="2" aria-pressed="false">Return</button>
-	</nav>
 	<div class="rodex-list" tabindex="0" aria-label="Messages">
 		<ul class="mail-list"></ul>
-		<p class="mail-empty" hidden>No messages.</p>
+		<p class="mail-empty" role="status" hidden>No messages.</p>
 	</div>
-	<footer class="mail-footer">
-		<div>
-			<button type="button" class="delete-all">Delete all</button>
-			<button type="button" class="retrieve-all claim">Claim all</button>
-		</div>
-		<div class="pagination" aria-label="Mail pages">
-			<button type="button" class="previous-page" aria-label="Previous page">‹</button>
-			<span class="page-status"></span>
-			<button type="button" class="next-page" aria-label="Next page">›</button>
-		</div>
-	</footer>
 	<template class="mail-row-template">
 		<li class="mail-item">
 			<span class="mail-image" aria-hidden="true"></span>
 			<div class="mail-text">
 				<button type="button" class="mail-subject"></button>
-				<button type="button" class="mail-sender"></button>
-				<span class="mail-date"></span>
+				<span class="mail-sender"></span>
 			</div>
-			<button type="button" class="claim mail-claim" hidden>Claim</button>
+			<div class="mail-action">
+				<span class="mail-date"></span>
+				<button type="button" class="claim mail-claim" hidden>Collect</button>
+			</div>
 		</li>
 	</template>
 </div>

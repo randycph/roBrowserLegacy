@@ -26,9 +26,10 @@ export function setupEquipmentPanel(component) {
 	window.classList.add('rpg-window', 'equipment-window');
 	window.setAttribute('role', 'dialog');
 	window.setAttribute('aria-labelledby', 'equipment-heading');
+	header.classList.add('popup-heading');
 	header.innerHTML = `
-		<img class="header-icon" src="/src/UI/Components/BasicInfo/mobile-icons/equip.png" alt="" />
-		<h2 id="equipment-heading">Equipment</h2>
+		<img class="header-icon" src="/src/UI/Components/popup-icons/equipment.png" alt="" />
+		<h2 id="equipment-heading" class="popup-title">Equipment</h2>
 		<button class="close" type="button" aria-label="Close Equipment">×</button>`;
 
 	const stage = document.createElement('section');

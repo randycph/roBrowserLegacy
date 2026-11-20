@@ -8,7 +8,7 @@
  * @author Vincent Thibault
  */
 
-import { createEquipment } from '../EquipmentCommon.js?v=panel-cleanup';
+import { createEquipment } from '../EquipmentCommon.js?v=popup-headings';
 import htmlText from './EquipmentV2.html?raw';
 import cssText from './EquipmentV2.css?raw';
 

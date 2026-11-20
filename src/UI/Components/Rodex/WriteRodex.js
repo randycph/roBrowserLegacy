@@ -17,8 +17,8 @@ import ItemInfo from 'UI/Components/ItemInfo/ItemInfo.js';
 import Client from 'Core/Client.js';
 import UIManager from 'UI/UIManager.js';
 import GUIComponent from 'UI/GUIComponent.js';
-import htmlText from './WriteRodex.html?raw';
-import cssText from './WriteRodex.css?raw';
+import htmlText from './WriteRodex.html?raw&v=popup-headings';
+import cssText from './WriteRodex.css?raw&v=popup-headings';
 import InputBox from 'UI/Components/InputBox/InputBox.js';
 import Rodex from 'UI/Components/Rodex/Rodex.js';
 import Inventory from 'UI/Components/Inventory/Inventory.js';
@@ -61,7 +61,7 @@ WriteRodex.onAppend = function onAppend() {
 	const root = _root();
 
 	// Bind buttons
-	root.querySelector('.right .close').addEventListener('click', onClickClose);
+	root.querySelector('.titlebar .close').addEventListener('click', onClickClose);
 	root.querySelector('.send').addEventListener('click', onClickSend);
 	root.querySelector('.value').addEventListener('input', WriteRodex.updateTax);
 

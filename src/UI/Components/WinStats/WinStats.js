@@ -10,8 +10,8 @@
  */
 
 import WinStats from './WinStats/WinStats.js';
-import WinStatsV1 from './WinStatsV1/WinStatsV1.js';
-import WinStatsV2 from './WinStatsV2/WinStatsV2.js';
+import WinStatsV1 from './WinStatsV1/WinStatsV1.js?v=popup-headings';
+import WinStatsV2 from './WinStatsV2/WinStatsV2.js?v=popup-headings';
 import UIVersionManager from 'UI/UIVersionManager.js';
 import KEYS from 'Controls/KeyEventHandler.js';
 
