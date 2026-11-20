@@ -15,6 +15,7 @@ import Events from 'Core/Events.js';
 import Sound from 'Audio/SoundManager.js';
 import BGM from 'Audio/BGM.js';
 import Session from 'Engine/SessionStorage.js';
+import GameReconnect from 'Engine/GameReconnect.js';
 import MapEngine from 'Engine/MapEngine.js';
 import Network from 'Network/NetworkManager.js';
 import PACKETVER from 'Network/PacketVerManager.js';
@@ -60,6 +61,10 @@ let _resettingPincode = false;
  * @type {boolean} are we creating a pincode?
  */
 let _creatingPincode = false;
+let _serverSendsPincode = false;
+let _reconnectPinReady = false;
+let _reconnectCharacter = null;
+let _reconnectSelectionSent = false;
 
 class CharEngine {
 	/*
@@ -67,6 +72,17 @@ class CharEngine {
 	 */
 	static init(server) {
 		BGM.play('01.mp3');
+		if (GameReconnect.attempt) {
+			_pincodeAttempts = 0;
+			_inAuthPincodeReset = false;
+			_resettingPincode = false;
+			_creatingPincode = false;
+		} else if (_server?.name !== server.name) {
+			_serverSendsPincode = false;
+		}
+		_reconnectPinReady = !_serverSendsPincode;
+		_reconnectCharacter = null;
+		_reconnectSelectionSent = false;
 
 		//Notify MapEngine if it needs UI update
 		MapEngine.needsUIVerUpdate = _server !== server;
@@ -81,7 +97,9 @@ class CharEngine {
 		Network.connect(ip, server.port, success => {
 			// Fail to connect...
 			if (!success) {
-				UIManager.showErrorBox(DB.getMessage(1));
+				if (!GameReconnect.retry()) {
+					UIManager.showErrorBox(DB.getMessage(1));
+				}
 				return;
 			}
 
@@ -154,8 +172,33 @@ function onExitRequest() {
  * @param {object} pkt - PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST or PACKET.HC.ACCEPT_ENTER_NEO_UNION_LIST2
  */
 function onCharacterListChunk(pkt) {
+	if (GameReconnect.attempt) {
+		findReconnectCharacter(pkt.charInfo);
+		return;
+	}
 	pkt.charInfo.forEach(charInfo => {
 		CharSelect.addCharacter(charInfo);
+	});
+}
+
+function findReconnectCharacter(characters = []) {
+	const attempt = GameReconnect.attempt;
+	const character = characters.find(entry => entry.GID === attempt.characterId);
+	if (character) {
+		_reconnectCharacter = character;
+		queueReconnectSelection();
+	}
+}
+
+function queueReconnectSelection() {
+	const attempt = GameReconnect.attempt;
+	// The PIN state can follow the character list in the same socket message.
+	queueMicrotask(() => {
+		if (GameReconnect.attempt !== attempt || !_reconnectCharacter || !_reconnectPinReady || _reconnectSelectionSent) {
+			return;
+		}
+		_reconnectSelectionSent = true;
+		selectCharacter(_reconnectCharacter);
 	});
 }
 
@@ -195,6 +238,10 @@ function onConnectionAccepted(pkt) {
 	}
 
 	UIManager.getComponent('WinLoading').remove();
+	if (GameReconnect.attempt) {
+		findReconnectCharacter(pkt.charInfo);
+		return;
+	}
 
 	// Initialize window
 	CharSelect.onExitRequest = onExitRequest;
@@ -230,6 +277,9 @@ function onConnectionAccepted(pkt) {
  * @param {object} pkt - PACKET.HC.REFUSE_SELECTCHAR
  */
 function onSelectionRefused(pkt) {
+	if (GameReconnect.retry()) {
+		return;
+	}
 	let msg_id;
 
 	switch (pkt.ErrorCode) {
@@ -265,6 +315,9 @@ function onSelectionRefused(pkt) {
  * @param {object} pkt - PACKET.HC.REFUSE_ENTER
  */
 function onConnectionRefused(pkt) {
+	if (GameReconnect.retry()) {
+		return;
+	}
 	let msg_id;
 
 	switch (pkt.ErrorCode) {
@@ -294,6 +347,9 @@ function onConnectionRefused(pkt) {
  * @param {object} pkt - PACKET.HC.NOTIFY_ACCESSIBLE_MAPNAME
  */
 function onMapUnavailable(pkt) {
+	if (GameReconnect.retry()) {
+		return;
+	}
 	// no map server avaiable
 	UIManager.showMessageBox(
 		DB.getMessage(1811),
@@ -645,6 +701,18 @@ function onUserPincodeResetReq() {
 }
 
 function onPincodeCheckSuccess(pkt) {
+	const supportsPincode = PACKETVER.value >= 20110309;
+	_serverSendsPincode ||= supportsPincode;
+	if (supportsPincode && GameReconnect.attempt) {
+		const verified = pkt.State === 0 || (pkt.State === 7 && PACKETVER.value < 20180124);
+		_reconnectPinReady = verified;
+		if (verified) {
+			GameReconnect.continueAfterPin();
+			queueReconnectSelection();
+		} else {
+			GameReconnect.pauseForPin();
+		}
+	}
 	if (!PincodeWindow.__active && pkt.State == 0) {
 		console.log('Pincode is disabled.');
 		return;
@@ -786,10 +854,15 @@ function onConnectRequest(entity) {
 
 	CharSelect.remove();
 	UIManager.getComponent('WinLoading').append();
+	selectCharacter(entity);
+}
+
+function selectCharacter(entity) {
 	// The char-select list holds plain packet structures, build the player from it.
 	// Done here (instead of on char-list reception) so that characters delivered by
 	// any char-list packet, and freshly created ones, all end up with a Player.
-	Session.Entity = new Player(entity);
+	const sex = entity.sex === undefined || entity.sex === 99 ? Session.Sex : entity.sex;
+	Session.Entity = new Player({ ...entity, sex });
 	const pkt = new PACKET.CH.SELECT_CHAR();
 	pkt.CharNum = entity.CharNum;
 	Network.sendPacket(pkt);
@@ -814,6 +887,11 @@ function onCharListNotify(charListInfo) {
  * @param {object} pkt - PACKET.HC.NOTIFY_ZONESVR
  */
 function onReceiveMapInfo(pkt) {
+	const reconnect = GameReconnect.attempt;
+	if (reconnect && pkt.GID !== reconnect.characterId) {
+		GameReconnect.retry();
+		return;
+	}
 	// Once, from the packet: a retry may run after the game moved on to another socket
 	Network.expectClose();
 	Session.GID = pkt.GID;

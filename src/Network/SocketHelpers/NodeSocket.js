@@ -68,9 +68,9 @@ class Socket {
 	close() {
 		if (this.connected) {
 			this._socket.end();
-			this._socket.destroy();
-			this.connected = false;
 		}
+		this._socket.destroy();
+		this.connected = false;
 	}
 }
 export default Socket;

@@ -13,6 +13,7 @@ import DB from 'DB/DBManager.js';
 import Network from 'Network/NetworkManager.js';
 import MapRenderer from 'Renderer/MapRenderer.js';
 import Session from 'Engine/SessionStorage.js';
+import GameReconnect from 'Engine/GameReconnect.js';
 import MapEngine from 'Engine/MapEngine.js';
 import Player from 'Renderer/Entity/Player.js';
 import BasicInfo from 'UI/Components/BasicInfo/BasicInfo.js';
@@ -141,6 +142,8 @@ export default class ReplayPlayer {
 		this.lastTickTime = Date.now();
 
 		// Install mock socket
+		GameReconnect.reset();
+		Network.onDisconnect = null;
 		Network.setSocketFactory((host, port) => {
 			this.socket = new ReplaySocket(host, port);
 			return this.socket;

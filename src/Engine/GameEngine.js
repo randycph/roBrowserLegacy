@@ -19,6 +19,7 @@ import Client from 'Core/Client.js';
 import Thread from 'Core/Thread.js';
 import Context from 'Core/Context.js';
 import LoginEngine from 'Engine/LoginEngine.js';
+import GameReconnect from 'Engine/GameReconnect.js';
 import Network from 'Network/NetworkManager.js';
 import Renderer from 'Renderer/Renderer.js';
 import MapRenderer from 'Renderer/MapRenderer.js';
@@ -159,6 +160,8 @@ class GameEngine {
 	 * Reload the game
 	 */
 	static reload() {
+		GameReconnect.reset();
+		Network.onDisconnect = null;
 		BGM.setAvailableExtensions(Configs.get('BGMFileExtension', ['mp3']));
 		BGM.play('01.mp3');
 

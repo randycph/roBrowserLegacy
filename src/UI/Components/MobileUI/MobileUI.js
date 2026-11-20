@@ -1579,6 +1579,23 @@ function suspendCombatAssist() {
 	}
 }
 
+MobileUI.captureCombatAssist = function captureCombatAssist() {
+	return suspendedCombatAssist.get(Session.Entity) ?? {
+		autoAttack: autoAttackTimer !== null,
+		autoTarget: Boolean(Session.AutoTargeting)
+	};
+};
+
+MobileUI.restoreCombatAssist = function restoreCombatAssist(assist) {
+	if (!Session.Entity || (!assist.autoAttack && !assist.autoTarget)) {
+		return;
+	}
+	suspendedCombatAssist.set(Session.Entity, assist);
+	if (this._host?.hasAttribute('data-utility-dock')) {
+		resumeCombatAssist();
+	}
+};
+
 function resumeCombatAssist() {
 	const player = Session.Entity;
 	const assist = suspendedCombatAssist.get(player);

@@ -15,6 +15,7 @@ import SoundManager from 'Audio/SoundManager.js';
 import BGM from 'Audio/BGM.js';
 import Events from 'Core/Events.js';
 import Session from 'Engine/SessionStorage.js';
+import GameReconnect from 'Engine/GameReconnect.js';
 import Network from 'Network/NetworkManager.js';
 import PACKETVER from 'Network/PacketVerManager.js';
 import PACKET from 'Network/PacketStructure.js';
@@ -173,8 +174,15 @@ class MapEngine {
 
 				// Fail to connect...
 				if (!success) {
-					UIManager.showErrorBox(DB.getMessage(1));
+					if (GameReconnect.available) {
+						onMapDisconnected();
+					} else {
+						UIManager.showErrorBox(DB.getMessage(1));
+					}
 					return;
+				}
+				if (GameReconnect.available) {
+					Network.onDisconnect = onMapDisconnected;
 				}
 
 				// Success, try to login.
@@ -218,7 +226,20 @@ class MapEngine {
 					ping = new PACKET.CZ.REQUEST_TIME();
 				}
 				const startTick = Date.now();
+				let receivedMessages = Network.receivedMessages;
+				let unansweredPings = 0;
+				SP.pingTime = 0;
 				Network.setPing(() => {
+					if (!SP.returned && SP.pingTime && receivedMessages === Network.receivedMessages) {
+						unansweredPings++;
+					} else {
+						unansweredPings = 0;
+					}
+					receivedMessages = Network.receivedMessages;
+					if (unansweredPings >= 3 && GameReconnect.available) {
+						onMapDisconnected();
+						return;
+					}
 					if (is_sec_hbt) {
 						Network.sendPacket(hbt);
 					}
@@ -558,6 +579,9 @@ function onReceiveAccountID(pkt) {
  * @param {object} pkt - PACKET.ZC.ACCEPT_ENTER
  */
 function onConnectionAccepted(pkt) {
+	if (GameReconnect.attempt) {
+		GameReconnect.mapAccepted(onMapDisconnected);
+	}
 	Session.Entity.onWalkEnd = onWalkEnd;
 
 	if ('sex' in pkt && pkt.sex < 2) {
@@ -619,6 +643,10 @@ function onConnectionAccepted(pkt) {
  * @param {object} pkt - PACKET.ZC.REFUSE_ENTER
  */
 function onConnectionRefused(pkt) {
+	if (GameReconnect.retry()) {
+		Session.Playing = false;
+		return;
+	}
 	UIManager.showErrorBox(DB.getMessage(9)); // MSI_ACCESS_DENIED = Rejected from Server.
 }
 
@@ -630,7 +658,7 @@ function onConnectionRefused(pkt) {
 function onMapChange(pkt) {
 	CheckAttendance.mapLoading();
 	AutoCombat.mapLoading(pkt.mapName);
-	MapRenderer.onVisible = () => CheckAttendance.mapReady();
+	MapRenderer.onVisible = onMapVisible;
 	MapRenderer.onLoad = () => {
 		Session.Entity.set({
 			PosDir: [pkt.xPos, pkt.yPos, 0],
@@ -789,6 +817,54 @@ function onMapChange(pkt) {
 	MapRenderer.setMap(pkt.mapName);
 }
 
+function onMapVisible() {
+	CheckAttendance.mapReady();
+	const combat = GameReconnect.mapReady(Session.AID, Session.ServerName, Session.GID);
+	if (GameReconnect.available) {
+		Network.onDisconnect = onMapDisconnected;
+	}
+	if (combat) {
+		MobileUI.restoreCombatAssist(combat.mobile);
+		AutoCombat.restoreAfterReconnect(combat.desktop);
+	}
+}
+
+function onMapDisconnected() {
+	if (_exitTimer !== null) {
+		onExitSuccess();
+		return;
+	}
+	if (_exiting) {
+		return;
+	}
+
+	const combat = {
+		mobile: MobileUI.captureCombatAssist(),
+		desktop: AutoCombat.captureForReconnect()
+	};
+	Session.Playing = false;
+	onRequestStopWalk();
+	Session.moveAction = null;
+	Mouse.intersect = false;
+	Network.close();
+	Renderer.stop();
+	MapRenderer.cancelLoad();
+	AutoCombat.stop();
+	GuildEngine.guild_id = 0;
+	Session.Achievement = null;
+	Session.requestCashShop = true;
+	cleanGameUI();
+	UIManager.removeComponents();
+	MapRenderer.free();
+	SoundManager.stop();
+	BGM.play('01.mp3');
+	Session.Entity = null;
+
+	if (!GameReconnect.retry()) {
+		GameReconnect.disconnected(combat);
+	}
+}
+
 /**
  * Change zone server
  *
@@ -888,6 +964,8 @@ function onExitSuccess() {
 		return;
 	}
 	_exiting = true;
+	GameReconnect.reset();
+	Network.onDisconnect = null;
 
 	if (_exitTimer !== null) {
 		Events.clearTimeout(_exitTimer);
@@ -1354,6 +1432,8 @@ function onConfigUpdate(type, val) {
  * Go back from map-server to char-server
  */
 function onRestart() {
+	GameReconnect.forgetCharacter();
+	Network.onDisconnect = null;
 	// The map stays drawn under the fade and goes once the screen is black
 	import('Engine/CharEngine.js').then(m =>
 		m.default.reload(() => {

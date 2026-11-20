@@ -73,7 +73,7 @@ Socket.prototype.send = function Send(buffer) {
  * Closing connection to server
  */
 Socket.prototype.close = function Close() {
-	if (this.connected) {
+	if (this.ws.readyState === WebSocket.CONNECTING || this.ws.readyState === WebSocket.OPEN) {
 		this.ws.close();
 		this.connected = false;
 	}

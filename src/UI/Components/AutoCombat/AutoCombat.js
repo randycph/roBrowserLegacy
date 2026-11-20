@@ -64,6 +64,22 @@ function useItem(id) { const item = selectedItem(id); if (!item || item.count <=
 function syncButtons() { if (!AutoCombat._host) return; root().querySelector('.start').disabled = running; root().querySelector('.stop').disabled = !running; }
 function stop(message = 'Stopped') { transitioning = false; awaitingFly = false; running = false; clearInterval(timer); timer = null; Session.moveAction = null; targetProgress = null; blockedTargets.clear(); buffAttempts.clear(); lastBuffCast = 0; syncButtons(); state(message); }
 function healthPercent(life, name) { const current = life?.[name], max = life?.[name + '_max']; return max > 0 && current >= 0 ? 100 * current / max : null; }
+function normalizeMap(map) {
+ return String(map || '').replace(/\.(?:gat|rsw)$/i, '').toLowerCase();
+}
+
+function startCombat() {
+ stop();
+ lastFly = 0;
+ origin = { x: Math.round(Session.Entity.position[0]), y: Math.round(Session.Entity.position[1]) };
+ running = true;
+ lastAttack = lastSkill = lastPotion = lastTarget = skillIndex = lastRoam = 0;
+ syncButtons();
+ state('Running');
+ timer = setInterval(tick, 500);
+ tick();
+}
+
 function tick() {
  if (!running || !mapReady || !Session.Playing || !Session.Entity) return;
  const player = Session.Entity, hp = healthPercent(player.life, 'hp'), sp = healthPercent(player.life, 'sp'), now = Date.now();
@@ -208,7 +224,8 @@ AutoCombat.init = function init() {
   if (settings.skill && settings.skillIds.some(id => { const skill = SkillList.getSkillById(id); return !skill || !skill.level || !(skill.type & 1); })) { state('Selected skill is unavailable'); return; }
   if (settings.fly && !selectedItem(601)) { state('Fly Wings are not in your inventory'); return; }
   if (!mapReady || !Session.Playing) { state('Wait until the map has loaded'); return; }
-  savePreferences(); stop(); lastFly = 0; origin = { x: Math.round(Session.Entity.position[0]), y: Math.round(Session.Entity.position[1]) }; running = true; lastAttack = lastSkill = lastPotion = lastTarget = skillIndex = lastRoam = 0; syncButtons(); state('Running'); timer = setInterval(tick, 500); tick();
+  savePreferences();
+  startCombat();
  });
  updateOptions(); syncButtons();
 };
@@ -217,8 +234,7 @@ AutoCombat.toggle = function toggle() { if (this._host.style.display === 'none')
 AutoCombat.stop = function () { stop(); };
 AutoCombat.mapLoading = function (nextMap) {
  mapReady = false; lastTarget = 0;
- const normalize = map => String(map || '').replace(/\.(?:gat|rsw)$/i, '').toLowerCase();
- transitioning = running && normalize(nextMap) && normalize(nextMap) === normalize(MapRenderer.currentMap);
+ transitioning = running && normalizeMap(nextMap) && normalizeMap(nextMap) === normalizeMap(MapRenderer.currentMap);
  if (running && !transitioning) stop('Stopped: map changed');
  else if (transitioning) { Session.moveAction = null; state('Waiting for teleport'); }
 };
@@ -231,4 +247,20 @@ AutoCombat.mapReady = function () {
  transitioning = false;
 };
 AutoCombat.onRemove = function () { mapReady = false; if (!transitioning) stop(); };
+
+AutoCombat.captureForReconnect = function captureForReconnect() {
+ if (!running) {
+  return null;
+ }
+ return { map: normalizeMap(MapRenderer.currentMap), settings };
+};
+
+AutoCombat.restoreAfterReconnect = function restoreAfterReconnect(combat) {
+ if (!combat || !mapReady || !Session.Playing || combat.map !== normalizeMap(MapRenderer.currentMap)) {
+  return;
+ }
+ settings = combat.settings;
+ startCombat();
+};
+
 export default UIManager.addComponent(AutoCombat);

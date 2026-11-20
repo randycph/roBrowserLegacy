@@ -17,6 +17,7 @@ import Sound from 'Audio/SoundManager.js';
 import Configs from 'Core/Configs.js';
 import Thread from 'Core/Thread.js';
 import Session from 'Engine/SessionStorage.js';
+import GameReconnect from 'Engine/GameReconnect.js';
 import CharEngine from 'Engine/CharEngine.js';
 import Network from 'Network/NetworkManager.js';
 import PACKETVER from 'Network/PacketVerManager.js';
@@ -61,6 +62,7 @@ let _charServers = [];
  * @var {string} Stored username to send as ping
  */
 let _loginID = '';
+let _loginRequest = null;
 
 class LoginEngine {
 	/**
@@ -68,6 +70,8 @@ class LoginEngine {
 	 */
 	static init(server) {
 		const q = new Queue();
+		GameReconnect.reset();
+		_loginRequest = null;
 
 		Configs.setServer(server);
 		UIManager.removeComponents();
@@ -148,17 +152,7 @@ class LoginEngine {
 		WinLogin.onExitRequest = onExitRequest;
 
 		// Handle unexpected disconnects during login phase
-		Network.onDisconnect = () => {
-			UIManager.showMessageBox(
-				DB.getMessage(1),
-				'ok',
-				() => {
-					UIManager.removeComponents();
-					WinLogin.append();
-				},
-				true
-			);
-		};
+		Network.onDisconnect = onLoginDisconnect;
 
 		// Autologin features
 		if (autoLogin instanceof Array && autoLogin[0] && autoLogin[1]) {
@@ -201,13 +195,20 @@ class LoginEngine {
 	 * Reload WinLogin
 	 */
 	static reload() {
+		GameReconnect.reset();
+		_loginRequest = null;
+		Network.close();
+		Network.onDisconnect = onLoginDisconnect;
 		UIManager.removeComponents();
+		Background.setLoginBackground();
 		WinLogin.onConnectionRequest = onConnectionRequest;
 		WinLogin.onExitRequest = onExitRequest;
 		WinLogin.append();
-
-		Network.close();
 	}
+}
+
+function onLoginDisconnect() {
+	UIManager.showMessageBox(DB.getMessage(1), 'ok', () => LoginEngine.reload(), true);
 }
 
 /**
@@ -216,29 +217,26 @@ class LoginEngine {
  * @param {string} username
  * @param {string} password
  */
-function onConnectionRequest(username, password) {
-	// Play "¹öÆ°¼Ò¸®.wav" (possible problem with charset)
-	Sound.play('\xB9\xF6\xC6\xB0\xBC\xD2\xB8\xAE.wav');
-
-	// Add the loading screen
-	// Store the ID to use for the ping
-	WinLogin.remove();
-	WinLoading.append();
+function onConnectionRequest(username, password, reconnect = null) {
+	const request = {};
+	_loginRequest = request;
+	if (!reconnect) {
+		// Keep the login callback in memory for this tab's active session only.
+		GameReconnect.rememberLogin(attempt => onConnectionRequest(username, password, attempt), () => LoginEngine.reload());
+		Network.onDisconnect = onLoginDisconnect;
+		Sound.play('\xB9\xF6\xC6\xB0\xBC\xD2\xB8\xAE.wav');
+		WinLogin.remove();
+		WinLoading.append();
+	}
 	_loginID = username;
 
 	// Try to connect
 	Network.connect(_server.address, _server.port, success => {
 		// Fail to connect...
 		if (!success) {
-			UIManager.showMessageBox(
-				DB.getMessage(1),
-				'ok',
-				() => {
-					UIManager.removeComponents();
-					WinLogin.append();
-				},
-				true
-			);
+			if (!GameReconnect.retry()) {
+				onLoginDisconnect();
+			}
 			return;
 		}
 
@@ -277,6 +275,10 @@ function onConnectionRequest(username, password) {
 		}
 
 		function sendLogin() {
+			if (_loginRequest !== request || (reconnect && GameReconnect.attempt !== reconnect)) {
+				return;
+			}
+
 			if (hash) {
 				// Convert hexadecimal hash to binary
 				if (/^[a-f0-9]+$/i.test(hash)) {
@@ -293,7 +295,7 @@ function onConnectionRequest(username, password) {
 
 				pkt = new PACKET.CA.EXE_HASHCHECK();
 				pkt.HashValue = hash;
-				Network.sendPacket(pkt);
+				Network.sendPacket(pkt, { sensitive: true });
 			}
 
 			if (Configs.get('loginMode') == 'han') {
@@ -311,6 +313,7 @@ function onConnectionRequest(username, password) {
 				);
 
 				if (!encryptedPassword) {
+					GameReconnect.reset();
 					UIManager.showErrorBox('Rijndael encryption failed. Check rijndaelKey and rijndaelChain config.');
 					return;
 				}
@@ -323,7 +326,7 @@ function onConnectionRequest(username, password) {
 				pkt.m_szIP = '192.168.0.1'; // dummy
 				pkt.m_szMacAddr = '00:1A:2B:3C:4D:5E'; // dummy
 				pkt.isHanGameUser = 0;
-				Network.sendPacket(pkt);
+				Network.sendPacket(pkt, { sensitive: true });
 			} else {
 				// Try to connect
 				pkt = new PACKET.CA.LOGIN();
@@ -331,7 +334,7 @@ function onConnectionRequest(username, password) {
 				pkt.Passwd = password;
 				pkt.Version = parseInt(_server.version, 10);
 				pkt.clienttype = parseInt(_server.langtype, 10);
-				Network.sendPacket(pkt);
+				Network.sendPacket(pkt, { sensitive: true });
 			}
 		}
 	});
@@ -341,6 +344,8 @@ function onConnectionRequest(username, password) {
  * Go back to intro window
  */
 function onExitRequest() {
+	GameReconnect.reset();
+	_loginRequest = null;
 	import('Engine/GameEngine.js').then(GameEngine => {
 		GameEngine.default.reload();
 	});
@@ -359,6 +364,7 @@ function onCharServerSelected(index) {
 	WinLoading.append();
 
 	Session.ServerName = _charServers[index].name; // Save server name
+	Network.expectClose();
 	Network.onDisconnect = null; // Let CharEngine handle its own disconnects
 	CharEngine.init(_charServers[index]);
 }
@@ -369,7 +375,10 @@ function onCharServerSelected(index) {
  * @param {object} pkt - PACKET.AC.ACCEPT_LOGIN
  */
 function onConnectionAccepted(pkt) {
-	UIManager.removeComponents();
+	const reconnect = GameReconnect.attempt;
+	if (!reconnect) {
+		UIManager.removeComponents();
+	}
 
 	Session.AuthCode = pkt.AuthCode;
 	Session.AID = pkt.AID;
@@ -381,6 +390,19 @@ function onConnectionAccepted(pkt) {
 	}
 
 	_charServers = pkt.ServerList;
+	if (reconnect) {
+		const server = _charServers.find(entry => entry.name === reconnect.serverName);
+		if (!server || pkt.AID !== reconnect.accountId) {
+			GameReconnect.retry();
+			return;
+		}
+
+		Session.ServerName = server.name;
+		Network.expectClose();
+		CharEngine.init(server);
+		loadWebShortcuts();
+		return;
+	}
 
 	// Build list of servers
 	let i;
@@ -398,6 +420,7 @@ function onConnectionAccepted(pkt) {
 	if (count === 1 && Configs.get('skipServerList')) {
 		WinLoading.append();
 		Session.ServerName = _charServers[0].name; // Save server name
+		Network.expectClose();
 		Network.onDisconnect = null; // Let CharEngine handle its own disconnects
 		CharEngine.init(_charServers[0]);
 	}
@@ -407,6 +430,8 @@ function onConnectionAccepted(pkt) {
 		// Show window
 		WinList.onIndexSelected = onCharServerSelected;
 		WinList.onExitRequest = () => {
+			GameReconnect.reset();
+			_loginRequest = null;
 			Network.close();
 			WinList.remove();
 			WinLogin.append();
@@ -422,6 +447,10 @@ function onConnectionAccepted(pkt) {
 		Network.sendPacket(ping);
 	});
 
+	loadWebShortcuts();
+}
+
+function loadWebShortcuts() {
 	if (PACKETVER.value >= 20170315 && Session.WebToken) {
 		import('UI/Components/ShortCut/ShortCut.js').then(ShortCut => {
 			ShortCut.default.loadFromServer();
@@ -435,6 +464,7 @@ function onConnectionAccepted(pkt) {
  * @param {object} pkt - PACKET.AC.LOGIN_TAREN_REFUSE
  */
 function onTarenConnectionRefused(pkt) {
+	GameReconnect.reset();
 	let msg_id;
 
 	switch (pkt.ErrorCode) {
@@ -486,6 +516,7 @@ function onTarenConnectionRefused(pkt) {
  * @param {object} pkt - PACKET.AC.LOGIN_TAREN_REFUSE2
  */
 function onTarenConnectionRefused2(pkt) {
+	GameReconnect.reset();
 	let msg_id;
 
 	switch (pkt.ErrorCode) {
@@ -543,6 +574,7 @@ function onTarenConnectionRefused2(pkt) {
  * @param {object} pkt - PACKET.AC.REFUSE_LOGIN_USA
  */
 function onInternationalConnectionRefused(pkt) {
+	GameReconnect.reset();
 	let msg_id;
 	switch (pkt.ErrorCode) {
 		default:
@@ -612,6 +644,10 @@ function onInternationalConnectionRefused(pkt) {
  * @param {object} pkt - PACKET.AC.REFUSE_LOGIN
  */
 function onConnectionRefused(pkt) {
+	if ((pkt.ErrorCode === 4 || pkt.ErrorCode === 7) && GameReconnect.retry()) {
+		return;
+	}
+	GameReconnect.reset();
 	let error = 9;
 	switch (pkt.ErrorCode) {
 		case 0:
@@ -822,6 +858,14 @@ function onConnectionRefused(pkt) {
  * @param {object} pkt - PACKET.SC.NOTIFY_BAN
  */
 function onServerClosed(pkt) {
+	// rAthena can still be clearing the original session after a connection loss.
+	if (pkt.ErrorCode === 8 && GameReconnect.retry()) {
+		return;
+	}
+	GameReconnect.reset();
+	_loginRequest = null;
+	Network.onDisconnect = onLoginDisconnect;
+	Session.Playing = false;
 	let msg_id;
 
 	switch (pkt.ErrorCode) {
@@ -926,9 +970,7 @@ function onServerClosed(pkt) {
 			MapRenderer.cancelLoad();
 			MapRenderer.free();
 			BGM.play('01.mp3');
-			UIManager.removeComponents();
-			Background.setLoginBackground();
-			WinLogin.append();
+			LoginEngine.reload();
 		},
 		true
 	);

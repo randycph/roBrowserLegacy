@@ -54,6 +54,8 @@ function defaultSocketFactory(host, port) {
  * @type {Socket}
  */
 let _socket = null;
+let _pendingSocket = null;
+let _receivedMessages = 0;
 
 /**
  * Pre-allocated pool and ring queue for packet logging.
@@ -219,11 +221,24 @@ Packets.list = [];
  * @param {boolean} is zone server ?
  */
 function connect(host, port, callback, isZone) {
+	if (_pendingSocket) {
+		const previous = _pendingSocket;
+		_pendingSocket = null;
+		previous.close();
+	}
 	const socket = _socketFactory ? _socketFactory(host, port) : defaultSocketFactory(host, port);
+	_pendingSocket = socket;
 
 	socket.isZone = !!isZone;
 	socket.onClose = onClose;
 	socket.onComplete = function onComplete(success) {
+		if (_pendingSocket !== socket) {
+			if (success && _socket !== socket) {
+				socket.close();
+			}
+			return;
+		}
+		_pendingSocket = null;
 		let msg = 'Fail';
 		let color = 'red';
 
@@ -237,7 +252,13 @@ function connect(host, port, callback, isZone) {
 			}
 			_ring_head = 0;
 			_ring_tail = 0;
-			socket.onMessage = receive;
+			read.callback = null;
+			socket.onMessage = data => {
+				if (_socket === socket) {
+					_receivedMessages++;
+					receive(data);
+				}
+			};
 			_sockets.push((_socket = socket));
 
 			// Map server encryption
@@ -254,11 +275,12 @@ function connect(host, port, callback, isZone) {
  * Send a packet to the server
  *
  * @param Packet
+ * @param {object} [options]
  */
-function sendPacket(Packet) {
+function sendPacket(Packet, { sensitive = false } = {}) {
 	const pkt = Packet.build();
 
-	if (packetDump) {
+	if (packetDump && !sensitive) {
 		const fp = new BinaryReader(pkt.buffer);
 		const id = fp.readUShort();
 		console.log(
@@ -272,7 +294,7 @@ function sendPacket(Packet) {
 		);
 	}
 
-	console.log('%c[Network] Send:', 'color:#007070', Packet);
+	console.log('%c[Network] Send:', 'color:#007070', sensitive ? Packet.constructor.name : Packet);
 
 	// Encrypt packet
 	if (_socket && _socket.isZone) {
@@ -579,27 +601,38 @@ function receive(buf) {
  */
 function onClose() {
 	const idx = _sockets.indexOf(this);
-
-	if (this === _socket) {
-		if (_socket.ping) {
-			clearInterval(_socket.ping);
-		}
-
-		if (!this.closeExpected) {
-			console.warn('[Network] Disconnect from server');
-
-			if (_onDisconnect) {
-				_onDisconnect();
-			} else {
-				import('UI/UIManager.js').then(UIManager => {
-					UIManager.default.showErrorBox('Disconnected from Server.');
-				});
-			}
-		}
-	}
-
 	if (idx !== -1) {
 		_sockets.splice(idx, 1);
+	}
+
+	if (this === _pendingSocket) {
+		this.onComplete(false);
+		return;
+	}
+
+	if (this !== _socket) {
+		return;
+	}
+	_socket = null;
+	clearInterval(this.ping);
+	if (this.isZone) {
+		PacketCrypt.reset();
+	}
+	read.callback = null;
+	_ring_head = 0;
+	_ring_tail = 0;
+
+	if (this.closeExpected) {
+		return;
+	}
+	console.warn('[Network] Disconnect from server');
+
+	if (_onDisconnect) {
+		_onDisconnect();
+	} else {
+		import('UI/UIManager.js').then(UIManager => {
+			UIManager.default.showErrorBox('Disconnected from Server.');
+		});
 	}
 }
 
@@ -618,28 +651,21 @@ function expectClose() {
  * Is this needed ?
  */
 function close() {
-	let idx;
-
-	if (_socket) {
-		const s = _socket;
-		_socket = null;
-
-		s.close();
-
-		if (s.isZone) {
-			PacketCrypt.reset();
-		}
-
-		if (s.ping) {
-			clearInterval(s.ping);
-		}
-
-		idx = _sockets.indexOf(s);
-		if (idx !== -1) {
-			_sockets.splice(idx, 1);
-		}
-		_ring_head = 0;
-		_ring_tail = 0;
+	const sockets = _sockets.splice(0);
+	if (_pendingSocket) {
+		sockets.push(_pendingSocket);
+	}
+	if (_socket?.isZone) {
+		PacketCrypt.reset();
+	}
+	_socket = null;
+	_pendingSocket = null;
+	read.callback = null;
+	_ring_head = 0;
+	_ring_tail = 0;
+	for (const socket of sockets) {
+		clearInterval(socket.ping);
+		socket.close();
 	}
 }
 
@@ -656,10 +682,8 @@ function setPing(callback) {
 		_socket.ping = setInterval(callback, 10000);
 
 		while (_sockets.length > 1) {
-			if (_socket !== _sockets[0]) {
-				_sockets[0].close();
-				_sockets.splice(0, 1);
-			}
+			const previous = _sockets.shift();
+			previous.close();
 		}
 	}
 }
@@ -731,6 +755,9 @@ const Network = (function network() {
 		close: close,
 		expectClose: expectClose,
 		read: read,
+		get receivedMessages() {
+			return _receivedMessages;
+		},
 		set onDisconnect(callback) {
 			_onDisconnect = callback;
 		},
