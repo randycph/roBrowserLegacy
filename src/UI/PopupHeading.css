@@ -17,10 +17,10 @@
 .popup-heading .popup-title {
 	min-width: 0;
 	margin: 0;
-	color: #fff;
+	color: #253b5d;
 	font: 800 clamp(20px, min(2.8vw, 7.5cqi), 39px) / 1.08 Arial, sans-serif;
 	letter-spacing: -.045em;
-	text-shadow: -2px 0 #334ba8, 2px 0 #334ba8, 0 -2px #334ba8, 0 3px #334ba8;
+	/* text-shadow: -2px 0 #334ba8, 2px 0 #334ba8, 0 -2px #334ba8, 0 3px #334ba8; */
 }
 
 .popup-heading .header-icon {
